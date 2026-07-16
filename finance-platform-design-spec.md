@@ -85,7 +85,7 @@ Three fixed layers wrap every module. An app only ever supplies the content regi
 </div>
 
 <main style="max-width:1680px; margin:0 auto;
-      padding:clamp(22px,3vw,40px) clamp(16px,3vw,32px);">
+      padding:clamp(16px,3vw,32px) clamp(16px,3vw,32px);">
   … APP CONTENT GOES HERE …
 </main>
 ```
@@ -95,12 +95,14 @@ Three fixed layers wrap every module. An app only ever supplies the content regi
 ## 04 · The Blueprint Frame — The Signature
 
 ```html
-<div class="blueprint" style="padding:20px">
+<div class="blueprint">
   <i class="corner tl"></i><i class="corner tr"></i>
   <i class="corner bl"></i><i class="corner br"></i>
   … content …
 </div>
 ```
+
+No inline padding needed — `.blueprint` already carries a sensible default. Add `style="padding:..."` only to override it for a specific tile.
 
 The `.blueprint` class draws the square hairline border; the four `<i class="corner">` children draw the registration marks. Default inner padding is `--space-4` (13.6px), and default spacing below each panel is also `--space-4` — override either with inline styles on tiles that need more room or tighter stacking. **Never drop a corner.** Use it on tiles, KPI cards, chart panels, filter asides and table wrappers.
 
