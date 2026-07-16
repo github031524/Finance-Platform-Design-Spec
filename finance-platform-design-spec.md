@@ -46,7 +46,7 @@ One typeface carries all text and numbers; both `--font-heading` and `--font-bod
 |---|---|
 | Page / app title | 34–40px |
 | Section head | 15–16px, uppercase |
-| KPI figure | 27px |
+| KPI figure | 18px (was 27px — dropped after real KPI rows read as bulky; override up for a single hero figure) |
 | Body | 13–15px |
 | Label | 10.5px, uppercase, 0.13em tracking |
 | Micro | 9–10px |
@@ -59,6 +59,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 - Radius is `0` everywhere (square)
 - Content column max-width: `1680px` — raised from an earlier 1320px once real apps showed too much empty margin on normal-width monitors. Not full-bleed: unbounded width stretches table columns apart rather than adding useful density.
 - Gutter: `clamp(16px, 3vw, 32px)`
+- Content top/bottom padding: `clamp(16px, 3vw, 32px)` (tightened from `clamp(22px, 3vw, 40px)`)
 - Card / tile grid gap: `clamp(12px, 1.5vw, 20px)`
 - Table cell padding: `5px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
 
@@ -101,7 +102,9 @@ Three fixed layers wrap every module. An app only ever supplies the content regi
 </div>
 ```
 
-The `.blueprint` class draws the square hairline border; the four `<i class="corner">` children draw the registration marks. Default inner padding is `--space-4` (13.6px) — deliberately tight, override with inline padding on tiles that need more room. **Never drop a corner.** Use it on tiles, KPI cards, chart panels, filter asides and table wrappers.
+The `.blueprint` class draws the square hairline border; the four `<i class="corner">` children draw the registration marks. Default inner padding is `--space-4` (13.6px), and default spacing below each panel is also `--space-4` — override either with inline styles on tiles that need more room or tighter stacking. **Never drop a corner.** Use it on tiles, KPI cards, chart panels, filter asides and table wrappers.
+
+Section labels (`.label`) carry a default `--space-2` (6.8px) bottom margin — tight by design, so a stack of KPI tiles doesn't read as padded.
 
 ---
 
