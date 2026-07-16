@@ -57,7 +57,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 
 - Space tokens `--space-1` … `--space-8` (3.4 → 27px, a 0.85× scale)
 - Radius is `0` everywhere (square)
-- Content column max-width: `1320px`
+- Content column max-width: `1680px` — raised from an earlier 1320px once real apps showed too much empty margin on normal-width monitors. Not full-bleed: unbounded width stretches table columns apart rather than adding useful density.
 - Gutter: `clamp(16px, 3vw, 32px)`
 - Card / tile grid gap: `clamp(12px, 1.5vw, 20px)`
 - Table cell padding: `5px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
@@ -83,7 +83,7 @@ Three fixed layers wrap every module. An app only ever supplies the content regi
   Workspace / [App name] [status tag]
 </div>
 
-<main style="max-width:1320px; margin:0 auto;
+<main style="max-width:1680px; margin:0 auto;
       padding:clamp(22px,3vw,40px) clamp(16px,3vw,32px);">
   … APP CONTENT GOES HERE …
 </main>
@@ -101,7 +101,7 @@ Three fixed layers wrap every module. An app only ever supplies the content regi
 </div>
 ```
 
-The `.blueprint` class draws the square hairline border; the four `<i class="corner">` children draw the registration marks. **Never drop a corner.** Use it on tiles, KPI cards, chart panels, filter asides and table wrappers.
+The `.blueprint` class draws the square hairline border; the four `<i class="corner">` children draw the registration marks. Default inner padding is `--space-4` (13.6px) — deliberately tight, override with inline padding on tiles that need more room. **Never drop a corner.** Use it on tiles, KPI cards, chart panels, filter asides and table wrappers.
 
 ---
 

@@ -78,7 +78,7 @@
 
   /* Layout */
   --radius: 0;
-  --content-max: 1320px;
+  --content-max: 1680px;
   --gutter: clamp(16px, 3vw, 32px);
   --grid-gap: clamp(12px, 1.5vw, 20px);
   --topbar-h: 62px;
@@ -266,6 +266,7 @@ p:last-child { margin-bottom: 0; }
   position: relative;
   border: var(--hairline);
   background: transparent;
+  padding: var(--space-4);
 }
 
 .blueprint .corner {
