@@ -72,6 +72,10 @@
   --space-7: 23.8px;
   --space-8: 27.2px;
 
+  /* Table density — compact by default across the platform */
+  --table-cell-py: 5px;
+  --table-cell-px: 10px;
+
   /* Layout */
   --radius: 0;
   --content-max: 1320px;
@@ -408,7 +412,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .table th {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--table-cell-py) var(--table-cell-px);
   border-bottom: var(--hairline);
   font-family: var(--font-heading);
   font-weight: 600;
@@ -421,7 +425,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .table td {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--table-cell-py) var(--table-cell-px);
   border-bottom: var(--hairline);
   font-weight: 400;
 }
