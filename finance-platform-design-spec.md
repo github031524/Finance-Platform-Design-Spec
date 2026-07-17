@@ -73,7 +73,7 @@ Three fixed layers wrap every module. An app only ever supplies the content regi
 `NC FUTURES ▦ · Modules ▾ · Search any ticker… ◌ · NC`
 
 **B · App context bar** — breadcrumb + status, surface fill.
-`Workspace / Module name` · `Shared login · unified data`
+`Workspace / Module name` · `[status tag]`
 
 **C · Content region** — the only part an app owns.
 
@@ -89,6 +89,12 @@ Three fixed layers wrap every module. An app only ever supplies the content regi
   … APP CONTENT GOES HERE …
 </main>
 ```
+
+### Architecture
+
+There is no shared console, no iframing, and no micro-frontend layer. Every app is a **fully standalone deploy** — it copies `styles.css` into its own repo and reproduces the three shell layers above locally, rather than mounting inside a parent shell. "Every app inherits the same chrome" means every app's markup matches, not that they run inside one host application.
+
+There is no shared auth or shared data layer, implemented or implied. The `[status tag]` in the context bar is just mockup copy for whatever a given app wants to show there (e.g. a data-freshness or connection indicator) — not a real login or session requirement. Each app holds its own env-var API key and manages its own data independently.
 
 ---
 
@@ -144,6 +150,8 @@ $92.8B
 
 ## 06 · Layout Recipe Per App Type
 
+Pick a recipe by **interaction pattern**, not by subject matter. A page that lists tickers isn't automatically Tracker — Tracker is specifically for date/calendar-grid data. A sortable watchlist or discovery table is Screener or List/Builder. If a page genuinely matches none of the five below, define a new named recipe rather than forcing the nearest one — that's how Upload/Analyze below got added.
+
 **Dashboard / detail** *(e.g. Stock Dashboard)*
 Title + price/status row → tabs → KPI tile row → chart panel + profile aside (2.1 : 1).
 
@@ -156,9 +164,14 @@ Week columns of blueprint day-cells (today tinted `accent-100`) → "already rep
 **List / builder** *(e.g. Indexer)*
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
 
+**Upload / analyze** *(e.g. Options Position Analyzer)*
+Title + status row → dropzone (blueprint, collapses to a slim "add another" bar once data is loaded) → KPI tile row → full-width chart panel → results table below. For tools where the input is a file/screenshot rather than a filter or ticker search.
+
 ---
 
 ## 07 · Converting an Existing App
+
+Converting means full replacement, not coexistence. Adopting this spec retires any prior theme, palette, or component library entirely — there is no compatibility mode that keeps old branding alongside the blueprint system. If that's a real concern for a given app (existing users expect the old look, etc.), raise it before starting; it's not something to solve mid-conversion.
 
 1. Link `styles.css`; wrap the app in the global top bar + context bar.
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
