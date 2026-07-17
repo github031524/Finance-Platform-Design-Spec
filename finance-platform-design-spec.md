@@ -9,12 +9,12 @@
 ## 01 · The Five Rules
 
 1. **Blueprint frames** — Every card, tile, panel and figure is a square, hairline-bordered line drawing with `+` corner marks. No rounded corners, no filled surfaces, no drop shadows as decoration.
-2. **One color** — Steel blue is the only accent. Gains use the deep accent step; losses use the one muted terracotta. Nothing else is colored.
+2. **One color, plus one named exception** — Steel blue is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#2e8b57` / `#c0392b`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
 3. **One typeface: Inter** — Inter for everything, all text and all numbers, no exceptions. Headings and figures use 600 weight uppercase; body is 400/500. Numbers are tabular.
 4. **Visible grid** — Equal cells, hairline dividers, strong horizontal and vertical rhythm. Structure is drawn, not implied by whitespace alone.
 5. **Data first** — No marketing copy inside the tool. Labels are short and uppercase; the numbers are the loudest thing on screen.
 
-**The one exception:** the primary button is the single solid object — an accent fill that still keeps square corners and corner marks.
+**The two exceptions:** the primary button is the single solid object — an accent fill that still keeps square corners and corner marks. Gain/loss color (see rule 2) is the other — a deliberate, permanent break from the one-color system, not a per-app choice.
 
 ---
 
@@ -28,8 +28,8 @@
 | `surface` | `#e9e9ea` |
 | `text` | `#1d1f20` |
 | `accent` | `#5980a6` |
-| `gain` | `accent-700` |
-| `loss` | `#a6595e` |
+| `gain` | `#2e8b57` |
+| `loss` | `#c0392b` |
 
 **Accent ramp:** `--color-accent-100` … `--color-accent-900`. Light steps for tinted fills and hovers; 500 is base; 700–900 for text on tint and pressed states.
 
@@ -173,13 +173,19 @@ Title + status row → dropzone (blueprint, collapses to a slim "add another" ba
 
 Converting means full replacement, not coexistence. Adopting this spec retires any prior theme, palette, or component library entirely — there is no compatibility mode that keeps old branding alongside the blueprint system. If that's a real concern for a given app (existing users expect the old look, etc.), raise it before starting; it's not something to solve mid-conversion.
 
+### Step 0: inventory before touching anything
+
+Before converting *or* rebuilding, have the coding agent read the current codebase — not recall the original prompt — and produce a written inventory: every route, every data flow, every business rule, every validation and edge case it can find. An app built across many incremental sessions has no single prompt that captures what it actually does; the real spec is the accumulated code. This inventory becomes the acceptance checklist for whichever path you take next.
+
+**Retrofit vs. rebuild:** default to retrofitting incrementally — the eight numbered steps below, one at a time, with a build/test and a git commit after each. This keeps the blast radius small and every step revertible. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout (colors/spacing hardcoded per-component rather than tokenized, or a different component library woven through the data layer) — in that case a "conversion" would just be a rewrite fought against existing structure anyway. Either way, check the result against the Step 0 inventory before calling it done; that's what actually prevents silent regressions, not the choice of retrofit vs. rebuild itself.
+
 1. Link `styles.css`; wrap the app in the global top bar + context bar.
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
 3. Recolor to tokens only — kill every stray hex, gradient and shadow.
 4. Reframe every card/panel as `.blueprint` with corner marks; square all radii.
 5. Right-align numeric columns; set `tabular-nums`.
-6. Gains → `accent-700`, losses → `#a6595e`. Nothing else colored.
+6. Gains → `#2e8b57`, losses → `#c0392b`. Nothing else colored.
 7. Delete descriptions and sell copy; labels become short uppercase.
 8. Buttons → `.btn`; inputs → `.input`; tables → `.table`.
 
-**Acceptance test:** put the converted app beside the Stock Dashboard. If the top bar, type, frames and number treatment are indistinguishable and only the content differs, it passes.
+**Acceptance test:** put the converted app beside the Stock Dashboard. If the top bar, type, frames and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.

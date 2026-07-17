@@ -28,7 +28,7 @@
   --color-bg:      #f2f2f3;
   --color-surface: #e9e9ea;
   --color-text:    #1d1f20;
-  --color-loss:    #a6595e;
+  --color-loss:    #c0392b;
 
   /* Accent ramp — 500 is base; 100–300 tinted fills & hovers;
      700–900 text on tint and pressed states. */
@@ -43,7 +43,7 @@
   --color-accent-900: #253544;
 
   --color-accent: var(--color-accent-500);
-  --color-gain:   var(--color-accent-700);
+  --color-gain:   #2e8b57;
 
   /* Hairline — the only border in the system */
   --hairline-color: #c9cacc;
@@ -561,6 +561,6 @@ textarea.input {
   text-align: right;
 }
 
-/* Gains → accent-700. Losses → the one terracotta. Nothing else is colored. */
+/* Gains and losses are the one documented exception to "one color" — dedicated green/red, not accent-derived. Nothing else is colored. */
 .gain { color: var(--color-gain); }
 .loss { color: var(--color-loss); }
