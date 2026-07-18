@@ -70,11 +70,9 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 Three fixed layers wrap every module. An app only ever supplies the content region; the top bar and context bar are identical across all apps.
 
 **A · Global top bar** — 62px, sticky, hairline base.
-`NC FUTURES ▦ · Modules ▾ · ◌ · NC`
+`NC FUTURES ▦ · ◌ · NC`
 
-"Modules ▾" is a hand-maintained dropdown linking out to each app's own URL — you edit the list yourself when a new app ships. It is not a live directory and implies no shared backend. There is no top-bar search; the Architecture block above already rules out cross-app data, so a "search any ticker" bar would imply a capability that doesn't exist. If an app wants search, it's local to that app's own loaded data, built into its content region like any other component — not global chrome.
-
-**Don't conflate Modules with an app's own page tabs.** A watchlist app switching between, say, "Watchlist" and "Upcoming" is navigating between *that one app's own views* — that belongs in the content region as `.tabs` (section 05), or in the context bar, never in the top bar. "Modules ▾" is strictly for jumping *between separate deployed apps* (Stock Dashboard → Screener → this watchlist tool, etc.). Every app should have both where relevant: its own page tabs for internal views, plus the shell's Modules dropdown for jumping elsewhere — one is not a substitute for the other, and a page-tabs row existing is not evidence that Modules was implemented.
+The top bar carries only the brand mark and the account chip — no global search and no Modules dropdown. There is no cross-app directory or shared backend, so global chrome that implies one is deliberately left out. Any navigation between an app's own views lives in the content region as `.tabs` (section 05) or in the context bar; any search is local to that app's loaded data and built into its content region like any other component — never global chrome.
 
 **B · App context bar** — breadcrumb + status, surface fill.
 `Workspace / Module name` · `[status tag]`

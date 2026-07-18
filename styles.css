@@ -188,31 +188,6 @@ p:last-child { margin-bottom: 0; }
   white-space: nowrap;
 }
 
-.topbar__nav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-}
-
-.topbar__link {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: var(--size-label);
-  text-transform: uppercase;
-  letter-spacing: var(--track-label);
-  color: var(--color-text);
-  text-decoration: none;
-}
-
-.topbar__link:hover,
-.topbar__link[aria-current] { color: var(--color-accent-700); }
-
-.topbar__search {
-  flex: 1;
-  min-width: 0;
-  max-width: 420px;
-}
-
 .topbar__actions {
   display: flex;
   align-items: center;
@@ -548,7 +523,6 @@ textarea.input {
   .split--screener,
   .split--list { grid-template-columns: 1fr; }
   .grid--week { grid-template-columns: repeat(2, 1fr); }
-  .topbar__search { display: none; }
 }
 
 
