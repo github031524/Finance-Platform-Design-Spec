@@ -9,7 +9,7 @@
 ## 01 · The Five Rules
 
 1. **Blueprint frames** — Every card, tile, panel and figure is a square, hairline-bordered line drawing with `+` corner marks. No rounded corners, no filled surfaces, no drop shadows as decoration.
-2. **One color, plus one named exception** — Steel blue is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#2e8b57` / `#c0392b`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
+2. **One color, plus one named exception** — Steel blue is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#206f31` / `#b42d36`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
 3. **One typeface: Inter** — Inter for everything, all text and all numbers, no exceptions. Headings and figures use 600 weight uppercase; body is 400/500. Numbers are tabular.
 4. **Visible grid** — Equal cells, hairline dividers, strong horizontal and vertical rhythm. Structure is drawn, not implied by whitespace alone.
 5. **Data first** — No marketing copy inside the tool. Labels are short and uppercase; the numbers are the loudest thing on screen.
@@ -27,9 +27,9 @@
 | `bg` | `#f2f2f3` |
 | `surface` | `#e9e9ea` |
 | `text` | `#1d1f20` |
-| `accent` | `#5980a6` |
-| `gain` | `#2e8b57` |
-| `loss` | `#c0392b` |
+| `accent` | `#0045ff` |
+| `gain` | `#206f31` |
+| `loss` | `#b42d36` |
 
 **Accent ramp:** `--color-accent-100` … `--color-accent-900`. Light steps for tinted fills and hovers; 500 is base; 700–900 for text on tint and pressed states.
 
@@ -61,7 +61,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 - Gutter: `clamp(16px, 3vw, 32px)`
 - Content top/bottom padding: `clamp(16px, 3vw, 32px)` (tightened from `clamp(22px, 3vw, 40px)`)
 - Card / tile grid gap: `clamp(12px, 1.5vw, 20px)`
-- Table cell padding: `5px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
+- Table cell padding: `4px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
 
 ---
 
@@ -139,7 +139,7 @@ $92.8B
 ▲ +33.8% YoY
 ```
 
-**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`5px 10px`)
+**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`)
 
 | METRIC | Q3'25 | Q2'25 | YOY |
 |---|---:|---:|---:|
@@ -188,7 +188,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 3. Recolor to tokens only — kill every stray hex, gradient and shadow.
 4. Reframe every card/panel as `.blueprint` with corner marks; square all radii.
 5. Right-align numeric columns; set `tabular-nums`.
-6. Gains → `#2e8b57`, losses → `#c0392b`. Nothing else colored.
+6. Gains → `#206f31`, losses → `#b42d36`. Nothing else colored.
 7. Delete descriptions and sell copy; labels become short uppercase.
 8. Buttons → `.btn`; inputs → `.input`; tables → `.table`.
 
