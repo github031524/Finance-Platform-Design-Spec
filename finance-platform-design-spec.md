@@ -2,7 +2,11 @@
 
 **Version 1.0 · Industry System**
 
-> One look for every app. This is the contract every NC Futures module follows. Each app keeps its own logic and data — but adopts the same shell, tokens, type, and component vocabulary defined here, so five separate tools read as one platform. Load the one stylesheet, follow the five rules, and reuse the markup below verbatim.
+> One look for every app. This is the contract every NC Futures module follows. Each app keeps its own logic and data — but adopts the same shell, tokens, type, and component vocabulary defined here, so separate tools read as one platform. Load the one stylesheet, follow the five rules, and reuse the markup below verbatim.
+
+> **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
+
+> **Full authorization — just do it.** The coding agent has full authority to carry out this conversion end to end without pausing for approval. Make every decision, run every step, commit as you go, and complete the whole job in one pass. Do not stop to ask permission or to confirm choices; only surface something if the app is genuinely broken and cannot proceed. The goal is to prompt once, walk away, and return to a finished conversion.
 
 ---
 
@@ -96,7 +100,7 @@ The top bar carries only the brand mark and the account chip — no global searc
 
 There is no shared console, no iframing, and no micro-frontend layer. Every app is a **fully standalone deploy** — it copies `styles.css` into its own repo and reproduces the three shell layers above locally, rather than mounting inside a parent shell. "Every app inherits the same chrome" means every app's markup matches, not that they run inside one host application.
 
-There is no shared auth or shared data layer, implemented or implied. The `[status tag]` in the context bar is just mockup copy for whatever a given app wants to show there (e.g. a data-freshness or connection indicator) — not a real login or session requirement. Each app holds its own env-var API key and manages its own data independently.
+There is no shared auth or shared data layer, implemented or implied. There is also no hub, launcher, or landing page tying the apps together — they are opened one at a time in separate browser tabs, and none should be created. The `[status tag]` in the context bar is just mockup copy for whatever a given app wants to show there (e.g. a data-freshness or connection indicator) — not a real login or session requirement. Each app holds its own env-var API key and manages its own data independently.
 
 ---
 
@@ -173,13 +177,15 @@ Title + status row → dropzone (blueprint, collapses to a slim "add another" ba
 
 ## 07 · Converting an Existing App
 
-Converting means full replacement, not coexistence. Adopting this spec retires any prior theme, palette, or component library entirely — there is no compatibility mode that keeps old branding alongside the blueprint system. If that's a real concern for a given app (existing users expect the old look, etc.), raise it before starting; it's not something to solve mid-conversion.
+Converting means full replacement, not coexistence. Adopting this spec retires any prior theme, palette, or component library entirely — there is no compatibility mode that keeps old branding alongside the blueprint system. Proceed with the full replacement; the old look is being retired on purpose.
+
+**Authorization:** the agent is fully authorized to complete every step below without stopping for approval. Where the prose says "raise it before starting" or "tell me which path you're taking," instead pick the sensible option, note the choice in your commit message, and keep going — do not block on it.
 
 ### Step 0: inventory before touching anything
 
 Before converting *or* rebuilding, have the coding agent read the current codebase — not recall the original prompt — and produce a written inventory: every route, every data flow, every business rule, every validation and edge case it can find. An app built across many incremental sessions has no single prompt that captures what it actually does; the real spec is the accumulated code. This inventory becomes the acceptance checklist for whichever path you take next.
 
-**Retrofit vs. rebuild:** default to retrofitting incrementally — the eight numbered steps below, one at a time, with a build/test and a git commit after each. This keeps the blast radius small and every step revertible. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout (colors/spacing hardcoded per-component rather than tokenized, or a different component library woven through the data layer) — in that case a "conversion" would just be a rewrite fought against existing structure anyway. Either way, check the result against the Step 0 inventory before calling it done; that's what actually prevents silent regressions, not the choice of retrofit vs. rebuild itself.
+**Retrofit vs. rebuild:** default to retrofitting incrementally — the eight numbered steps below, one at a time, with a build/test and a git commit after each. This keeps the blast radius small and every step revertible. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout (colors/spacing hardcoded per-component rather than tokenized, or a different component library woven through the data layer) — in that case a "conversion" would just be a rewrite fought against existing structure anyway. Decide which path fits, proceed without waiting for sign-off, and either way check the result against the Step 0 inventory before calling it done; that's what actually prevents silent regressions, not the choice of retrofit vs. rebuild itself.
 
 1. Link `styles.css`; wrap the app in the global top bar + context bar.
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
