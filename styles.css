@@ -1,15 +1,32 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 
 /* ==========================================================================
-   NC FUTURES — PLATFORM STYLESHEET v1.0
-   Implements Finance Platform Design Specification v1.0.
-   One stylesheet. Every module links this and supplies only the content region.
+   NC FUTURES — PLATFORM STYLESHEET v2.0
+   Implements Finance Platform Design Specification v2.0.
+   Source of truth: Earnings Tracker (github031524/earnings-tracker), the
+   first app built against this system and the reference every other module
+   should match pixel-for-pixel. One stylesheet. Every module links this and
+   supplies only the content region.
+
+   CHANGED FROM v1.0:
+     - Accent recolored from bright blue (#0045ff) to muted steel-blue (#5980a6)
+     - Gain/loss retoned to #2e8b57 / #c0392b
+     - Radius changed from 0 (square) to 6px (slightly rounded) — the system
+       is no longer perfectly square
+     - Blueprint corner registration marks REMOVED — frames are a plain
+       hairline border now, no crosshairs
+     - Top bar height reduced 62px -> 48px
+     - Shell reduced from three layers to two: the app context bar (breadcrumb
+       + status) is gone. Only the global top bar + content region remain.
+     - Page tabs are no longer a dedicated shell row — they live centered
+       inside each page's own toolbar row, in the content region
+     - Table density tightened slightly (row padding 5px vertical)
 
    CONTENTS
      01  Tokens
      02  Reset & base
      03  Type
-     04  Shell — top bar, context bar, content region
+     04  Shell — top bar, content region
      05  Blueprint frame
      06  Buttons & tags
      07  KPI tile
@@ -28,22 +45,22 @@
   --color-bg:      #f2f2f3;
   --color-surface: #e9e9ea;
   --color-text:    #1d1f20;
-  --color-loss:    #b42d36;
+  --color-loss:    #c0392b;
 
   /* Accent ramp — 500 is base; 100–300 tinted fills & hovers;
      700–900 text on tint and pressed states. */
-  --color-accent-100: #e6ecff;
-  --color-accent-200: #c2d1ff;
-  --color-accent-300: #94aeff;
-  --color-accent-400: #4d7aff;
-  --color-accent-500: #0045ff;
-  --color-accent-600: #003ce0;
-  --color-accent-700: #0032bd;
-  --color-accent-800: #002894;
-  --color-accent-900: #001e6e;
+  --color-accent-100: #edf2f7;
+  --color-accent-200: #dbe4ee;
+  --color-accent-300: #c0d0e0;
+  --color-accent-400: #8fa9c4;
+  --color-accent-500: #5980a6;
+  --color-accent-600: #4d6f90;
+  --color-accent-700: #3f5b77;
+  --color-accent-800: #32485e;
+  --color-accent-900: #253544;
 
   --color-accent: var(--color-accent-500);
-  --color-gain:   #206f31;
+  --color-gain:   #2e8b57;
 
   /* Hairline — the only border in the system */
   --hairline-color: #c9cacc;
@@ -73,15 +90,15 @@
   --space-8: 27.2px;
 
   /* Table density — compact by default across the platform */
-  --table-cell-py: 4px;
+  --table-cell-py: 5px;
   --table-cell-px: 10px;
 
   /* Layout */
-  --radius: 0;
+  --radius: 6px;
   --content-max: 1680px;
   --gutter: clamp(16px, 3vw, 32px);
   --grid-gap: clamp(12px, 1.5vw, 20px);
-  --topbar-h: 62px;
+  --topbar-h: 48px;
 }
 
 
@@ -165,7 +182,13 @@ p:last-child { margin-bottom: 0; }
 
 /* 04 · SHELL ============================================================== */
 
-/* A · Global top bar — 62px, sticky, hairline base */
+/* Two fixed layers now, not three (spec §03) — the app context bar
+   (breadcrumb + status) from v1.0 has been removed. A page's own status
+   (e.g. "Updated 3:50 AM", a refresh spinner) lives inline in its own
+   toolbar row instead of a dedicated shell strip.
+
+   A · Global top bar — 48px, sticky, hairline base. Brand mark (left) +
+   Modules switcher (centered) + account chip (right, optional). */
 .topbar {
   position: sticky;
   top: 0;
@@ -180,12 +203,16 @@ p:last-child { margin-bottom: 0; }
 }
 
 .topbar__brand {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
   white-space: nowrap;
+}
+
+/* The brand mark is an <img> of the shared logo asset (see §04a below),
+   not a text lockup — every app renders the identical file. */
+.topbar__brand img {
+  height: 34.56px;
+  width: auto;
 }
 
 .topbar__actions {
@@ -207,36 +234,38 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: 0.06em;
 }
 
-/* B · App context bar — breadcrumb + status, surface fill */
-.contextbar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--gutter);
-  background: var(--color-surface);
-  border-bottom: var(--hairline);
-  font-size: var(--size-label);
-  font-family: var(--font-heading);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--track-label);
-}
+/* Modules switcher — centered in the top bar, a Blueprint(solid) dropdown
+   below it. Not a fixed-width menu: it hugs its content (see .blueprint
+   usage note in §05) so it reads as centered under the trigger regardless
+   of how many modules are listed. */
 
-.contextbar__crumb { color: var(--color-text); }
-.contextbar__crumb a { color: inherit; text-decoration: none; }
-.contextbar__crumb a:hover { color: var(--color-accent-700); }
-.contextbar__sep { color: var(--color-accent-400); }
-.contextbar__status { margin-left: auto; }
-
-/* C · Content region — the only part an app owns */
+/* B · Content region — the only part an app owns. */
 .content {
   max-width: var(--content-max);
   margin: 0 auto;
   padding: clamp(16px, 3vw, 32px) var(--gutter);
 }
 
+/* Architecture: every app is a fully standalone deploy. No shared console,
+   no iframing, no shared auth or data layer. Each app copies this
+   stylesheet + the logo asset into its own repo and reproduces the shell
+   markup locally. */
+
+
+/* 04a · BRAND MARK ========================================================
+   The logo is a literal shared SVG asset (three rising bars + "NC Futures"
+   wordmark in accent-500), not a redrawable component — every app embeds
+   the SAME file, unmodified. Get it from
+   github031524/earnings-tracker: client/src/assets/logo.svg
+   (mirrored into this design-spec repo as logo.svg alongside this file). */
+
 
 /* 05 · BLUEPRINT FRAME — THE SIGNATURE ==================================== */
+
+/* v2.0: plain hairline frame. The `+` corner registration marks from v1.0
+   are REMOVED — do not draw them. The <i class="corner"> elements may still
+   be present in ported markup for backward compatibility; they render
+   nothing (display: none) and can be omitted in new code. */
 
 .blueprint {
   position: relative;
@@ -247,41 +276,16 @@ p:last-child { margin-bottom: 0; }
 }
 
 .blueprint .corner {
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  pointer-events: none;
-  color: var(--color-accent-500);
+  display: none;
 }
-
-.blueprint .corner::before,
-.blueprint .corner::after {
-  content: "";
-  position: absolute;
-  background: currentColor;
-}
-
-.blueprint .corner::before {   /* horizontal stroke */
-  top: 3px;
-  left: 0;
-  width: 7px;
-  height: 1px;
-}
-
-.blueprint .corner::after {    /* vertical stroke */
-  left: 3px;
-  top: 0;
-  width: 1px;
-  height: 7px;
-}
-
-.blueprint .corner.tl { top: -4px; left: -4px; }
-.blueprint .corner.tr { top: -4px; right: -4px; }
-.blueprint .corner.bl { bottom: -4px; left: -4px; }
-.blueprint .corner.br { bottom: -4px; right: -4px; }
 
 /* Tinted variant — e.g. today's cell in a tracker */
 .blueprint--tint { background: var(--color-accent-100); }
+
+/* Solid variant — floating panels only (dropdowns, popovers) that need an
+   opaque fill so page content doesn't show through. Not a licence for
+   filled surfaces in the page body generally — those stay transparent. */
+.blueprint--solid { background: var(--color-bg); }
 
 
 /* 06 · BUTTONS & TAGS ===================================================== */
@@ -311,7 +315,8 @@ p:last-child { margin-bottom: 0; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* THE ONE EXCEPTION — the single solid object in the system.
-   Accent fill, square corners, corner marks retained. */
+   Accent fill; corners are now naturally rounded (--radius: 6px), not
+   square-with-marks as in v1.0. */
 .btn-primary {
   background: var(--color-accent-500);
   border-color: var(--color-accent-500);
@@ -321,14 +326,21 @@ p:last-child { margin-bottom: 0; }
 .btn-primary:hover { background: var(--color-accent-600); border-color: var(--color-accent-600); }
 .btn-primary:active { background: var(--color-accent-800); border-color: var(--color-accent-800); color: #fff; }
 
-.btn-primary .corner { color: #fff; }
-
 /* Ghost — outline only, no hairline box */
 .btn-ghost {
   border-color: transparent;
   padding-inline: var(--space-2);
 }
 .btn-ghost:hover { border-color: var(--hairline-color); background: transparent; }
+
+/* Compact variant — icon-only actions inside dense contexts (e.g. a table
+   row's hover-revealed actions), where the default padding would blow out
+   to toolbar size inside a 5px-tall cell. */
+.btn-icon {
+  padding: 2px;
+  border-color: transparent;
+}
+.btn-icon:hover { background: var(--color-accent-100); }
 
 .tag {
   display: inline-flex;
@@ -428,6 +440,13 @@ p:last-child { margin-bottom: 0; }
 
 
 /* 09 · TABS =============================================================== */
+
+/* v2.0: tabs are no longer guaranteed to live in a dedicated shell row.
+   The reference app centers them inside its own toolbar row (a 3-zone
+   layout: existing left content, centered .tabs, existing right content),
+   using absolute positioning within a `relative` toolbar container. The
+   .tabs/.tab classes themselves are unchanged; only where you place them
+   differs from v1.0. */
 
 .tabs {
   display: flex;
@@ -535,6 +554,15 @@ textarea.input {
   text-align: right;
 }
 
-/* Gains and losses are the one documented exception to "one color" — dedicated green/red, not accent-derived. Nothing else is colored. */
+/* Gains and losses are the one documented exception to "one color" — dedicated
+   green/red, not accent-derived. Nothing else is colored. */
 .gain { color: var(--color-gain); }
 .loss { color: var(--color-loss); }
+
+
+/* 13 · SCROLLBAR (reference-app addition, not in v1.0) ==================== */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-accent-300); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--color-accent-500) 60%, transparent); }

@@ -1,0 +1,251 @@
+# NC Futures — Platform Design Specification
+
+**Version 2.0 · Industry System**
+
+> One look for every app. This is the contract every NC Futures module follows. Each app keeps its own logic and data — but adopts the same shell, tokens, type, and component vocabulary defined here, so separate tools read as one platform. Load the one stylesheet, follow the five rules, and reuse the markup below verbatim.
+
+> **Source of truth.** This spec is written FROM the reference implementation, not the other way around. **Earnings Tracker** (`github031524/earnings-tracker`) is the canonical app — if this document and that codebase ever disagree, the codebase wins and this document is stale and should be updated to match it. Copy its `client/src/index.css`, `client/src/components/Blueprint.tsx`, `client/src/components/PageTabs.tsx`, `client/src/components/NcFuturesLogo.tsx`, and `client/src/assets/logo.svg` directly when starting a new module rather than re-deriving them from prose.
+
+> **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
+
+> **Full authorization — just do it.** The coding agent has full authority to carry out this conversion end to end without pausing for approval. Make every decision, run every step, commit as you go, and complete the whole job in one pass. Do not stop to ask permission or to confirm choices; only surface something if the app is genuinely broken and cannot proceed. The goal is to prompt once, walk away, and return to a finished conversion.
+
+---
+
+## Changelog — v1.0 → v2.0
+
+Everything below reflects what's actually live in the reference app today, not the original v1.0 draft. If you built against v1.0, here's what changed:
+
+| Area | v1.0 | v2.0 (current) |
+|---|---|---|
+| Accent color | `#0045ff` (bright blue) | `#5980a6` (muted steel-blue) |
+| Gain | `#206f31` | `#2e8b57` |
+| Loss | `#b42d36` | `#c0392b` |
+| Corner radius | `0` — perfectly square | `6px` — slightly rounded |
+| Blueprint corner marks | Required `+` registration marks on every frame | **Removed.** Plain hairline border, no marks |
+| Shell layers | 3 — top bar, app context bar, content region | **2** — top bar, content region. The context bar (breadcrumb + status) is gone |
+| Page tabs | Dedicated shell row above content | Centered inside each page's own toolbar row (3-zone layout: left content / tabs / right content) |
+| Top bar height | 62px | 48px |
+| Brand mark | Text lockup, "NC FUTURES ▦" | Literal shared logo file (see §04a) |
+| Table row padding | 4px vertical | 5px vertical |
+
+---
+
+## 01 · The Five Rules
+
+1. **Blueprint frames** — Every card, tile, panel and figure is a hairline-bordered line drawing with slightly rounded corners (`--radius: 6px`). No drop shadows as decoration, no filled surfaces (except the two named exceptions below).
+2. **One color, plus one named exception** — Steel blue (`#5980a6`) is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#2e8b57` / `#c0392b`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
+3. **One typeface: Inter** — Inter for everything, all text and all numbers, no exceptions. Headings and figures use 600 weight uppercase; body is 400/500. Numbers are tabular.
+4. **Visible grid** — Equal cells, hairline dividers, strong horizontal and vertical rhythm. Structure is drawn, not implied by whitespace alone.
+5. **Data first** — No marketing copy inside the tool. Labels are short and uppercase; the numbers are the loudest thing on screen. Status/freshness text (e.g. "Updated 3:50 AM") lives inline near the control it describes, not in a separate breadcrumb strip.
+
+**The two exceptions:** the primary button is the single solid object — an accent fill. Gain/loss color (see rule 2) is the other — a deliberate, permanent break from the one-color system, not a per-app choice.
+
+---
+
+## 02 · Foundations — Tokens
+
+### Color
+
+| Token | Value |
+|---|---|
+| `bg` | `#f2f2f3` |
+| `surface` | `#e9e9ea` |
+| `text` | `#1d1f20` |
+| `accent` | `#5980a6` |
+| `gain` | `#2e8b57` |
+| `loss` | `#c0392b` |
+| `hairline` | `#c9cacc` |
+
+**Accent ramp:**
+
+| Step | Hex |
+|---|---|
+| 100 | `#edf2f7` |
+| 200 | `#dbe4ee` |
+| 300 | `#c0d0e0` |
+| 400 | `#8fa9c4` |
+| 500 (base) | `#5980a6` |
+| 600 | `#4d6f90` |
+| 700 | `#3f5b77` |
+| 800 | `#32485e` |
+| 900 | `#253544` |
+
+Light steps (100–300) for tinted fills and hovers; 500 is base; 700–900 for text on tint and pressed states.
+
+### Type — Inter only
+
+- `--font-heading` = Inter · 600 · UPPERCASE — headings, figures, labels
+- `--font-body` = Inter · 400/500 — paragraphs, table cells, and all numbers
+
+One typeface carries all text and numbers; both `--font-heading` and `--font-body` are set to Inter.
+
+**Scale**
+
+| Role | Size |
+|---|---|
+| Page / app title | 34–40px |
+| Section head | 15–16px, uppercase |
+| KPI figure | 18px |
+| Body | 13–15px |
+| Label | 10.5px, uppercase, 0.13em tracking |
+| Micro | 9–10px |
+
+All numeric cells use `font-variant-numeric: tabular-nums`.
+
+### Spacing & grid
+
+- Space tokens `--space-1` … `--space-8` (3.4 → 27px, a 0.85× scale)
+- **Radius is `6px` everywhere** — a deliberate, slight rounding. Not square.
+- Content column max-width: `1680px`. Not full-bleed: unbounded width stretches table columns apart rather than adding useful density.
+- Gutter: `clamp(16px, 3vw, 32px)`
+- Content top/bottom padding: `clamp(16px, 3vw, 32px)`
+- Card / tile grid gap: `clamp(12px, 1.5vw, 20px)`
+- Table cell padding: `5px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
+
+---
+
+## 03 · The Shell — Chrome Every App Inherits
+
+**Two** fixed layers wrap every module — not three. An app only ever supplies the content region; the top bar is identical across all apps.
+
+**A · Global top bar** — 48px, sticky, hairline base. Brand mark on the left, the Modules switcher centered, an optional account chip on the right.
+
+The top bar carries only the brand mark and the Modules switcher — no global search. There is no cross-app directory or shared backend, so global chrome that implies one is deliberately left out. Any navigation between an app's own views lives in the content region as `.tabs` (section 05/09); any search is local to that app's loaded data and built into its content region like any other component — never global chrome.
+
+**There is no app context bar.** v1.0 specified a breadcrumb + status strip as a second shell layer; it has been removed. A page's own freshness/status indicator (e.g. "Updated Jul 19, 3:50 AM", a live refresh-progress pill) lives inline in that page's own toolbar row instead — see the Tracker recipe in §06 for the reference pattern.
+
+**B · Content region** — the only part an app owns.
+
+```html
+<header class="topbar">
+  <span class="topbar__brand"><img src="logo.svg" alt="NC Futures" /></span>
+  <!-- Modules switcher, centered via absolute positioning within the topbar -->
+</header>
+
+<main class="content">
+  … APP CONTENT GOES HERE, INCLUDING THIS APP'S OWN TABS …
+</main>
+```
+
+### Architecture
+
+There is no shared console, no iframing, and no micro-frontend layer. Every app is a **fully standalone deploy** — it copies `styles.css` (and the shared `logo.svg`) into its own repo and reproduces the top bar locally, rather than mounting inside a parent shell. "Every app inherits the same chrome" means every app's markup matches, not that they run inside one host application.
+
+There is no shared auth or shared data layer, implemented or implied. There is also no hub, launcher, or landing page tying the apps together — they are opened one at a time in separate browser tabs, and none should be created. Each app holds its own env-var API key and manages its own data independently.
+
+---
+
+## 04a · The Brand Mark
+
+The logo is a **literal shared asset**, not a per-app redraw: three rising bars (accent-500 fill) beside the "NC Futures" wordmark, tight kerning (`NC` to `Futures` gap ≈ 2 SVG units at the reference's 600×150 viewBox; bar-to-text gap ≈ 20 units). Every app embeds the **exact same file**, unmodified — get it from `github031524/earnings-tracker:client/src/assets/logo.svg` (also mirrored as `logo.svg` in this design-spec repo). Render it at `height: 34.56px` in the top bar; width follows automatically from the SVG's aspect ratio.
+
+Do not hand-recreate the mark as inline SVG shapes or a text lockup — use the file as-is.
+
+---
+
+## 05 · The Blueprint Frame
+
+```html
+<div class="blueprint">
+  … content …
+</div>
+```
+
+**No corner registration marks.** v1.0 called for `+` marks at all four corners via `<i class="corner">` elements; these have been removed from the visual language. A `.blueprint` is now a plain hairline-bordered box with a slightly rounded radius (`--radius: 6px`) — nothing more. If you're porting v1.0 markup that still includes `<i class="corner">` elements, they're harmless (the CSS sets `display: none` on them) but can be deleted in new code.
+
+No inline padding needed — `.blueprint` already carries a sensible default (`--space-4`, 13.6px). Add `style="padding:..."` only to override it for a specific tile. Default spacing below each panel is also `--space-4` — override for tiles that need tighter stacking.
+
+Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrappers, and floating panels (add `.blueprint--solid` for dropdowns/popovers that need an opaque fill so page content doesn't show through).
+
+---
+
+## 06 · Component Vocabulary
+
+**Buttons & tags**
+
+| Variant | Style | Class |
+|---|---|---|
+| Primary | accent fill | `.btn .btn-primary` |
+| Secondary | neutral | `.btn` |
+| Ghost | outline | `.btn .btn-ghost` |
+| Icon (compact) | icon-only, tight padding | `.btn .btn-icon` |
+| Tag | accent | `.tag .tag-accent` |
+
+**KPI tile** — blueprint frame · label / figure / delta
+
+```
+REVENUE (TTM)
+$92.8B
+▲ +33.8% YoY
+```
+
+**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`5px 10px`)
+
+| METRIC | Q3'25 | Q2'25 | YOY |
+|---|---:|---:|---:|
+| Revenue | $24.8B | $22.7B | +33.8% |
+| Free cash flow | $8.2B | $4.4B | −4.2% |
+
+**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. In the reference app these live centered inside the page's own toolbar row (a 3-zone flex layout: existing left content, centered `.tabs` via `absolute left-1/2 -translate-x-1/2` within a `relative` toolbar container, existing right content) — not a dedicated shell row.
+
+**Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
+
+**Status/freshness pill** — a small `.tag`-style element (border-accent-500, bg-accent-100, uppercase micro text) placed inline in a page's toolbar, next to the action it describes (e.g. "Updated 3:50 AM" beside a "Refresh Data" button). Replaces the v1.0 context bar's `[status tag]`.
+
+---
+
+## 07 · Layout Recipe Per App Type
+
+Pick a recipe by **interaction pattern**, not by subject matter. A page that lists tickers isn't automatically Tracker — Tracker is specifically for date/calendar-grid data. A sortable watchlist or discovery table is Screener or List/Builder. If a page genuinely matches none of the five below, define a new named recipe rather than forcing the nearest one.
+
+**Dashboard / detail** *(e.g. Stock Dashboard)*
+Title + price/status row → tabs → KPI tile row → chart panel + profile aside (2.1 : 1).
+
+**Screener** *(e.g. Taiwan Revenue · Parabolic)*
+Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
+
+**Tracker / calendar** *(e.g. Earnings Tracker — the reference app)*
+Toolbar row: left content (e.g. a list/view selector) → centered `.tabs` → right content (action buttons). A second toolbar-style row below carries the primary input (e.g. "Add Symbols") plus a leading count/status pill. Below that: the results table, wrapped in `.blueprint`, with drag-to-resize columns (see §08a) and row banding by date group.
+
+**List / builder** *(e.g. Indexer)*
+Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
+
+**Upload / analyze** *(e.g. Options Position Analyzer)*
+Title + status row → dropzone (blueprint, collapses to a slim "add another" bar once data is loaded) → KPI tile row → full-width chart panel → results table below. For tools where the input is a file/screenshot rather than a filter or ticker search.
+
+---
+
+## 08a · Optional: Resizable Table Columns
+
+The reference app's tables support drag-to-resize columns with persisted widths — not required by the spec, but available as a pattern if a module's table has many columns:
+
+- Column widths stored in component state, seeded from a `COLUMNS` config array, persisted to `localStorage` under an app-specific key.
+- `<table class="table" style="table-layout:fixed; width:<sum>">` with a `<colgroup>` of `<col style="width:...px">` per column, driven by that state.
+- A `ResizeHandle` — an absolutely-positioned `6px`-wide strip at the right edge of each resizable `<th>`, with a **faint always-visible border** (`border-right: 1px solid var(--hairline-color)` equivalent) so users can see where to grab, brightening on hover/drag (accent tint).
+- Drag updates width via `mousemove`/`mouseup` listeners on `window`, clamped to a `40px` minimum.
+
+---
+
+## 09 · Converting an Existing App
+
+Converting means full replacement, not coexistence. Adopting this spec retires any prior theme, palette, or component library entirely — there is no compatibility mode that keeps old branding alongside the blueprint system. Proceed with the full replacement; the old look is being retired on purpose.
+
+**Authorization:** the agent is fully authorized to complete every step below without stopping for approval. Where the prose says "raise it before starting" or "tell me which path you're taking," instead pick the sensible option, note the choice in your commit message, and keep going — do not block on it.
+
+### Step 0: inventory before touching anything
+
+Before converting *or* rebuilding, have the coding agent read the current codebase — not recall the original prompt — and produce a written inventory: every route, every data flow, every business rule, every validation and edge case it can find. This inventory becomes the acceptance checklist for whichever path you take next.
+
+**Retrofit vs. rebuild:** default to retrofitting incrementally — one step at a time, with a build/test and a git commit after each. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout. Either way, check the result against the Step 0 inventory before calling it done — that's what actually prevents silent regressions.
+
+1. Link `styles.css` and copy `logo.svg`; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
+2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
+3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the v2.0 hex values in §02, not v1.0's.
+4. Reframe every card/panel as `.blueprint` — hairline border, `6px` radius. **Do not add corner registration marks** — v2.0 has none.
+5. Right-align numeric columns; set `tabular-nums`.
+6. Gains → `#2e8b57`, losses → `#c0392b`. Nothing else colored.
+7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in).
+8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, centered in a toolbar row per §06.
+
+**Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `6px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
