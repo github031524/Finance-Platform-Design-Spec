@@ -120,7 +120,13 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 ```html
 <header class="topbar">
   <span class="topbar__brand"><img src="logo.svg" alt="NC Futures" /></span>
-  <!-- Modules switcher, centered via absolute positioning within the topbar -->
+  <!-- Modules switcher — give the switcher .topbar__modules so it's absolutely
+       centered in the top bar, staying dead-center regardless of the brand and
+       account-chip widths on either side. Its .blueprint--solid dropdown opens
+       directly below the trigger. -->
+  <div class="topbar__modules">
+    <button class="btn" aria-haspopup="listbox" aria-expanded="false">Modules ▾</button>
+  </div>
 </header>
 
 <main class="content">
