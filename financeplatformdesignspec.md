@@ -200,6 +200,19 @@ $92.8B
    target="_blank" rel="noopener">AAPL</a>
 ```
 
+**Company name cell** — long names in a company column are shortened by a `shortenCompanyName(name)` transform, truncated by CSS, then marquee-scrolled on hover:
+
+1. **Strip a leading "The"** — `The Kraft Heinz Company` → `Kraft Heinz Company`.
+2. **Strip suffixes** — repeatedly remove trailing corporate suffixes and share-class/ADR noise until nothing more matches: `Inc` / `Inc.`, `Corp` / `Corporation`, `Ltd`, `LLC` / `L.L.C.`, `plc`, `Holdings` / `Holding`, `Group`, `Technologies` / `Technology`, `& Co` / `Co.` / `Cos.`, `Class A`, `Series A Preferred`, `Common Stock`, `American Depositary Shares` / `Receipts`, `ADR`, `ADS`, `Ordinary Shares (...)`, `Subordinate Voting Shares`. Loops until stable: `Foo Inc. Common Stock` → `Foo Inc.` → `Foo`.
+3. **Cap to 3 words** — keep only the first 3 words that remain: `International Business Machines Corporation` → (strip `Corporation`) → `International Business Machines`.
+4. **Truncate + marquee** — the company `<td>` uses `.company` (max-width `160px`); anything still too wide gets a trailing `…`. On hover it marquee-scrolls at a steady, readable speed to reveal the full shortened name (wrap the text in `.company__inner`). Honors `prefers-reduced-motion` — the §02 reset disables the scroll.
+
+**Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` in muted `var(--color-accent-800)` (#32485e).
+
+```html
+<td class="company"><span class="company__inner">International Business Machines</span></td>
+```
+
 **Tabs** — e.g. `WATCHLIST` · `UPCOMING`. In the reference app these live centered inside the page's own toolbar row (a 3-zone flex layout: existing left content, centered `.tabs` via `absolute left-1/2 -translate-x-1/2` within a `relative` toolbar container, existing right content) — not a dedicated shell row.
 
 **Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
@@ -284,5 +297,6 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in).
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, centered in a toolbar row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab) — no bare symbols anywhere.
+10. Shorten company-name cells with `shortenCompanyName` (strip a leading "The", loop-strip suffixes/share-class noise, cap to 3 words) and the `.company` cell (160px, ellipsis, marquee-on-hover); missing names render `—` in muted accent-800.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `6px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
