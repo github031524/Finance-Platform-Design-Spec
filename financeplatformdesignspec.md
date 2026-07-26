@@ -227,6 +227,29 @@ The reference app's tables support drag-to-resize columns with persisted widths 
 
 ---
 
+## 08b · Row Banding & Grouping
+
+For tables whose rows fall into natural groups (e.g. every ticker reporting on the same earnings date). All colors below are existing tokens — no new hues introduced for this pattern.
+
+| Purpose | Value | Token |
+|---|---|---|
+| Default row background | `#f2f2f3` | `--color-bg` |
+| Alternating band (every other group) | `#e9e9ea` | `--color-surface` |
+| Row hover | `#edf2f7` | `--color-accent-100` (`.table tbody tr:hover`, §08 — always wins over banding) |
+| Standard row divider | `#c9cacc` (1px) | `--hairline-color` (`.table td` default, §08) |
+| Group-gap divider | `#5980a6` (2px) | `--color-accent-500` |
+
+**The rule, not just the colors:**
+
+1. Assign each row's *group* (not each row) a stable index in the order groups first appear — e.g. group by earnings date, in the order rows are sorted.
+2. Alternate background by that group index: even groups plain `bg`, odd groups `.row-band` (`--color-surface`). All rows within one group share the same background — the band marks the group, not the row.
+3. Between the **last row of a group** and the first row of the next, check whether the groups are "adjacent" by whatever ordering the table uses (e.g. consecutive calendar days for a date-grouped table, consecutive ranks for a leaderboard). If they're adjacent, draw the normal 1px hairline. If there's a gap, apply `.row-groupgap` instead — the heavier 2px accent-colored rule — so the table visually breaks into clusters (e.g. "this week" vs "next week").
+4. Hover always overrides banding — declared after it in the stylesheet at equal specificity, and only ever active on the row under the cursor.
+
+Utility classes for this are in `styles.css` §14 (`.row-band`, `.row-groupgap`) — apply them per-row from the page's own grouping logic; the stylesheet doesn't compute the grouping itself, since that's data-driven and differs per app (dates, ranks, categories, etc).
+
+---
+
 ## 09 · Converting an Existing App
 
 Converting means full replacement, not coexistence. Adopting this spec retires any prior theme, palette, or component library entirely — there is no compatibility mode that keeps old branding alongside the blueprint system. Proceed with the full replacement; the old look is being retired on purpose.

@@ -566,3 +566,30 @@ textarea.input {
 ::-webkit-scrollbar-track { background: var(--color-surface); }
 ::-webkit-scrollbar-thumb { background: var(--color-accent-300); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--color-accent-500) 60%, transparent); }
+
+
+/* 14 · ROW BANDING & GROUPING (reference-app addition, not in v1.0) ========
+   For tables whose rows fall into natural groups (e.g. one earnings date
+   spanning several tickers). Reuses existing tokens — no new colors:
+     - default row:        var(--color-bg)        #f2f2f3
+     - alternate band:     var(--color-surface)    #e9e9ea
+     - row hover:          var(--color-accent-100) #edf2f7 (already .table
+                            tbody tr:hover in §08 — hover always wins, since
+                            it's declared after banding at equal specificity
+                            and only applies on interaction)
+     - standard row rule:  var(--hairline-color)   #c9cacc (1px, .table td
+                            default from §08)
+     - group-gap rule:     var(--color-accent-500) #5980a6 (2px — heavier,
+                            drawn only where consecutive groups are NOT
+                            adjacent, e.g. a week gap between earnings dates)
+
+   Usage: assign .row-band to alternating groups (2nd, 4th, ... group in
+   sequence — not alternating individual rows), and .row-groupgap to the
+   LAST row of a group when the next group is non-adjacent by whatever
+   ordering the table uses (date, rank, etc). Both are plain utility classes,
+   not table-wide rules, because the grouping logic is data-driven and lives
+   in the page, not the stylesheet. */
+
+.row-band { background: var(--color-surface); }
+
+.row-groupgap { border-bottom: 2px solid var(--color-accent-500); }
