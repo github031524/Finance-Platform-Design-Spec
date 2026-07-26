@@ -234,10 +234,24 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: 0.06em;
 }
 
-/* Modules switcher — centered in the top bar, a Blueprint(solid) dropdown
-   below it. Not a fixed-width menu: it hugs its content (see .blueprint
-   usage note in §05) so it reads as centered under the trigger regardless
-   of how many modules are listed. */
+/* Modules switcher — horizontally centered in the top bar. The top bar is a
+   flex row (brand on the left, actions pushed right), so a switcher left in
+   normal flow would sit next to the brand at the far left. Instead it's taken
+   out of flow and absolutely centered, so it stays dead-center regardless of
+   the brand and account-chip widths on either side. .topbar is sticky — a
+   positioned ancestor — so this positions against the top bar itself.
+
+   Its Blueprint(solid) dropdown opens below the trigger. Not a fixed-width
+   menu: it hugs its content (see .blueprint usage note in §05) so it reads as
+   centered under the trigger regardless of how many modules are listed. */
+.topbar__modules {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+}
 
 /* B · Content region — the only part an app owns. */
 .content {
