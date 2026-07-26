@@ -35,6 +35,9 @@
      10  Fields & inputs
      11  Grid helpers
      12  Numeric & delta treatment
+     13  Scrollbar
+     14  Row banding & grouping
+     15  Symbol / ticker link
    ========================================================================== */
 
 
@@ -607,3 +610,29 @@ textarea.input {
 .row-band { background: var(--color-surface); }
 
 .row-groupgap { border-bottom: 2px solid var(--color-accent-500); }
+
+
+/* 15 · SYMBOL / TICKER LINK =============================================== */
+
+/* Every ticker symbol rendered anywhere — table cells, KPI tiles, headers,
+   detail asides — is a clickable link to its TradingView chart, opened in a
+   new tab. Never render a bare, unlinked symbol.
+     URL: https://www.tradingview.com/chart/3Ojf0qKU/?symbol=<SYMBOL>
+   (the shared chart layout with the symbol appended, case-insensitive).
+   Accent-colored — links are a sanctioned use of the accent — uppercase,
+   with an underline revealed on hover. */
+
+.symbol {
+  color: var(--color-accent-700);
+  font-weight: 500;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.symbol:hover {
+  color: var(--color-accent-600);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
