@@ -38,6 +38,7 @@
      13  Scrollbar
      14  Row banding & grouping
      15  Symbol / ticker link
+     16  Company name cell
    ========================================================================== */
 
 
@@ -636,3 +637,44 @@ textarea.input {
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
+
+
+/* 16 · COMPANY NAME CELL ================================================== */
+
+/* Long company names are shortened by a shortenCompanyName() transform in the
+   app — strip a leading "The", loop-strip trailing corporate suffixes and
+   share-class/ADR noise until stable, then cap to the first 3 words — and
+   finished visually here: the cell is capped at 160px with a trailing
+   ellipsis, and on hover the name marquee-scrolls to reveal itself. Wrap the
+   name in .company__inner so the marquee has something to translate; the §02
+   prefers-reduced-motion reset disables the scroll automatically. A missing
+   name makes the transform return null and the app renders an em-dash in muted
+   accent-800 (.company--null). Reliable truncation needs the column width
+   honored — table-layout: fixed (§08a) or a block wrapper. */
+
+.company {
+  max-width: 160px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.company__inner {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Hover: drop the ellipsis and scroll the full name back and forth at a
+   steady, readable speed (tune via --marquee-speed; default 6s). */
+.company:hover { text-overflow: clip; }
+
+.company:hover .company__inner {
+  animation: company-marquee var(--marquee-speed, 6s) linear infinite alternate;
+}
+
+@keyframes company-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(min(0px, calc(160px - 100%))); }
+}
+
+.company--null { color: var(--color-accent-800); }
