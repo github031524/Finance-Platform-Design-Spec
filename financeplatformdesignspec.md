@@ -21,7 +21,7 @@ Everything below reflects what's actually live in the reference app today, not t
 | Accent color | `#0045ff` (bright blue) | `#5980a6` (muted steel-blue) |
 | Gain | `#206f31` | `#206f31` — unchanged. v2.0 briefly used `#2e8b57`; reverted (failed AA on every background) |
 | Loss | `#b42d36` | `#b42d36` — unchanged. v2.0 briefly used `#c0392b`; reverted for contrast |
-| Corner radius | `0` — perfectly square | `6px` — slightly rounded |
+| Corner radius | `0` — perfectly square | `8px` — rounded |
 | Blueprint corner marks | Required `+` registration marks on every frame | **Removed.** Plain hairline border, no marks |
 | Shell layers | 3 — top bar, app context bar, content region | **2** — top bar, content region. The context bar (breadcrumb + status) is gone |
 | Page tabs | Dedicated shell row above content | Centered inside each page's own toolbar row (3-zone layout: left content / tabs / right content) |
@@ -33,7 +33,7 @@ Everything below reflects what's actually live in the reference app today, not t
 
 ## 01 · The Five Rules
 
-1. **Blueprint frames** — Every card, tile, panel and figure is a hairline-bordered line drawing with slightly rounded corners (`--radius: 6px`). No drop shadows as decoration, no filled surfaces (except the two named exceptions below).
+1. **Blueprint frames** — Every card, tile, panel and figure is a hairline-bordered line drawing with rounded corners (`--radius: 8px`). No drop shadows as decoration, no filled surfaces (except the two named exceptions below).
 2. **One color, plus one named exception** — Steel blue (`#5980a6`) is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#206f31` / `#b42d36`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
 3. **One typeface: Inter** — Inter for everything, all text and all numbers, no exceptions. Headings and figures use 600 weight uppercase; body is 400/500. Numbers are tabular.
 4. **Visible grid** — Equal cells, hairline dividers, strong horizontal and vertical rhythm. Structure is drawn, not implied by whitespace alone.
@@ -100,7 +100,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 ### Spacing & grid
 
 - Space tokens `--space-1` … `--space-8` (3.4 → 27px, a 0.85× scale)
-- **Radius is `6px` everywhere** — a deliberate, slight rounding. Not square.
+- **Radius is `8px` everywhere** — a deliberate, visible rounding. Not square.
 - Content column max-width: `1680px`. Not full-bleed: unbounded width stretches table columns apart rather than adding useful density.
 - Gutter: `clamp(16px, 3vw, 32px)`
 - Content top/bottom padding: `clamp(16px, 3vw, 32px)`
@@ -211,7 +211,7 @@ export const MODULES = [
 </div>
 ```
 
-**No corner registration marks.** v1.0 called for `+` marks at all four corners via `<i class="corner">` elements; these have been removed from the visual language. A `.blueprint` is now a plain hairline-bordered box with a slightly rounded radius (`--radius: 6px`) — nothing more. If you're porting v1.0 markup that still includes `<i class="corner">` elements, they're harmless (the CSS sets `display: none` on them) but can be deleted in new code.
+**No corner registration marks.** v1.0 called for `+` marks at all four corners via `<i class="corner">` elements; these have been removed from the visual language. A `.blueprint` is now a plain hairline-bordered box with a rounded radius (`--radius: 8px`) — nothing more. If you're porting v1.0 markup that still includes `<i class="corner">` elements, they're harmless (the CSS sets `display: none` on them) but can be deleted in new code.
 
 No inline padding needed — `.blueprint` already carries a sensible default (`--space-4`, 13.6px). Add `style="padding:..."` only to override it for a specific tile. Default spacing below each panel is also `--space-4` — override for tiles that need tighter stacking.
 
@@ -346,7 +346,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 1. Link `styles.css` and copy `logo.svg`; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
 3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the v2.0 hex values in §02, not v1.0's.
-4. Reframe every card/panel as `.blueprint` — hairline border, `6px` radius. **Do not add corner registration marks** — v2.0 has none.
+4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks** — v2.0 has none.
 5. Right-align numeric columns; set `tabular-nums`.
 6. Gains → `#206f31`, losses → `#b42d36`. Nothing else colored.
 7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in).
@@ -355,7 +355,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
 11. Shorten company-name cells with `shortenCompanyName` (strip a leading "The", loop-strip suffixes/share-class noise, cap to 3 words) and the `.company` cell (160px, ellipsis, marquee-on-hover); missing names render `—` in muted accent-800.
 
-**Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `6px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
+**Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
 
 ---
 
@@ -384,7 +384,7 @@ The menu is for scanning, not reading. Hard limits:
 
 | Too long | Right |
 |---|---|
-| Cards currently have drop shadows and rounded corners; they become hairline-bordered blueprint frames with a 6px radius | **Shadowed cards → hairline frames** |
+| Cards currently have drop shadows and rounded corners; they become hairline-bordered blueprint frames with an 8px radius | **Shadowed cards → hairline frames** |
 | Replace the existing typeface with Inter for all text and numbers, with uppercase headings | **All fonts → Inter** |
 | Wrap every ticker symbol in a link to its TradingView chart, opened in a new tab | **Symbols → TradingView links** |
 | Remove the page heading that repeats the app's name since the switcher already shows it | **Drop app-name heading** |
@@ -399,7 +399,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 | Shell | Top bar + brand mark · Modules switcher (§04b) · remove app-name page title |
 | Type | Inter everywhere · uppercase headings · tabular numbers |
 | Color | Recolor to tokens · gain/loss pair · strip stray hex, gradients, shadows |
-| Frames | Cards/panels → `.blueprint` hairline + `6px` radius |
+| Frames | Cards/panels → `.blueprint` hairline + `8px` radius |
 | Tables | `.table` + compact density · right-aligned numerics · row banding · resizable columns |
 | Controls | Buttons → `.btn` · inputs → `.input` · page tabs → `.tabs` in a toolbar row |
 | Data cells | Symbols → TradingView links (§06) · company-name shortening + marquee (§06) |

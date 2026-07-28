@@ -12,7 +12,7 @@
      - Accent recolored from bright blue (#0045ff) to muted steel-blue (#5980a6)
      - Gain/loss kept at #206f31 / #b42d36 (a #2e8b57/#c0392b retone was
        trialled and reverted — the green failed WCAG AA on every background)
-     - Radius changed from 0 (square) to 6px (slightly rounded) — the system
+     - Radius changed from 0 (square) to 8px (rounded) — the system
        is no longer perfectly square
      - Blueprint corner registration marks REMOVED — frames are a plain
        hairline border now, no crosshairs
@@ -103,7 +103,7 @@
   --table-cell-px: 10px;
 
   /* Layout */
-  --radius: 6px;
+  --radius: 8px;
   --content-max: 1680px;
   --gutter: clamp(16px, 3vw, 32px);
   --grid-gap: clamp(12px, 1.5vw, 20px);
@@ -389,7 +389,7 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* THE ONE EXCEPTION — the single solid object in the system.
-   Accent fill; corners are now naturally rounded (--radius: 6px), not
+   Accent fill; corners are now naturally rounded (--radius: 8px), not
    square-with-marks as in v1.0. */
 .btn-primary {
   background: var(--color-accent-500);
