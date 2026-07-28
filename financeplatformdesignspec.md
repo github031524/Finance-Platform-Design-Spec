@@ -1,6 +1,6 @@
 # NC Futures — Platform Design Specification
 
-**Version 3.0 · Industry System**
+**The master UI template.** One living document — no versions. It always describes the current system; when something changes, this document changes with it.
 
 > One look for every app. This is the contract every NC Futures module follows. Each app keeps its own logic and data — but adopts the same shell, tokens, type, and component vocabulary defined here, so separate tools read as one platform. Load the one stylesheet, follow the five rules, and reuse the markup below verbatim.
 

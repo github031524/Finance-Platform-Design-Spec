@@ -1,8 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 
 /* ==========================================================================
-   NC FUTURES — PLATFORM STYLESHEET v3.0
-   Implements Finance Platform Design Specification v3.0.
+   NC FUTURES — PLATFORM STYLESHEET
+   Implements the Finance Platform Design Specification, the master UI
+   template. One living stylesheet — no versions.
    Source of truth: Earnings Tracker (github031524/earnings-tracker), the
    first app built against this system and the reference every other module
    should match pixel-for-pixel. One stylesheet. Every module links this and
