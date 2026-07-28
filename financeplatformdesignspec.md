@@ -365,10 +365,28 @@ An opt-in conversion: instead of converting straight through, the agent presents
 
 1. **Inventory first (silently).** Run §09 Step 0 — read the codebase and inventory every route, data flow, business rule, validation and edge case. Keep it internal; don't print it. It stays the acceptance checklist.
 2. **Present the menu.** Offer the applicable changes as selectable options via `AskUserQuestion`, grouped by area, **multi-select on**. The tool caps a round at 4 questions × 4 options, so run several rounds until every area is covered. Skip areas the app doesn't have — never show a "symbol links" option to an app with no tickers.
-3. **Label options in plain language** — what it looks like now → what it becomes. One line. No spec jargon, no CSS class names in the label itself.
+3. **Keep labels short** — see *Writing the options* below. This is the part that most often goes wrong.
 4. **Apply only what's ticked.** Anything unticked is left exactly as-is, and is not raised again or "improved" in passing.
 5. **Report** in one short block: what was applied, what was skipped by choice, and anything the selection makes inconsistent (see below).
 6. Then commit, push, PR, merge as normal.
+
+### Writing the options
+
+The menu is for scanning, not reading. Hard limits:
+
+- **Label: 5 words max**, in `old → new` form.
+- **Description: one short line**, ~12 words max.
+- **No jargon** — no CSS class names, no `§` references, no "blueprint", "token", "hairline" in the label.
+
+| Too long | Right |
+|---|---|
+| Cards currently have drop shadows and rounded corners; they become hairline-bordered blueprint frames with a 6px radius | **Shadowed cards → hairline frames** |
+| Replace the existing typeface with Inter for all text and numbers, with uppercase headings | **All fonts → Inter** |
+| Wrap every ticker symbol in a link to its TradingView chart, opened in a new tab | **Symbols → TradingView links** |
+| Remove the page heading that repeats the app's name since the switcher already shows it | **Drop app-name heading** |
+| Convert tables to the platform table style with compact row padding and right-aligned numeric columns | **Tables → compact, numbers right** |
+
+If a change can't be said in 5 words, it's two changes — split it.
 
 ### Suggested grouping
 
