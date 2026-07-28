@@ -19,8 +19,8 @@ Everything below reflects what's actually live in the reference app today, not t
 | Area | v1.0 | v2.0 (current) |
 |---|---|---|
 | Accent color | `#0045ff` (bright blue) | `#5980a6` (muted steel-blue) |
-| Gain | `#206f31` | `#2e8b57` |
-| Loss | `#b42d36` | `#c0392b` |
+| Gain | `#206f31` | `#206f31` — unchanged. v2.0 briefly used `#2e8b57`; reverted (failed AA on every background) |
+| Loss | `#b42d36` | `#b42d36` — unchanged. v2.0 briefly used `#c0392b`; reverted for contrast |
 | Corner radius | `0` — perfectly square | `6px` — slightly rounded |
 | Blueprint corner marks | Required `+` registration marks on every frame | **Removed.** Plain hairline border, no marks |
 | Shell layers | 3 — top bar, app context bar, content region | **2** — top bar, content region. The context bar (breadcrumb + status) is gone |
@@ -34,7 +34,7 @@ Everything below reflects what's actually live in the reference app today, not t
 ## 01 · The Five Rules
 
 1. **Blueprint frames** — Every card, tile, panel and figure is a hairline-bordered line drawing with slightly rounded corners (`--radius: 6px`). No drop shadows as decoration, no filled surfaces (except the two named exceptions below).
-2. **One color, plus one named exception** — Steel blue (`#5980a6`) is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#2e8b57` / `#c0392b`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
+2. **One color, plus one named exception** — Steel blue (`#5980a6`) is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#206f31` / `#b42d36`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
 3. **One typeface: Inter** — Inter for everything, all text and all numbers, no exceptions. Headings and figures use 600 weight uppercase; body is 400/500. Numbers are tabular.
 4. **Visible grid** — Equal cells, hairline dividers, strong horizontal and vertical rhythm. Structure is drawn, not implied by whitespace alone.
 5. **Data first** — No marketing copy inside the tool. Labels are short and uppercase; the numbers are the loudest thing on screen. Status/freshness text (e.g. "Updated 3:50 AM") lives inline near the control it describes, not in a separate breadcrumb strip.
@@ -53,8 +53,10 @@ Everything below reflects what's actually live in the reference app today, not t
 | `surface` | `#e9e9ea` |
 | `text` | `#1d1f20` |
 | `accent` | `#5980a6` |
-| `gain` | `#2e8b57` |
-| `loss` | `#c0392b` |
+| `gain` | `#206f31` |
+| `loss` | `#b42d36` |
+
+Gain/loss are chosen for legibility on small tabular numbers: both clear WCAG AA (4.5:1) on every background in the system — plain `bg`, banded `surface` rows, and `accent-100` hover — bottoming out at 5.12:1.
 | `hairline` | `#c9cacc` |
 
 **Accent ramp:**
@@ -344,7 +346,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the v2.0 hex values in §02, not v1.0's.
 4. Reframe every card/panel as `.blueprint` — hairline border, `6px` radius. **Do not add corner registration marks** — v2.0 has none.
 5. Right-align numeric columns; set `tabular-nums`.
-6. Gains → `#2e8b57`, losses → `#c0392b`. Nothing else colored.
+6. Gains → `#206f31`, losses → `#b42d36`. Nothing else colored.
 7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in).
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, centered in a toolbar row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab) — no bare symbols anywhere.

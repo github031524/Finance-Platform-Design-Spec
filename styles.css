@@ -10,7 +10,8 @@
 
    CHANGED FROM v1.0:
      - Accent recolored from bright blue (#0045ff) to muted steel-blue (#5980a6)
-     - Gain/loss retoned to #2e8b57 / #c0392b
+     - Gain/loss kept at #206f31 / #b42d36 (a #2e8b57/#c0392b retone was
+       trialled and reverted — the green failed WCAG AA on every background)
      - Radius changed from 0 (square) to 6px (slightly rounded) — the system
        is no longer perfectly square
      - Blueprint corner registration marks REMOVED — frames are a plain
@@ -49,7 +50,7 @@
   --color-bg:      #f2f2f3;
   --color-surface: #e9e9ea;
   --color-text:    #1d1f20;
-  --color-loss:    #c0392b;
+  --color-loss:    #b42d36;
 
   /* Accent ramp — 500 is base; 100–300 tinted fills & hovers;
      700–900 text on tint and pressed states. */
@@ -64,7 +65,11 @@
   --color-accent-900: #253544;
 
   --color-accent: var(--color-accent-500);
-  --color-gain:   #2e8b57;
+  /* Gain/loss — the one documented break from "one color". Both clear WCAG AA
+     (4.5:1) on every background in the system: plain bg, banded surface rows,
+     and accent-100 hover, bottoming out at 5.12:1. Small tabular numbers, so
+     legibility governs the choice. */
+  --color-gain:   #206f31;
 
   /* Hairline — the only border in the system */
   --hairline-color: #c9cacc;
