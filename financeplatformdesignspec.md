@@ -1,6 +1,6 @@
 # NC Futures — Platform Design Specification
 
-**Version 2.0 · Industry System**
+**Version 3.0 · Industry System**
 
 > One look for every app. This is the contract every NC Futures module follows. Each app keeps its own logic and data — but adopts the same shell, tokens, type, and component vocabulary defined here, so separate tools read as one platform. Load the one stylesheet, follow the five rules, and reuse the markup below verbatim.
 
@@ -9,25 +9,6 @@
 > **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
 
 > **Full authorization — just do it.** The coding agent has full authority to carry out this conversion end to end without pausing for approval. Make every decision, run every step, commit as you go, and complete the whole job in one pass. Do not stop to ask permission or to confirm choices; only surface something if the app is genuinely broken and cannot proceed. The goal is to prompt once, walk away, and return to a finished conversion. **Exception:** if asked for *pick-your-changes mode* (§09a), that request wins — present the menu and wait, rather than converting straight through.
-
----
-
-## Changelog — v1.0 → v2.0
-
-Everything below reflects what's actually live in the reference app today, not the original v1.0 draft. If you built against v1.0, here's what changed:
-
-| Area | v1.0 | v2.0 (current) |
-|---|---|---|
-| Accent color | `#0045ff` (bright blue) | `#5980a6` (muted steel-blue) |
-| Gain | `#206f31` | `#206f31` — unchanged. v2.0 briefly used `#2e8b57`; reverted (failed AA on every background) |
-| Loss | `#b42d36` | `#b42d36` — unchanged. v2.0 briefly used `#c0392b`; reverted for contrast |
-| Corner radius | `0` — perfectly square | `8px` — rounded |
-| Blueprint corner marks | Required `+` registration marks on every frame | **Removed.** Plain hairline border, no marks |
-| Shell layers | 3 — top bar, app context bar, content region | **2** — top bar, content region. The context bar (breadcrumb + status) is gone |
-| Page tabs | Dedicated shell row above content | Centered inside each page's own toolbar row (3-zone layout: left content / tabs / right content) |
-| Top bar height | 62px | 48px |
-| Brand mark | Text lockup, "NC FUTURES ▦" | Literal shared logo file (see §04a) |
-| Table row padding | 4px vertical | 5px vertical |
 
 ---
 
@@ -119,7 +100,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 
 The top bar carries only the brand mark and the Modules switcher — no global search. There is no cross-app directory or shared backend, so global chrome that implies one is deliberately left out. Any navigation between an app's own views lives in the content region as `.tabs` (section 05/09); any search is local to that app's loaded data and built into its content region like any other component — never global chrome.
 
-**There is no app context bar.** v1.0 specified a breadcrumb + status strip as a second shell layer; it has been removed. A page's own freshness/status indicator (e.g. "Updated Jul 19, 3:50 AM", a live refresh-progress pill) lives inline in that page's own toolbar row instead — see the Tracker recipe in §06 for the reference pattern.
+**There is no app context bar** — no breadcrumb or status strip as a second shell layer; don't build one. A page's own freshness/status indicator (e.g. "Updated Jul 19, 3:50 AM", a live refresh-progress pill) lives inline in that page's own toolbar row instead — see the Tracker recipe in §06 for the reference pattern.
 
 **B · Content region** — the only part an app owns.
 
@@ -211,7 +192,7 @@ export const MODULES = [
 </div>
 ```
 
-**No corner registration marks.** v1.0 called for `+` marks at all four corners via `<i class="corner">` elements; these have been removed from the visual language. A `.blueprint` is now a plain hairline-bordered box with a rounded radius (`--radius: 8px`) — nothing more. If you're porting v1.0 markup that still includes `<i class="corner">` elements, they're harmless (the CSS sets `display: none` on them) but can be deleted in new code.
+**No corner registration marks.** A `.blueprint` is a plain hairline-bordered box with a rounded radius (`--radius: 8px`) — nothing more. Don't draw `+` crosshairs at the corners.
 
 No inline padding needed — `.blueprint` already carries a sensible default (`--space-4`, 13.6px). Add `style="padding:..."` only to override it for a specific tile. Default spacing below each panel is also `--space-4` — override for tiles that need tighter stacking.
 
@@ -270,7 +251,7 @@ $92.8B
 
 **Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
 
-**Status/freshness pill** — a small `.tag`-style element (border-accent-500, bg-accent-100, uppercase micro text) placed inline in a page's toolbar, next to the action it describes (e.g. "Updated 3:50 AM" beside a "Refresh Data" button). Replaces the v1.0 context bar's `[status tag]`.
+**Status/freshness pill** — a small `.tag`-style element (border-accent-500, bg-accent-100, uppercase micro text) placed inline in a page's toolbar, next to the action it describes (e.g. "Updated 3:50 AM" beside a "Refresh Data" button).
 
 ---
 
@@ -345,8 +326,8 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 
 1. Link `styles.css` and copy `logo.svg`; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
-3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the v2.0 hex values in §02, not v1.0's.
-4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks** — v2.0 has none.
+3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the hex values in §02.
+4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks.**
 5. Right-align numeric columns; set `tabular-nums`.
 6. Gains → `#206f31`, losses → `#b42d36`. Nothing else colored.
 7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in).
