@@ -8,7 +8,7 @@
 
 > **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
 
-> **Full authorization — just do it.** The coding agent has full authority to carry out this conversion end to end without pausing for approval. Make every decision, run every step, commit as you go, and complete the whole job in one pass. Do not stop to ask permission or to confirm choices; only surface something if the app is genuinely broken and cannot proceed. The goal is to prompt once, walk away, and return to a finished conversion.
+> **Full authorization — just do it.** The coding agent has full authority to carry out this conversion end to end without pausing for approval. Make every decision, run every step, commit as you go, and complete the whole job in one pass. Do not stop to ask permission or to confirm choices; only surface something if the app is genuinely broken and cannot proceed. The goal is to prompt once, walk away, and return to a finished conversion. **Exception:** if asked for *pick-your-changes mode* (§09a), that request wins — present the menu and wait, rather than converting straight through.
 
 ---
 
@@ -331,7 +331,7 @@ Utility classes for this are in `styles.css` §14 (`.row-band`, `.row-groupgap`)
 
 Converting means full replacement, not coexistence. Adopting this spec retires any prior theme, palette, or component library entirely — there is no compatibility mode that keeps old branding alongside the blueprint system. Proceed with the full replacement; the old look is being retired on purpose.
 
-**Authorization:** the agent is fully authorized to complete every step below without stopping for approval. Where the prose says "raise it before starting" or "tell me which path you're taking," instead pick the sensible option, note the choice in your commit message, and keep going — do not block on it.
+**Authorization:** the agent is fully authorized to complete every step below without stopping for approval. Where the prose says "raise it before starting" or "tell me which path you're taking," instead pick the sensible option, note the choice in your commit message, and keep going — do not block on it. This is overridden only by an explicit request for **pick-your-changes mode** (§09a).
 
 ### Step 0: inventory before touching anything
 
@@ -352,3 +352,44 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 11. Shorten company-name cells with `shortenCompanyName` (strip a leading "The", loop-strip suffixes/share-class noise, cap to 3 words) and the `.company` cell (160px, ellipsis, marquee-on-hover); missing names render `—` in muted accent-800.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `6px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
+
+---
+
+## 09a · Pick-Your-Changes Mode
+
+An opt-in conversion: instead of converting straight through, the agent presents the proposed changes as a **clickable menu** and applies only the ones ticked. Use it when adopting the system gradually, or on an app where some of the old UI should survive.
+
+**This mode overrides the "full authorization / just do it" clauses** in the header and §09. Do not edit, commit or push before the selection comes back.
+
+### Protocol
+
+1. **Inventory first (silently).** Run §09 Step 0 — read the codebase and inventory every route, data flow, business rule, validation and edge case. Keep it internal; don't print it. It stays the acceptance checklist.
+2. **Present the menu.** Offer the applicable changes as selectable options via `AskUserQuestion`, grouped by area, **multi-select on**. The tool caps a round at 4 questions × 4 options, so run several rounds until every area is covered. Skip areas the app doesn't have — never show a "symbol links" option to an app with no tickers.
+3. **Label options in plain language** — what it looks like now → what it becomes. One line. No spec jargon, no CSS class names in the label itself.
+4. **Apply only what's ticked.** Anything unticked is left exactly as-is, and is not raised again or "improved" in passing.
+5. **Report** in one short block: what was applied, what was skipped by choice, and anything the selection makes inconsistent (see below).
+6. Then commit, push, PR, merge as normal.
+
+### Suggested grouping
+
+| Group | Changes offered |
+|---|---|
+| Shell | Top bar + brand mark · Modules switcher (§04b) · remove app-name page title |
+| Type | Inter everywhere · uppercase headings · tabular numbers |
+| Color | Recolor to tokens · gain/loss pair · strip stray hex, gradients, shadows |
+| Frames | Cards/panels → `.blueprint` hairline + `6px` radius |
+| Tables | `.table` + compact density · right-aligned numerics · row banding · resizable columns |
+| Controls | Buttons → `.btn` · inputs → `.input` · page tabs → `.tabs` in a toolbar row |
+| Data cells | Symbols → TradingView links (§06) · company-name shortening + marquee (§06) |
+| Copy | Delete sell copy · labels to short uppercase · status text inline |
+
+### Dependencies
+
+Some picks imply others — say so in the option text rather than silently pulling extras in:
+
+- **Modules switcher** needs the **top bar**. Offer the bar first; grey the switcher out if the bar is declined.
+- **Company-name marquee** needs the **company cell truncation** — it's one option, not two.
+- **Row banding** and **resizable columns** both need the table converted to `.table` first.
+- **Gain/loss colors** are part of the color group; picking "tokens only" without them leaves gains/losses uncolored — flag that.
+
+A partial selection is a legitimate end state, not a half-finished job. But if the result is visibly inconsistent — new frames beside old shadowed cards, Inter beside the previous typeface — note it plainly in the report so the choice is informed. Do not fix it unasked.
