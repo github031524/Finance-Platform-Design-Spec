@@ -75,6 +75,8 @@ Gain/loss are chosen for legibility on small tabular numbers: both clear WCAG AA
 
 Light steps (100–300) for tinted fills and hovers; 500 is base; 700–900 for text on tint and pressed states.
 
+**800 is the one accent value for text** — labels, micro text, table headers, tabs, field labels, tag text and ticker symbols all use it. Don't reach for 700 to make one kind of text "slightly different": 700 and 800 differ by only 1.34:1, so the distinction is invisible at body and label sizes while adding a second value to the ramp. 700 is left for the `:focus-visible` outline; 900 for pressed states.
+
 ### Type — Inter only
 
 - `--font-heading` = Inter · 600 · UPPERCASE — headings, figures, labels
