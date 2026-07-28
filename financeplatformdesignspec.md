@@ -84,7 +84,7 @@ One typeface carries all text and numbers; both `--font-heading` and `--font-bod
 
 | Role | Size |
 |---|---|
-| Page / app title | 34–40px |
+| Page title — a content entity (e.g. a ticker), **never the app name** | 34–40px |
 | Section head | 15–16px, uppercase |
 | KPI figure | 18px |
 | Body | 13–15px |
@@ -274,8 +274,10 @@ $92.8B
 
 Pick a recipe by **interaction pattern**, not by subject matter. A page that lists tickers isn't automatically Tracker — Tracker is specifically for date/calendar-grid data. A sortable watchlist or discovery table is Screener or List/Builder. If a page genuinely matches none of the five below, define a new named recipe rather than forcing the nearest one.
 
+**No app-name page title.** The switcher in the top bar already names the current app (§03), so repeating it as a heading in the content region is redundant — don't render one. Every recipe below starts at its first working element (a toolbar, a filter aside, a dropzone), not at a title bar. A `.title` is only for a **content entity** the page is about — a ticker on a detail page, an index name on a builder page — never the app's own name.
+
 **Dashboard / detail** *(e.g. Stock Dashboard)*
-Title + price/status row → tabs → KPI tile row → chart panel + profile aside (2.1 : 1).
+Entity title (the ticker — not the app name) + price/status row → tabs → KPI tile row → chart panel + profile aside (2.1 : 1).
 
 **Screener** *(e.g. Taiwan Revenue · Parabolic)*
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
@@ -287,7 +289,7 @@ Toolbar row: left content (e.g. a list/view selector) → centered `.tabs` → r
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
 
 **Upload / analyze** *(e.g. Options Position Analyzer)*
-Title + status row → dropzone (blueprint, collapses to a slim "add another" bar once data is loaded) → KPI tile row → full-width chart panel → results table below. For tools where the input is a file/screenshot rather than a filter or ticker search.
+Status row → dropzone (blueprint, collapses to a slim "add another" bar once data is loaded) → KPI tile row → full-width chart panel → results table below. For tools where the input is a file/screenshot rather than a filter or ticker search.
 
 ---
 
@@ -346,6 +348,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in).
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, centered in a toolbar row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab) — no bare symbols anywhere.
-10. Shorten company-name cells with `shortenCompanyName` (strip a leading "The", loop-strip suffixes/share-class noise, cap to 3 words) and the `.company` cell (160px, ellipsis, marquee-on-hover); missing names render `—` in muted accent-800.
+10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
+11. Shorten company-name cells with `shortenCompanyName` (strip a leading "The", loop-strip suffixes/share-class noise, cap to 3 words) and the `.company` cell (160px, ellipsis, marquee-on-hover); missing names render `—` in muted accent-800.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `6px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
