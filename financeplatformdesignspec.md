@@ -111,6 +111,8 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 
 **A · Global top bar** — 48px, sticky, hairline base. Brand mark on the left, the Modules switcher centered, an optional account chip on the right.
 
+**The switcher is labelled with the current app**, not the word "Modules" — it reads as a "you are here" marker that happens to be clickable. Clicking it drops down the full module list (§04b); clicking an entry there opens that app **in a new tab**, leaving the current one in place. The current app is listed too, marked as active (`aria-current="page"`) and not a link.
+
 The top bar carries only the brand mark and the Modules switcher — no global search. There is no cross-app directory or shared backend, so global chrome that implies one is deliberately left out. Any navigation between an app's own views lives in the content region as `.tabs` (section 05/09); any search is local to that app's loaded data and built into its content region like any other component — never global chrome.
 
 **There is no app context bar.** v1.0 specified a breadcrumb + status strip as a second shell layer; it has been removed. A page's own freshness/status indicator (e.g. "Updated Jul 19, 3:50 AM", a live refresh-progress pill) lives inline in that page's own toolbar row instead — see the Tracker recipe in §06 for the reference pattern.
@@ -120,12 +122,22 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 ```html
 <header class="topbar">
   <span class="topbar__brand"><img src="logo.svg" alt="NC Futures" /></span>
-  <!-- Modules switcher — give the switcher .topbar__modules so it's absolutely
-       centered in the top bar, staying dead-center regardless of the brand and
-       account-chip widths on either side. Its .blueprint--solid dropdown opens
-       directly below the trigger. -->
+  <!-- Modules switcher — .topbar__modules keeps it absolutely centered in the
+       top bar, dead-center regardless of the brand and account-chip widths on
+       either side. The trigger is labelled with THIS app's name; the
+       .blueprint--solid menu opens directly below it. -->
   <div class="topbar__modules">
-    <button class="btn" aria-haspopup="listbox" aria-expanded="false">Modules ▾</button>
+    <button class="btn topbar__modules-trigger" aria-haspopup="menu" aria-expanded="false">
+      Earnings Tracker ▾
+    </button>
+
+    <!-- Add [hidden] / remove it to close & open. Every entry opens in a new tab. -->
+    <div class="topbar__modules-menu blueprint blueprint--solid" role="menu" hidden>
+      <span class="topbar__modules-item" role="menuitem" aria-current="page">Earnings Tracker</span>
+      <a class="topbar__modules-item" role="menuitem" target="_blank" rel="noopener"
+         href="https://options-analyzer-production-24d8.up.railway.app/">Options Analyzer</a>
+      <!-- … one <a> per remaining module, in the §04b order … -->
+    </div>
   </div>
 </header>
 
@@ -147,6 +159,43 @@ There is no shared auth or shared data layer, implemented or implied. There is a
 The logo is a **literal shared asset**, not a per-app redraw: three rising bars (accent-500 fill) beside the "NC Futures" wordmark, tight kerning (`NC` to `Futures` gap ≈ 2 SVG units at the reference's 600×150 viewBox; bar-to-text gap ≈ 20 units). Every app embeds the **exact same file**, unmodified — get it from `github031524/earnings-tracker:client/src/assets/logo.svg` (also mirrored as `logo.svg` in this design-spec repo). Render it at `height: 34.56px` in the top bar; width follows automatically from the SVG's aspect ratio.
 
 Do not hand-recreate the mark as inline SVG shapes or a text lockup — use the file as-is.
+
+---
+
+## 04b · The Module Registry
+
+The canonical list of modules. **Every app hardcodes this same list, in this order**, in its own switcher — there is no shared backend or directory to fetch it from (§03 Architecture). It's a copied constant, like `styles.css` and `logo.svg`.
+
+| Module | URL |
+|---|---|
+| Options Analyzer | `https://options-analyzer-production-24d8.up.railway.app/` |
+| Earnings Tracker | `https://earnings-tracker-production-2c77.up.railway.app/#/` |
+| Custom Indexer | `https://indexer-production-83a6.up.railway.app/#/` |
+| Stock Screener | `https://parabolic-screener-production.up.railway.app/` |
+| Stock Dashboard | `https://stock-dashboard-server-production-6c1c.up.railway.app/` |
+| PEAD | `https://pead-watchlist-e1a53.up.railway.app/` |
+| AI Screener | `https://nc-futures-screener-server-production.up.railway.app/` |
+
+```js
+// Copy verbatim into each app; mark the current one with `current: true`.
+export const MODULES = [
+  { name: "Options Analyzer", url: "https://options-analyzer-production-24d8.up.railway.app/" },
+  { name: "Earnings Tracker", url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
+  { name: "Custom Indexer",   url: "https://indexer-production-83a6.up.railway.app/#/" },
+  { name: "Stock Screener",   url: "https://parabolic-screener-production.up.railway.app/" },
+  { name: "Stock Dashboard",  url: "https://stock-dashboard-server-production-6c1c.up.railway.app/" },
+  { name: "PEAD",             url: "https://pead-watchlist-e1a53.up.railway.app/" },
+  { name: "AI Screener",      url: "https://nc-futures-screener-server-production.up.railway.app/" },
+];
+```
+
+**Rules**
+
+1. **Trigger label = the current app's name** — never the word "Modules".
+2. **Entries open in a new tab** — `target="_blank" rel="noopener"`. The current tab never navigates away.
+3. **The current app stays in the list**, rendered as inert text with `aria-current="page"` — not a link.
+4. **The list is append-only in practice** — when a module is added, update this table and re-copy the constant into every app so all switchers stay identical. A switcher missing an app is stale, not a variant.
+5. Names here are the display names — use them verbatim, and match the app's own title.
 
 ---
 
