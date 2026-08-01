@@ -86,7 +86,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 - Gutter: `clamp(16px, 3vw, 32px)`
 - Content top/bottom padding: `clamp(16px, 3vw, 32px)`
 - Card / tile grid gap: `clamp(12px, 1.5vw, 20px)`
-- Table cell padding: `5px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
+- Table cell padding: `4px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
 
 ---
 
@@ -220,7 +220,7 @@ $92.8B
 ▲ +33.8% YoY
 ```
 
-**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`5px 10px`)
+**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`)
 
 | METRIC | Q3'25 | Q2'25 | YOY |
 |---|---:|---:|---:|
