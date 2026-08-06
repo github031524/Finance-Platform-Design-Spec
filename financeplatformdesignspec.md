@@ -284,7 +284,7 @@ The reference app's tables support drag-to-resize columns with persisted widths 
 
 - Column widths stored in component state, seeded from a `COLUMNS` config array, persisted to `localStorage` under an app-specific key.
 - `<table class="table" style="table-layout:fixed; width:<sum>">` with a `<colgroup>` of `<col style="width:...px">` per column, driven by that state.
-- A `ResizeHandle` — an absolutely-positioned `6px`-wide strip at the right edge of each resizable `<th>`, with a **faint always-visible border** (`border-right: 1px solid var(--hairline-color)` equivalent) so users can see where to grab, brightening on hover/drag (accent tint).
+- A `ResizeHandle` — an absolutely-positioned `6px`-wide strip at the right edge of each resizable `<th>`. **Invisible at rest — no border, no vertical line.** The affordances are `cursor: col-resize` over the strip and an accent tint that appears on hover and stays while dragging. Nothing is drawn when the column is not being resized.
 - Drag updates width via `mousemove`/`mouseup` listeners on `window`, clamped to a `40px` minimum.
 
 ---
