@@ -564,11 +564,13 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
   color: var(--color-accent-800);
 }
 
+/* Tight vertical padding (--space-2, not --space-3) — fields stay compact,
+   in step with the dense-table stance, without shrinking the 14px text. */
 .input,
 select.input,
 textarea.input {
   width: 100%;
-  padding: var(--space-3) var(--space-3);
+  padding: var(--space-2) var(--space-3);
   border: var(--hairline);
   background: var(--color-bg);
   color: var(--color-text);
