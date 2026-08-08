@@ -159,7 +159,6 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 | Stock Screener | `https://parabolic-screener-production.up.railway.app/` |
 | Stock Dashboard | `https://stock-dashboard-server-production-6c1c.up.railway.app/` |
 | PEAD | `https://pead-watchlist-e1a53.up.railway.app/` |
-| AI Screener | `https://nc-futures-screener-server-production.up.railway.app/` |
 
 ```js
 // Copy verbatim into each app; mark the current one with `current: true`.
@@ -170,7 +169,6 @@ export const MODULES = [
   { name: "Stock Screener",   url: "https://parabolic-screener-production.up.railway.app/" },
   { name: "Stock Dashboard",  url: "https://stock-dashboard-server-production-6c1c.up.railway.app/" },
   { name: "PEAD",             url: "https://pead-watchlist-e1a53.up.railway.app/" },
-  { name: "AI Screener",      url: "https://nc-futures-screener-server-production.up.railway.app/" },
 ];
 ```
 
