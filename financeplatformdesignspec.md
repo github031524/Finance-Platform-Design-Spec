@@ -220,7 +220,7 @@ $92.8B
 ▲ +33.8% YoY
 ```
 
-**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`)
+**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`). **Column headers are sticky**: rows scroll, the header row stays pinned just below the top bar so columns are always identifiable. (If a table lives inside its own scrolling box, pin to that box with `top: 0`.)
 
 | METRIC | Q3'25 | Q2'25 | YOY |
 |---|---:|---:|---:|
