@@ -232,6 +232,14 @@ $92.8B
    target="_blank" rel="noopener">AAPL</a>
 ```
 
+**Open All (bulk chart review)** — every view that lists stock tickers carries an **Open All** button (`.btn`, secondary — never the page's primary). One click opens each listed ticker's TradingView chart (the §06 symbol-link URL) in its own browser tab, replacing N clicks with one full-depth review session:
+
+- **Order-aware** — tabs open in the list's current sort/filter state, so the on-screen ranking becomes the review order.
+- **Symbol-aware** — each ticker maps to the exchange-qualified symbol where needed (e.g. `NASDAQ:AAPL`, `TWSE:2330`, `LSE:VOD`), so US, Asian and European listings all resolve to the right chart.
+- **Stocks only** — derived rows (benchmarks, totals, index lines) are excluded.
+- **Guardrail** — above ~25 tickers, a confirmation dialog states the tab count before opening.
+- **Affordance** — the button's tooltip warns that the browser's pop-up blocker must allow the site, since blockers typically permit only the first tab.
+
 **Company name cell** — long names in a company column are shortened by a `shortenCompanyName(name)` transform, truncated by CSS, then marquee-scrolled on hover:
 
 1. **Strip a leading "The"** — `The Kraft Heinz Company` → `Kraft Heinz Company`.
@@ -333,6 +341,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab) — no bare symbols anywhere.
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
 11. Shorten company-name cells with `shortenCompanyName` (strip a leading "The", loop-strip suffixes/share-class noise, cap to 3 words) and the `.company` cell (160px, ellipsis, marquee-on-hover); missing names render `—` in muted accent-800.
+12. Add an **Open All** button to every ticker-list view (§06) — current sort order, exchange-qualified symbols, stocks only, confirm above ~25 tabs.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
 
@@ -381,7 +390,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 | Frames | Cards/panels → `.blueprint` hairline + `8px` radius |
 | Tables | `.table` + compact density · right-aligned numerics · row banding · resizable columns |
 | Controls | Buttons → `.btn` · inputs → `.input` · page tabs → `.tabs` in a toolbar row |
-| Data cells | Symbols → TradingView links (§06) · company-name shortening + marquee (§06) |
+| Data cells | Symbols → TradingView links (§06) · company-name shortening + marquee (§06) · Open All on ticker lists (§06) |
 | Copy | Delete sell copy · labels to short uppercase · status text inline |
 
 ### Dependencies
