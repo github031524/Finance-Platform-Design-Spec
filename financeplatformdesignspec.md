@@ -157,7 +157,6 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 | Earnings Tracker | `https://earnings-tracker-production-2c77.up.railway.app/#/` |
 | Custom Indexer | `https://indexer-production-83a6.up.railway.app/#/` |
 | Stock Screener | `https://parabolic-screener-production.up.railway.app/` |
-| Stock Dashboard | `https://stock-dashboard-server-production-6c1c.up.railway.app/` |
 | PEAD | `https://pead-watchlist-e1a53.up.railway.app/` |
 
 ```js
@@ -167,7 +166,6 @@ export const MODULES = [
   { name: "Earnings Tracker", url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
   { name: "Custom Indexer",   url: "https://indexer-production-83a6.up.railway.app/#/" },
   { name: "Stock Screener",   url: "https://parabolic-screener-production.up.railway.app/" },
-  { name: "Stock Dashboard",  url: "https://stock-dashboard-server-production-6c1c.up.railway.app/" },
   { name: "PEAD",             url: "https://pead-watchlist-e1a53.up.railway.app/" },
 ];
 ```
@@ -269,7 +267,7 @@ Pick a recipe by **interaction pattern**, not by subject matter. A page that lis
 
 **No app-name page title.** The switcher in the top bar already names the current app (§03), so repeating it as a heading in the content region is redundant — don't render one. Every recipe below starts at its first working element (a toolbar, a filter aside, a dropzone), not at a title bar. A `.title` is only for a **content entity** the page is about — a ticker on a detail page, an index name on a builder page — never the app's own name.
 
-**Dashboard / detail** *(e.g. Stock Dashboard)*
+**Dashboard / detail** *(a single ticker's full picture)*
 Entity title (the ticker — not the app name) + price/status row → tabs → KPI tile row → chart panel + profile aside (2.1 : 1).
 
 **Screener** *(e.g. Taiwan Revenue · Parabolic)*
