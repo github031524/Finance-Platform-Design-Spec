@@ -253,6 +253,8 @@ $92.8B
 <td class="company"><span class="company__inner">International Business Machines</span></td>
 ```
 
+`.company` is the named instance of the general **peek-marquee pattern** (stylesheet §16), usable on *any* fixed-width element whose text may overflow: fixed window (`max-width` + hidden overflow + `nowrap` + ellipsis), an inner `inline-block` span, and on hover ellipsis→clip plus a `translateX` animation ending at `min(0px, calc(window − 100%))` — the text slides left exactly until its last character reaches the window's right edge, and text that fits never moves. `6s linear infinite alternate` (tune `--marquee-speed`): a slow back-and-forth **pan**, not a looping ticker tape; layout never shifts, and mouse-out snaps back to the ellipsis. Reduced-motion users get the static ellipsis (§02 reset). The window width is declared once as `--peek-window` and inherited into the keyframe — override the variable per instance rather than restating the width; if the width is dynamic (resized columns, §08a), regenerate `--peek-window` from the live width or accept slight under/over-travel.
+
 **Tabs** — e.g. `WATCHLIST` · `UPCOMING`. In the reference app these live centered inside the page's own toolbar row (a 3-zone flex layout: existing left content, centered `.tabs` via `absolute left-1/2 -translate-x-1/2` within a `relative` toolbar container, existing right content) — not a dedicated shell row.
 
 **Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
