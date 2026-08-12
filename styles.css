@@ -707,8 +707,27 @@ textarea.input {
    accent-800 (.company--null). Reliable truncation needs the column width
    honored — table-layout: fixed (§08a) or a block wrapper. */
 
+/* THE PEEK-MARQUEE PATTERN. .company is the named instance of a generic
+   treatment usable on ANY fixed-width element whose text may overflow: a
+   fixed window (max-width + hidden overflow + nowrap + ellipsis), an inner
+   inline-block span so the text is measurable and transformable, and on
+   hover: ellipsis -> clip plus a translateX animation whose end position is
+   min(0px, calc(window - 100%)) — 100% is the span's own full width, so the
+   text slides left exactly until its last character reaches the window's
+   right edge, and the min() guard clamps text that fits to zero travel, so
+   it never animates. 6s linear infinite alternate: a slow back-and-forth
+   pan across the window, NOT a looping ticker tape — the hidden tail is
+   revealed, then the start returns. Text never wraps and layout never
+   shifts. Mouse-out removes the animation; the cell snaps back to the
+   ellipsis. The window width is declared ONCE as --peek-window (inherited
+   into the keyframe calc) — override that variable per instance, never
+   restate the width. If the element's width is dynamic (user-resized
+   columns, §08a), the keyframe constant won't track it: regenerate
+   --peek-window from the live column width, or accept under/over-travel. */
+
 .company {
-  max-width: 160px;
+  --peek-window: 160px;
+  max-width: var(--peek-window);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -719,8 +738,6 @@ textarea.input {
   will-change: transform;
 }
 
-/* Hover: drop the ellipsis and scroll the full name back and forth at a
-   steady, readable speed (tune via --marquee-speed; default 6s). */
 .company:hover { text-overflow: clip; }
 
 .company:hover .company__inner {
@@ -729,7 +746,7 @@ textarea.input {
 
 @keyframes company-marquee {
   from { transform: translateX(0); }
-  to   { transform: translateX(min(0px, calc(160px - 100%))); }
+  to   { transform: translateX(min(0px, calc(var(--peek-window, 160px) - 100%))); }
 }
 
 .company--null { color: var(--color-accent-800); }
