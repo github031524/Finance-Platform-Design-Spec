@@ -105,6 +105,9 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 **B · Content region** — the only part an app owns.
 
 ```html
+<!-- In <head> — the shared favicon (§04a), so the browser tab carries the brand: -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
 <header class="topbar">
   <span class="topbar__brand"><img src="logo.svg" alt="NC Futures" /></span>
   <!-- Modules switcher — .topbar__modules keeps it absolutely centered in the
@@ -144,6 +147,14 @@ There is no shared auth or shared data layer, implemented or implied. There is a
 The logo is a **literal shared asset**, not a per-app redraw: three rising bars (accent-500 fill) beside the "NC Futures" wordmark, tight kerning (`NC` to `Futures` gap ≈ 2 SVG units at the reference's 600×150 viewBox; bar-to-text gap ≈ 20 units). Every app embeds the **exact same file**, unmodified — get it from `github031524/earnings-tracker:client/src/assets/logo.svg` (also mirrored as `logo.svg` in this design-spec repo). Render it at `height: 34.56px` in the top bar; width follows automatically from the SVG's aspect ratio.
 
 Do not hand-recreate the mark as inline SVG shapes or a text lockup — use the file as-is.
+
+**Favicon — required.** Every app also serves the shared favicon so its browser tab carries the brand: the three bars alone, cropped square (the wordmark is illegible at 16px). Copy `favicon.svg` from this repo unmodified — same rule as the logo, no per-app redraws — and declare it in `<head>`:
+
+```html
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+```
+
+An app whose tab shows the browser's default globe icon is missing its favicon and out of spec.
 
 ---
 
@@ -330,7 +341,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 
 **Retrofit vs. rebuild:** default to retrofitting incrementally — one step at a time, with a build/test and a git commit after each. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout. Either way, check the result against the Step 0 inventory before calling it done — that's what actually prevents silent regressions.
 
-1. Link `styles.css` and copy `logo.svg`; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
+1. Link `styles.css` and copy `logo.svg` + `favicon.svg` (with its `<head>` link tag, §04a); wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
 3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the hex values in §02.
 4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks.**
@@ -384,7 +395,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 
 | Group | Changes offered |
 |---|---|
-| Shell | Top bar + brand mark · Modules switcher (§04b) · remove app-name page title |
+| Shell | Top bar + brand mark · Modules switcher (§04b) · favicon (§04a) · remove app-name page title |
 | Type | Inter everywhere · uppercase headings · tabular numbers |
 | Color | Recolor to tokens · gain/loss pair · strip stray hex, gradients, shadows |
 | Frames | Cards/panels → `.blueprint` hairline + `8px` radius |
