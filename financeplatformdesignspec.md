@@ -138,7 +138,7 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 
 There is no shared console, no iframing, and no micro-frontend layer. Every app is a **fully standalone deploy** — it copies `styles.css` (and the shared `logo.svg`) into its own repo and reproduces the top bar locally, rather than mounting inside a parent shell. "Every app inherits the same chrome" means every app's markup matches, not that they run inside one host application.
 
-There is no shared auth or shared data layer, implemented or implied. There is also no hub, launcher, or landing page tying the apps together — they are opened one at a time in separate browser tabs, and none should be created. Each app holds its own env-var API key and manages its own data independently.
+There is no shared auth or shared data layer, implemented or implied — no SSO, no shared session store, no identity service. Every app gates itself, alone, with its own copy of the §10 access control and its own credential env vars. There is also no hub, launcher, or landing page tying the apps together — they are opened one at a time in separate browser tabs, and none should be created. Each app holds its own env-var API key and manages its own data independently.
 
 ---
 
@@ -370,6 +370,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 12. Add an **Open All** button to every ticker-list view (§06) — current sort order, exchange-qualified symbols, stocks only, confirm above ~25 tabs.
 13. Give every column header a native `title` tooltip (§06) — one sentence, the metric's formula or meaning; no custom tooltip component.
 14. Make every comparable column sortable (§06) — click to sort, click to flip, ▲/▼ on the active header, nulls last.
+15. Put the app behind the §10 access gate — Basic auth from env vars, signed 30-day cookie, public `/health` only — and run the §10 secrets-hygiene check on the repo.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
 
@@ -380,6 +381,8 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 An opt-in conversion: instead of converting straight through, the agent presents the proposed changes as a **clickable menu** and applies only the ones ticked. Use it when adopting the system gradually, or on an app where some of the old UI should survive.
 
 **This mode overrides the "full authorization / just do it" clauses** in the header and §09. Do not edit, commit or push before the selection comes back.
+
+**§10 access control is not a menu item.** It's a security requirement, not a look — apply it whether or not anything visual is ticked, and say so in the report. The only thing to ask about is if the app already has a working gate of its own.
 
 ### Protocol
 
@@ -431,3 +434,212 @@ Some picks imply others — say so in the option text rather than silently pulli
 - **Gain/loss colors** are part of the color group; picking "tokens only" without them leaves gains/losses uncolored — flag that.
 
 A partial selection is a legitimate end state, not a half-finished job. But if the result is visibly inconsistent — new frames beside old shadowed cards, Inter beside the previous typeface — note it plainly in the report so the choice is informed. Do not fix it unasked.
+
+---
+
+## 10 · Access Control — Every App Is Private
+
+Every module is a personal tool sitting on a public Railway URL. **No app ships without the gate below**, and it isn't optional in any mode: a new module isn't done, and a conversion isn't complete, until the gate is in place and verified.
+
+The gate is deliberately the cheapest thing that works: **HTTP Basic Auth on the first request, a signed cookie for the next 30 days.** No login page, no user table, no session store, no identity provider, no new dependency — and no CSS, since there's nothing of ours to style.
+
+### The rules
+
+1. **Credentials come from the environment** — `APP_USERNAME` and `APP_PASSWORD`. Never hardcoded, never with a fallback default, never committed.
+2. **Missing config fails closed.** If `APP_USERNAME`, `APP_PASSWORD` or `SECRET_KEY` is unset at startup, every route except `/health` returns `503` — a misconfigured app is unreachable, never open. The 503 body says nothing about *which* variable is missing; log that once at startup instead, by name only.
+3. **Constant-time comparison** — `crypto.timingSafeEqual` / `hmac.compare_digest`, on equal-length inputs (hash both sides first, as below). Never `===` / `==` on a password.
+4. **One prompt, then a cookie.** On success, set a signed, `HttpOnly`, `Secure`, `SameSite=Lax` cookie with a 30-day `Max-Age`, and accept it on later requests so a phone and a laptop each prompt once. **Stateless** — the signature *is* the proof. An in-memory session store would log you out on every deploy, since Railway replaces the container each time.
+5. **Signed with `SECRET_KEY`** — HMAC-SHA256 over the payload, verified before the payload is read or trusted. A cookie that fails verification, or whose `exp` has passed, is treated as absent: fall through to the Basic Auth challenge.
+6. **Everything is behind it** — pages, the SPA bundle and its assets, `/api/*`, the SPA catch-all route. Mount the middleware **once, above every route and above static-file serving**, so a new route is protected by default rather than by remembering to protect it.
+7. **One public exception: `/health`** — Railway's healthcheck. It returns `{"status":"ok"}` and nothing else: no version, no env, no build info, no config state. Register it *above* the middleware; it is the only path allowed to skip.
+8. **Never log credentials.** Not the password, not the `Authorization` header, not the cookie value — not in request loggers, not in error handlers that dump `req.headers`, not in debug output. Log the *outcome* (`401 GET /`), never the input.
+9. **No custom login UI.** The browser's own Basic Auth dialog is the login screen — the same reasoning as the native column-header tooltips (§06): the OS draws it, there's nothing to style and nothing to keep in spec. Challenge with `WWW-Authenticate: Basic realm="NC Futures"`.
+10. **Per app, not shared.** Each deploy carries its own variables. Reusing the same username/password across modules is fine and convenient, but each app still prompts once on its own domain — cookies don't cross domains, so opening a module from the switcher (§04b) prompts the first time and then goes quiet for 30 days. Rotating an app's `SECRET_KEY` invalidates its cookies immediately; that's the logout button.
+
+### Cookie format
+
+```
+ncf_auth = v1.<base64url(payload)>.<base64url(hmac_sha256(SECRET_KEY, payload))>
+payload  = {"u":"<username>","exp":<unix-seconds>}
+```
+
+Verify by recomputing the HMAC over the received payload and comparing constant-time, then checking `exp` is in the future. The payload is signed, not encrypted — put nothing in it but the username and expiry.
+
+### Reference implementation — Node / Express
+
+The reference app's stack (Express serving the built Vite SPA). No new packages; the cookie is parsed by hand so `cookie-parser` isn't needed.
+
+```js
+// server/auth.js
+import crypto from "node:crypto";
+
+const { APP_USERNAME, APP_PASSWORD, SECRET_KEY } = process.env;
+const MISSING = ["APP_USERNAME", "APP_PASSWORD", "SECRET_KEY"].filter((k) => !process.env[k]);
+const COOKIE = "ncf_auth";
+const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+
+if (MISSING.length) console.error(`[auth] missing env: ${MISSING.join(", ")} — all routes will 503`); // names only, never values
+
+const b64 = (v) => Buffer.from(v).toString("base64url");
+const sign = (payload) => crypto.createHmac("sha256", SECRET_KEY).update(payload).digest();
+
+// Hash both sides to a fixed width so the compare is constant-time AND
+// never throws on a length mismatch — the length itself leaks nothing.
+const safeEqual = (a, b) =>
+  crypto.timingSafeEqual(
+    crypto.createHash("sha256").update(String(a)).digest(),
+    crypto.createHash("sha256").update(String(b)).digest(),
+  );
+
+function validCookie(token) {
+  if (!token) return false;
+  const [v, payload, sig] = token.split(".");
+  if (v !== "v1" || !payload || !sig) return false;
+  const expected = sign(payload);
+  const got = Buffer.from(sig, "base64url");
+  if (got.length !== expected.length || !crypto.timingSafeEqual(got, expected)) return false;
+  try {
+    const { exp } = JSON.parse(Buffer.from(payload, "base64url").toString());
+    return typeof exp === "number" && exp > Math.floor(Date.now() / 1000);
+  } catch {
+    return false; // never trust an unverified payload
+  }
+}
+
+function readCookie(req) {
+  const hit = (req.headers.cookie || "")
+    .split(";")
+    .map((s) => s.trim())
+    .find((s) => s.startsWith(`${COOKIE}=`));
+  return hit ? decodeURIComponent(hit.slice(COOKIE.length + 1)) : null;
+}
+
+function issueCookie(res, user) {
+  const payload = b64(JSON.stringify({ u: user, exp: Math.floor(Date.now() / 1000) + MAX_AGE }));
+  res.cookie(COOKIE, `v1.${payload}.${b64(sign(payload))}`, {
+    httpOnly: true, secure: true, sameSite: "lax", maxAge: MAX_AGE * 1000, path: "/",
+  });
+}
+
+export function requireAuth(req, res, next) {
+  if (MISSING.length) return res.status(503).type("text/plain").send("Server not configured");
+  if (validCookie(readCookie(req))) return next();
+
+  const header = req.headers.authorization || "";
+  if (header.startsWith("Basic ")) {
+    const [user, ...rest] = Buffer.from(header.slice(6), "base64").toString("utf8").split(":");
+    if (safeEqual(user, APP_USERNAME) && safeEqual(rest.join(":"), APP_PASSWORD)) {
+      issueCookie(res, user);
+      return next();
+    }
+  }
+  res.set("WWW-Authenticate", 'Basic realm="NC Futures", charset="UTF-8"');
+  res.status(401).type("text/plain").send("Authentication required"); // never log `header`
+}
+```
+
+```js
+// server/index.js — order is the whole point
+app.get("/health", (_req, res) => res.json({ status: "ok" })); // public, above the gate
+app.use(requireAuth);                                          // ↓ everything below is private
+app.use(express.static(distDir));
+app.use("/api", apiRouter);
+app.get("*", (_req, res) => res.sendFile(path.join(distDir, "index.html")));
+```
+
+### Reference implementation — Python / Flask
+
+Same contract. `before_request` also covers Flask's `/static` route, which is the point.
+
+```python
+# auth.py
+import base64, hashlib, hmac, json, os, time
+from flask import Response, g, request
+
+USER, PASSWORD, KEY = (os.environ.get(k) for k in ("APP_USERNAME", "APP_PASSWORD", "SECRET_KEY"))
+MISSING = [k for k in ("APP_USERNAME", "APP_PASSWORD", "SECRET_KEY") if not os.environ.get(k)]
+COOKIE, MAX_AGE = "ncf_auth", 60 * 60 * 24 * 30  # 30 days
+
+_b64 = lambda b: base64.urlsafe_b64encode(b).decode().rstrip("=")
+_unb64 = lambda s: base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
+_sign = lambda payload: hmac.new(KEY.encode(), payload.encode(), hashlib.sha256).digest()
+_digest = lambda v: hashlib.sha256((v or "").encode()).digest()  # fixed width, length-safe
+
+def _valid_cookie(token):
+    try:
+        version, payload, sig = (token or "").split(".")
+        if version != "v1" or not hmac.compare_digest(_unb64(sig), _sign(payload)):
+            return False
+        return json.loads(_unb64(payload))["exp"] > time.time()
+    except Exception:
+        return False
+
+def require_auth():
+    if request.path == "/health":
+        return None                                    # the one public route
+    if MISSING:
+        return Response("Server not configured", 503)
+    if _valid_cookie(request.cookies.get(COOKIE)):
+        return None
+    auth = request.authorization
+    if auth and hmac.compare_digest(_digest(auth.username), _digest(USER)) \
+            and hmac.compare_digest(_digest(auth.password), _digest(PASSWORD)):
+        g.issue_cookie = True
+        return None
+    return Response("Authentication required", 401,
+                    {"WWW-Authenticate": 'Basic realm="NC Futures", charset="UTF-8"'})
+
+def issue_cookie(response):
+    if g.pop("issue_cookie", False):
+        payload = _b64(json.dumps({"u": USER, "exp": int(time.time()) + MAX_AGE}).encode())
+        response.set_cookie(COOKIE, f"v1.{payload}.{_b64(_sign(payload))}",
+                            max_age=MAX_AGE, httponly=True, secure=True, samesite="Lax", path="/")
+    return response
+
+# app.py
+app.before_request(require_auth)
+app.after_request(issue_cookie)
+```
+
+**FastAPI / Starlette:** same code as an `@app.middleware("http")` function, with the `/health` route exempted by path. **Anything else:** whatever the framework calls "middleware that runs before routing" — the rules above are the spec, the two listings are just the two stacks the platform actually runs.
+
+### Railway setup
+
+| Variable | Value |
+|---|---|
+| `APP_USERNAME` | your login name — short, not an email |
+| `APP_PASSWORD` | a long random passphrase, generated not invented |
+| `SECRET_KEY` | 64 hex chars from the command below — unrelated to the password |
+
+Generate `SECRET_KEY` (any one):
+
+```sh
+openssl rand -hex 32
+python3 -c "import secrets; print(secrets.token_hex(32))"
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+In the Railway dashboard: **project → service → Variables → New Variable** for each of the three; saving triggers a redeploy. Then **Settings → Deploy → Healthcheck Path = `/health`**. The dashboard is the only place these values live — never the repo, never a commit, never a screenshot in an issue. For local dev put the same three in a gitignored `.env`.
+
+`Secure` cookies are fine on `http://localhost` (browsers treat localhost as a secure context), so the flag is unconditional — never weaken it behind a "dev mode" env check.
+
+### Secrets hygiene — check on every build
+
+1. **`.gitignore` covers `.env` and `.env.*`**, with `!.env.example` excepted. Commit a `.env.example` listing the variable *names* with empty values.
+2. **Scan the working tree and the git history** for committed API keys, tokens and passwords — `git log -p -S<fragment>`, or a scanner like gitleaks/trufflehog across all refs.
+3. **Report findings; do not rewrite history.** A force-pushed history rewrite is disruptive and doesn't help — anything already pushed must be assumed captured. **Rotating the exposed key at its provider is what actually neutralizes it**; do that first, then remove it from the working tree so the next commit is clean.
+
+### Acceptance test
+
+```sh
+curl -sI https://APP/                      # 401 + WWW-Authenticate: Basic realm="NC Futures"
+curl -sI https://APP/health                # 200, body {"status":"ok"}
+curl -sI https://APP/api/anything          # 401 — API is not a side door
+curl -sI https://APP/assets/index.js       # 401 — static assets are not a side door
+curl -sI -u "$APP_USERNAME:$APP_PASSWORD" https://APP/
+                                           # 200 + Set-Cookie: ncf_auth=v1…; Max-Age=2592000;
+                                           #   Path=/; HttpOnly; Secure; SameSite=Lax
+curl -sI -H 'Cookie: ncf_auth=v1.eyJ1IjoieCJ9.forged' https://APP/   # 401 — bad signature rejected
+```
+
+Then unset one variable in Railway and confirm the app returns `503` everywhere instead of letting anyone in. An app that answers `200` on any of the first four lines is out of spec and publicly readable.
