@@ -236,6 +236,12 @@ $92.8B
 | Revenue | $24.8B | $22.7B | +33.8% |
 | Free cash flow | $8.2B | $4.4B | −4.2% |
 
+**Column-header tooltips** — every table column header carries a plain-language definition via the native HTML `title` attribute. **No custom tooltip component, no JavaScript, no CSS** — on hover (~1s browser delay) the browser renders its default tooltip: system font and size, positioned at the cursor. Styling is deliberately left to the browser/OS. The text states the metric's formula or meaning in one sentence:
+
+```html
+<th class="num" title="Trailing-twelve-month revenue, sum of the last four reported quarters">REVENUE (TTM)</th>
+```
+
 **Symbol / ticker link** — every ticker symbol shown anywhere (table cells, KPI tiles, headers, detail asides) is a clickable `.symbol` link to its TradingView chart, opened in a new tab. Never render a bare, unlinked symbol. URL pattern: `https://www.tradingview.com/chart/3Ojf0qKU/?symbol=<SYMBOL>` — the shared chart layout `3Ojf0qKU` with the symbol appended (case-insensitive), e.g. `?symbol=aapl`.
 
 ```html
@@ -355,6 +361,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
 11. Shorten company-name cells with `shortenCompanyName` (strip a leading "The", loop-strip suffixes/share-class noise, cap to 3 words) and the `.company` cell (160px, ellipsis, marquee-on-hover); missing names render `—` in muted accent-800.
 12. Add an **Open All** button to every ticker-list view (§06) — current sort order, exchange-qualified symbols, stocks only, confirm above ~25 tabs.
+13. Give every column header a native `title` tooltip (§06) — one sentence, the metric's formula or meaning; no custom tooltip component.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
 
@@ -401,7 +408,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 | Type | Inter everywhere · uppercase headings · tabular numbers |
 | Color | Recolor to tokens · gain/loss pair · strip stray hex, gradients, shadows |
 | Frames | Cards/panels → `.blueprint` hairline + `8px` radius |
-| Tables | `.table` + compact density · right-aligned numerics · row banding · resizable columns |
+| Tables | `.table` + compact density · right-aligned numerics · row banding · resizable columns · header tooltips |
 | Controls | Buttons → `.btn` · inputs → `.input` · page tabs → `.tabs` in a toolbar row |
 | Data cells | Symbols → TradingView links (§06) · company-name shortening + marquee (§06) · Open All on ticker lists (§06) |
 | Copy | Delete sell copy · labels to short uppercase · status text inline |
