@@ -485,6 +485,14 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
   white-space: nowrap;
 }
 
+/* Sortable headers — the sorting itself is app code (state + re-render, see
+   spec §06); the stylesheet supplies only the affordance. The active th also
+   carries aria-sort and appends a ▲/▼ glyph inheriting the header color. */
+.table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
 .table td {
   padding: var(--table-cell-py) var(--table-cell-px);
   border-bottom: var(--hairline);
