@@ -544,8 +544,10 @@ app.get("/health", (_req, res) => res.json({ status: "ok" })); // public, above 
 app.use(requireAuth);                                          // ↓ everything below is private
 app.use(express.static(distDir));
 app.use("/api", apiRouter);
-app.get("*", (_req, res) => res.sendFile(path.join(distDir, "index.html")));
+app.use((_req, res) => res.sendFile(path.join(distDir, "index.html"))); // SPA catch-all
 ```
+
+**On the catch-all:** it's `app.use(...)` with no path, not `app.get("*", ...)`. Express 5 replaced its route parser and no longer accepts a bare `"*"` — it throws `PathError: Missing parameter name at index 1` at startup, so the app never listens. A pathless `app.use` is the one form that works identically on Express 4 and 5. (If you want a route rather than middleware, Express 5 spells it `app.get("/*splat", …)`, which Express 4 rejects — hence the middleware.)
 
 ### Reference implementation — Python / Flask
 
