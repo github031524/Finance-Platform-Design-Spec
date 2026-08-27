@@ -4,7 +4,9 @@
 
 > One look for every app. This is the contract every NC Futures module follows. Each app keeps its own logic and data — but adopts the same shell, tokens, type, and component vocabulary defined here, so separate tools read as one platform. Load the one stylesheet, follow the five rules, and reuse the markup below verbatim.
 
-> **Source of truth.** This spec is written FROM the reference implementation, not the other way around. **Earnings Tracker** (`github031524/earnings-tracker`) is the canonical app — if this document and that codebase ever disagree, the codebase wins and this document is stale and should be updated to match it. Copy its `client/src/index.css`, `client/src/components/Blueprint.tsx`, `client/src/components/PageTabs.tsx`, `client/src/components/NcFuturesLogo.tsx`, and `client/src/assets/logo.svg` directly when starting a new module rather than re-deriving them from prose.
+> **Source of truth — this document wins.** If this spec and any app disagree, the spec is right and the app is out of date; bring the app up to the spec, never the reverse. That includes **Earnings Tracker** (`github031524/earnings-tracker`), which seeded this system and is still the best worked example of it, but is not the authority: the spec has moved ahead of it more than once, and an app lagging behind is a to-do, not a correction.
+>
+> Take `styles.css`, `logo.svg` and `favicon.svg` from **this repo** — they are the shipping artifacts, not illustrations. Read the reference app's components (`Blueprint.tsx`, `PageTabs.tsx`, `NcFuturesLogo.tsx`) for how the markup goes together, then check what you copy against this document before shipping it.
 
 > **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
 
@@ -229,7 +231,7 @@ $92.8B
 ▲ +33.8% YoY
 ```
 
-**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`). **Column headers are sticky**: rows scroll, the header row stays pinned just below the top bar so columns are always identifiable. (If a table lives inside its own scrolling box, pin to that box with `top: 0`.)
+**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`). **Column headers are sticky**: rows scroll, the header row stays pinned so columns are always identifiable — see §08a for which `top` value to use, since it depends on whether the table scrolls with the page or inside its own box. Columns are **resizable** (§08a) and **sortable** (below) on every table.
 
 | METRIC | Q3'25 | Q2'25 | YOY |
 |---|---:|---:|---:|
@@ -279,7 +281,7 @@ $92.8B
 
 `.company` is the named instance of the general **peek-marquee pattern** (stylesheet §16), usable on *any* fixed-width element whose text may overflow: fixed window (`max-width` + hidden overflow + `nowrap` + ellipsis), an inner `inline-block` span, and on hover ellipsis→clip plus a `translateX` animation ending at `min(0px, calc(window − 100%))` — the text slides left exactly until its last character reaches the window's right edge, and text that fits never moves. `6s linear infinite alternate` (tune `--marquee-speed`): a slow back-and-forth **pan**, not a looping ticker tape; layout never shifts, and mouse-out snaps back to the ellipsis. Reduced-motion users get the static ellipsis (§02 reset). The window width is declared once as `--peek-window` and inherited into the keyframe — override the variable per instance rather than restating the width; if the width is dynamic (resized columns, §08a), regenerate `--peek-window` from the live width or accept slight under/over-travel.
 
-**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. In the reference app these live centered inside the page's own toolbar row (a 3-zone flex layout: existing left content, centered `.tabs` via `absolute left-1/2 -translate-x-1/2` within a `relative` toolbar container, existing right content) — not a dedicated shell row.
+**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. Put them **centered inside the page's own toolbar row**, never in a dedicated row of their own. The toolbar is a 3-zone layout: existing content on the left, `.tabs` centered via `absolute left-1/2 -translate-x-1/2` inside a `relative` container, existing content on the right.
 
 **Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
 
@@ -310,14 +312,25 @@ Status row → dropzone (blueprint, collapses to a slim "add another" bar once d
 
 ---
 
-## 08a · Optional: Resizable Table Columns
+## 08a · Resizable Table Columns
 
-The reference app's tables support drag-to-resize columns with persisted widths — not required by the spec, but available as a pattern if a module's table has many columns:
+**Required on every data table.** Any column the user can read, they can widen — no table ships with fixed, immovable columns. Widths persist, so a table opens the way it was left:
 
 - Column widths stored in component state, seeded from a `COLUMNS` config array, persisted to `localStorage` under an app-specific key.
 - `<table class="table" style="table-layout:fixed; width:<sum>">` with a `<colgroup>` of `<col style="width:...px">` per column, driven by that state.
 - A `ResizeHandle` — an absolutely-positioned `6px`-wide strip at the right edge of each resizable `<th>`. **Invisible at rest — no border, no vertical line.** The affordances are `cursor: col-resize` over the strip and an accent tint that appears on hover and stays while dragging. Nothing is drawn when the column is not being resized.
 - Drag updates width via `mousemove`/`mouseup` listeners on `window`, clamped to a `40px` minimum.
+
+**Where the header sticks depends on where the table scrolls** — get this wrong and the header scrolls away. Two cases:
+
+| The table… | Header pins with | Because |
+|---|---|---|
+| scrolls with the page (default) | `top: var(--topbar-h)` | it must clear the 48px top bar |
+| sits in its own scrolling box (`overflow: auto`) | `top: 0` | it pins to that box, which starts below the bar already |
+
+A sticky header can only pin to its nearest scrolling ancestor. So if a wide table gets an `overflow-x: auto` wrapper, that wrapper becomes the scroll container and the default `top: var(--topbar-h)` pushes the header 48px *down* inside it. Override to `top: 0` in that case. Never put `overflow: hidden` on a wrapper around a table — it silently kills sticky entirely.
+
+**Resizing and the company cell:** widths here are dynamic, but the peek-marquee window (§06) is a fixed number. When a column with `.company` in it is resized, write the new width back to `--peek-window` on that cell, or the hover pan will travel too far or stop short.
 
 ---
 
@@ -369,7 +382,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 11. Apply the **company name cell** treatment (§06) — shorten, truncate, marquee on hover, em-dash when missing.
 12. Add an **Open All** button to every ticker-list view (§06).
 13. Give every column header a native `title` tooltip (§06).
-14. Make every comparable column sortable (§06).
+14. Make every comparable column sortable (§06), and every column resizable with persisted widths (§08a).
 15. Put the app behind the **§10 access gate**, and run the §10 secrets-hygiene check on the repo.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
@@ -419,7 +432,8 @@ If a change can't be said in 5 words, it's two changes — split it.
 | Type | Inter everywhere · uppercase headings · tabular numbers |
 | Color | Recolor to tokens · gain/loss pair · strip stray hex, gradients, shadows |
 | Frames | Cards/panels → `.blueprint` hairline + `8px` radius |
-| Tables | `.table` + compact density · right-aligned numerics · row banding · resizable columns · header tooltips · sortable columns |
+| Table look | `.table` + compact density · right-aligned numerics · row banding · sticky headers |
+| Table behavior | Sortable columns · resizable columns · header tooltips |
 | Controls | Buttons → `.btn` · inputs → `.input` · page tabs → `.tabs` in a toolbar row |
 | Data cells | Symbols → TradingView links (§06) · company-name shortening + marquee (§06) · Open All on ticker lists (§06) |
 | Copy | Delete sell copy · labels to short uppercase · status text inline |
