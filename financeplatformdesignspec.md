@@ -207,6 +207,8 @@ export const MODULES = [
 
 No inline padding needed — `.blueprint` already carries a sensible default (`--space-4`, 13.6px). Add `style="padding:..."` only to override it for a specific tile. Default spacing below each panel is also `--space-4` — override for tiles that need tighter stacking.
 
+**A frame wrapping a table has no padding** — the stylesheet zeroes it automatically, so the table sits flush against the border and its own cell padding does the spacing. Don't add `style="padding:0"` by hand.
+
 Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrappers, and floating panels (add `.blueprint--solid` for dropdowns/popovers that need an opaque fill so page content doesn't show through).
 
 ---
@@ -248,7 +250,7 @@ $92.8B
 
 - **Click to sort, click again to flip.** First click on a numeric column sorts **descending** (biggest first — the finance default); on a text column **ascending** (A→Z). The active header appends a `▲`/`▼` glyph (inheriting the header color — no new colors); inactive headers carry no glyph. Set `aria-sort` on the active `<th>`.
 - **Sort by type** — numbers numerically, text case-insensitively, dates chronologically. Null/`—` cells always sort last, in either direction.
-- **Composes with the rest of the table**: Open All (§06) opens tabs in the new order; group banding (§08b) recomputes from the new order; the §08a resize strip at the header's right edge is a drag target, not a sort target — a click there never sorts.
+- **Composes with the rest of the table**: Open All opens tabs in the new order; group banding (§08b) recomputes from the new order; the §08a resize strip at the header's right edge is a drag target, not a sort target — a click there never sorts.
 - Sorting is app code (state + re-render); the stylesheet supplies only the affordance.
 
 **Symbol / ticker link** — every ticker symbol shown anywhere (table cells, KPI tiles, headers, detail asides) is a clickable `.symbol` link to its TradingView chart, opened in a new tab. Never render a bare, unlinked symbol. URL pattern: `https://www.tradingview.com/chart/3Ojf0qKU/?symbol=<SYMBOL>` — the shared chart layout `3Ojf0qKU` with the symbol appended (case-insensitive), e.g. `?symbol=aapl`.
@@ -271,7 +273,9 @@ $92.8B
 1. **Strip a leading "The"** — `The Kraft Heinz Company` → `Kraft Heinz Company`.
 2. **Strip suffixes** — repeatedly remove trailing corporate suffixes and share-class/ADR noise until nothing more matches: `Inc` / `Inc.`, `Corp` / `Corporation`, `Ltd`, `LLC` / `L.L.C.`, `plc`, `Holdings` / `Holding`, `Group`, `Technologies` / `Technology`, `& Co` / `Co.` / `Cos.`, `Class A`, `Series A Preferred`, `Common Stock`, `American Depositary Shares` / `Receipts`, `ADR`, `ADS`, `Ordinary Shares (...)`, `Subordinate Voting Shares`. Loops until stable: `Foo Inc. Common Stock` → `Foo Inc.` → `Foo`.
 3. **Cap to 3 words** — keep only the first 3 words that remain: `International Business Machines Corporation` → (strip `Corporation`) → `International Business Machines`.
-4. **Truncate + marquee** — the company `<td>` uses `.company`, whose window width is `--peek-window` (160px by default; override the variable, never restate the number); anything still too wide gets a trailing `…`. On hover it marquee-scrolls at a steady, readable speed to reveal the full shortened name (wrap the text in `.company__inner`). Honors `prefers-reduced-motion` — the §02 reset disables the scroll.
+4. **Truncate + marquee** — the company `<td>` uses `.company`; anything too wide for the column gets a trailing `…`. On hover it marquee-scrolls at a steady, readable speed to reveal the full shortened name (wrap the text in `.company__inner`). Honors `prefers-reduced-motion` — the §02 reset disables the scroll.
+
+   ⚠️ **`--peek-window` must equal the column's real width.** Because every table uses fixed layout (§08a), the `<col>` width *is* the window and the class's own `max-width` is ignored. A stale value isn't a near-miss — the pan is measured against a width the cell doesn't have, so a name that fits fine gets slid out of view on hover. Write the live column width into `--peek-window` on first render and on every resize.
 
 **Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` in muted `var(--color-accent-800)` (#32485e).
 
@@ -302,7 +306,7 @@ Entity title (the ticker — not the app name) + price/status row → tabs → K
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
 
 **Tracker / calendar** *(e.g. Earnings Tracker — the reference app)*
-Toolbar row: left content (e.g. a list/view selector) → centered `.tabs` → right content (action buttons). A second toolbar-style row below carries the primary input (e.g. "Add Symbols") plus a leading count/status pill. Below that: the results table, wrapped in `.blueprint`, with drag-to-resize columns (see §08a) and row banding by date group.
+Toolbar row: left content (e.g. a list/view selector) → centered `.tabs` → right content (action buttons). A second toolbar-style row below carries the primary input (e.g. "Add Symbols") plus a leading count/status pill. Below that: the results table, wrapped in `.blueprint`, with row banding by date group.
 
 **List / builder** *(e.g. Indexer)*
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
@@ -321,12 +325,14 @@ Status row → dropzone (blueprint, collapses to a slim "add another" bar once d
 - A `ResizeHandle` — an absolutely-positioned `6px`-wide strip at the right edge of each resizable `<th>`. **Invisible at rest — no border, no vertical line.** The affordances are `cursor: col-resize` over the strip and an accent tint that appears on hover and stays while dragging. Nothing is drawn when the column is not being resized.
 - Drag updates width via `mousemove`/`mouseup` listeners on `window`, clamped to a `40px` minimum.
 
-**Where the header sticks depends on where the table scrolls** — get this wrong and the header scrolls away. Two cases:
+**Where the header sticks depends on where the table scrolls** — get this wrong and the header scrolls away. A sticky header pins to its nearest scrolling ancestor, so:
 
 | The table… | Header pins with | Because |
 |---|---|---|
-| scrolls with the page (default) | `top: var(--topbar-h)` | it must clear the 48px top bar |
-| sits in its own scrolling box (`overflow: auto`) | `top: 0` | it pins to that box, which starts below the bar already |
+| sits in its own scrolling box — **the usual case here** | `top: 0` | it pins to that box, which already starts below the bar |
+| scrolls with the page, no wrapper | `top: var(--topbar-h)` | it has to clear the 48px top bar |
+
+Expect the first row. Fixed layout gives the table an explicit total width, which on a wide table overflows its container and needs an `overflow-x: auto` wrapper — and that wrapper becomes the scroll container. The stylesheet ships the page-scroll value, so **override to `top: 0` whenever you add that wrapper**.
 
 A sticky header can only pin to its nearest scrolling ancestor. So if a wide table gets an `overflow-x: auto` wrapper, that wrapper becomes the scroll container and the default `top: var(--topbar-h)` pushes the header 48px *down* inside it. Override to `top: 0` in that case. Never put `overflow: hidden` on a wrapper around a table — it silently kills sticky entirely.
 
