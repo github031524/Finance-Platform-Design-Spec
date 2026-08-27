@@ -102,7 +102,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 
 The top bar carries only the brand mark and the Modules switcher — no global search. There is no cross-app directory or shared backend, so global chrome that implies one is deliberately left out. Any navigation between an app's own views lives in the content region as `.tabs` (§06); any search is local to that app's loaded data and built into its content region like any other component — never global chrome.
 
-**There is no app context bar** — no breadcrumb or status strip as a second shell layer; don't build one. A page's own freshness/status indicator (e.g. "Updated Jul 19, 3:50 AM", a live refresh-progress pill) lives inline in that page's own toolbar row instead — see the Tracker recipe in §06 for the reference pattern.
+**There is no app context bar** — no breadcrumb or status strip as a second shell layer; don't build one. A page's own freshness/status readout (e.g. "Updated Jul 19, 3:50 AM", a live refresh indicator) lives inline in that page's own toolbar row instead — see §06 for the treatment.
 
 **B · Content region** — the only part an app owns.
 
@@ -291,7 +291,9 @@ $92.8B
 
 **Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
 
-**Status/freshness pill** — a small `.tag`-style element (border-accent-500, bg-accent-100, uppercase micro text) placed inline in a page's toolbar, next to the action it describes (e.g. "Updated 3:50 AM" beside a "Refresh Data" button).
+**Status/freshness text** — plain `.micro` text (uppercase, 9.5px, accent-800), placed inline in a page's toolbar next to the action it describes (e.g. "Updated 3:50 AM" beside a "Refresh Data" button). **Not a pill** — no border, no fill. A badge around it implies something you can click or dismiss; this is a passive readout, and boxing it makes it compete with the actual controls in the same row.
+
+`.tag` stays for things that really are tags — a short accent-marked classifier attached to a row or record, not a status line.
 
 ---
 
@@ -308,7 +310,7 @@ Entity title (the ticker — not the app name) + price/status row → tabs → K
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
 
 **Tracker / calendar** *(e.g. Earnings Tracker — the reference app)*
-Toolbar row: left content (e.g. a list/view selector) → centered `.tabs` → right content (action buttons). A second toolbar-style row below carries the primary input (e.g. "Add Symbols") plus a leading count/status pill. Below that: the results table, wrapped in `.blueprint`, with row banding by date group.
+Toolbar row: left content (e.g. a list/view selector) → centered `.tabs` → right content (action buttons). A second toolbar-style row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group.
 
 **List / builder** *(e.g. Indexer)*
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
