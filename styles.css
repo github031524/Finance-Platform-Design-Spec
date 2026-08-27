@@ -527,7 +527,16 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .table td.text { text-align: left; font-variant-numeric: normal; }
 
 /* Wrap tables in .blueprint; this keeps the frame flush */
-.blueprint > .table:only-child { display: table; }
+/* A table wrapped in a frame sits flush against it — the frame's default
+   --space-4 padding would otherwise float the table inside its own border,
+   and the table draws its own cell padding already. This replaces the
+   inline style="padding:0" every table wrapper was carrying. */
+.blueprint:has(> .table) { padding: 0; }
+
+/* Fallback for browsers without :has() — same result when the table is the
+   frame's only child, which is the common case. */
+.blueprint > .table:only-child { margin: calc(var(--space-4) * -1); width: calc(100% + var(--space-4) * 2); }
+.blueprint:has(> .table) > .table:only-child { margin: 0; width: 100%; }
 
 
 /* 09 · TABS =============================================================== */
@@ -724,8 +733,16 @@ textarea.input {
    name in .company__inner so the marquee has something to translate; the §02
    prefers-reduced-motion reset disables the scroll automatically. A missing
    name makes the transform return null and the app renders an em-dash in muted
-   accent-800 (.company--null). Reliable truncation needs the column width
-   honored — table-layout: fixed (§08a) or a block wrapper. */
+   accent-800 (.company--null). */
+
+/* --peek-window MUST match the cell's real rendered width. Inside a table
+   (§08a requires table-layout: fixed on all of them) the <col> width is the
+   window and max-width below is ignored entirely, so a stale --peek-window
+   is not a near-miss: the pan is computed against a width the cell does not
+   have, and a name that comfortably fits gets slid sideways out of view on
+   hover. The app owns this — write the live column width into --peek-window
+   on first render and again on every resize. The 160px below is only a
+   starting value for a cell that is NOT inside a fixed-layout table. */
 
 /* THE PEEK-MARQUEE PATTERN. .company is the named instance of a generic
    treatment usable on ANY fixed-width element whose text may overflow: a
@@ -741,9 +758,8 @@ textarea.input {
    shifts. Mouse-out removes the animation; the cell snaps back to the
    ellipsis. The window width is declared ONCE as --peek-window (inherited
    into the keyframe calc) — override that variable per instance, never
-   restate the width. If the element's width is dynamic (user-resized
-   columns, §08a), the keyframe constant won't track it: regenerate
-   --peek-window from the live column width, or accept under/over-travel. */
+   restate the width, and keep it equal to the cell's real width (see the
+   note above; this is not optional inside a resizable table). */
 
 .company {
   --peek-window: 160px;
