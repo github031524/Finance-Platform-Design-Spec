@@ -103,7 +103,19 @@
 *::before,
 *::after { box-sizing: border-box; }
 
-* { border-radius: var(--radius); }
+/* Rounding is applied to the boxed things, not blanket-applied to every
+   element. A universal `* { border-radius }` also rounds table cells, rows,
+   images and the page itself, and quietly rounds anything added later that
+   shouldn't be. Keep this list in step with new boxed components. */
+.blueprint,
+.btn,
+.input,
+select.input,
+textarea.input,
+.tag,
+.avatar,
+.topbar__modules-item,
+.dropzone { border-radius: var(--radius); }
 
 html { -webkit-text-size-adjust: 100%; }
 
