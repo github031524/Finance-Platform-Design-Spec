@@ -36,9 +36,9 @@
 | `accent` | `#5980a6` |
 | `gain` | `#206f31` |
 | `loss` | `#b42d36` |
+| `hairline` | `#c9cacc` |
 
 Gain/loss are chosen for legibility on small tabular numbers: both clear WCAG AA (4.5:1) on every background in the system — plain `bg`, banded `surface` rows, and `accent-100` hover — bottoming out at 5.12:1.
-| `hairline` | `#c9cacc` |
 
 **Accent ramp:**
 
@@ -98,7 +98,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 
 **The switcher is labelled with the current app**, not the word "Modules" — it reads as a "you are here" marker that happens to be clickable. Clicking it drops down the full module list (§04b); clicking an entry there opens that app **in a new tab**, leaving the current one in place. The current app is listed too, marked as active (`aria-current="page"`) and not a link.
 
-The top bar carries only the brand mark and the Modules switcher — no global search. There is no cross-app directory or shared backend, so global chrome that implies one is deliberately left out. Any navigation between an app's own views lives in the content region as `.tabs` (section 05/09); any search is local to that app's loaded data and built into its content region like any other component — never global chrome.
+The top bar carries only the brand mark and the Modules switcher — no global search. There is no cross-app directory or shared backend, so global chrome that implies one is deliberately left out. Any navigation between an app's own views lives in the content region as `.tabs` (§06); any search is local to that app's loaded data and built into its content region like any other component — never global chrome.
 
 **There is no app context bar** — no breadcrumb or status strip as a second shell layer; don't build one. A page's own freshness/status indicator (e.g. "Updated Jul 19, 3:50 AM", a live refresh-progress pill) lives inline in that page's own toolbar row instead — see the Tracker recipe in §06 for the reference pattern.
 
@@ -269,7 +269,7 @@ $92.8B
 1. **Strip a leading "The"** — `The Kraft Heinz Company` → `Kraft Heinz Company`.
 2. **Strip suffixes** — repeatedly remove trailing corporate suffixes and share-class/ADR noise until nothing more matches: `Inc` / `Inc.`, `Corp` / `Corporation`, `Ltd`, `LLC` / `L.L.C.`, `plc`, `Holdings` / `Holding`, `Group`, `Technologies` / `Technology`, `& Co` / `Co.` / `Cos.`, `Class A`, `Series A Preferred`, `Common Stock`, `American Depositary Shares` / `Receipts`, `ADR`, `ADS`, `Ordinary Shares (...)`, `Subordinate Voting Shares`. Loops until stable: `Foo Inc. Common Stock` → `Foo Inc.` → `Foo`.
 3. **Cap to 3 words** — keep only the first 3 words that remain: `International Business Machines Corporation` → (strip `Corporation`) → `International Business Machines`.
-4. **Truncate + marquee** — the company `<td>` uses `.company` (max-width `160px`); anything still too wide gets a trailing `…`. On hover it marquee-scrolls at a steady, readable speed to reveal the full shortened name (wrap the text in `.company__inner`). Honors `prefers-reduced-motion` — the §02 reset disables the scroll.
+4. **Truncate + marquee** — the company `<td>` uses `.company`, whose window width is `--peek-window` (160px by default; override the variable, never restate the number); anything still too wide gets a trailing `…`. On hover it marquee-scrolls at a steady, readable speed to reveal the full shortened name (wrap the text in `.company__inner`). Honors `prefers-reduced-motion` — the §02 reset disables the scroll.
 
 **Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` in muted `var(--color-accent-800)` (#32485e).
 
@@ -296,7 +296,7 @@ Pick a recipe by **interaction pattern**, not by subject matter. A page that lis
 **Dashboard / detail** *(a single ticker's full picture)*
 Entity title (the ticker — not the app name) + price/status row → tabs → KPI tile row → chart panel + profile aside (2.1 : 1).
 
-**Screener** *(e.g. Taiwan Revenue · Parabolic)*
+**Screener** *(e.g. Stock Screener, Taiwan Screener)*
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
 
 **Tracker / calendar** *(e.g. Earnings Tracker — the reference app)*
@@ -366,11 +366,11 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, centered in a toolbar row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab) — no bare symbols anywhere.
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
-11. Shorten company-name cells with `shortenCompanyName` (strip a leading "The", loop-strip suffixes/share-class noise, cap to 3 words) and the `.company` cell (160px, ellipsis, marquee-on-hover); missing names render `—` in muted accent-800.
-12. Add an **Open All** button to every ticker-list view (§06) — current sort order, exchange-qualified symbols, stocks only, confirm above ~25 tabs.
-13. Give every column header a native `title` tooltip (§06) — one sentence, the metric's formula or meaning; no custom tooltip component.
-14. Make every comparable column sortable (§06) — click to sort, click to flip, ▲/▼ on the active header, nulls last.
-15. Put the app behind the §10 access gate — Basic auth from env vars, signed 30-day cookie, public `/health` only — and run the §10 secrets-hygiene check on the repo.
+11. Apply the **company name cell** treatment (§06) — shorten, truncate, marquee on hover, em-dash when missing.
+12. Add an **Open All** button to every ticker-list view (§06).
+13. Give every column header a native `title` tooltip (§06).
+14. Make every comparable column sortable (§06).
+15. Put the app behind the **§10 access gate**, and run the §10 secrets-hygiene check on the repo.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
 
