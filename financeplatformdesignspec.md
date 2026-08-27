@@ -240,6 +240,8 @@ $92.8B
 | Revenue | $24.8B | $22.7B | +33.8% |
 | Free cash flow | $8.2B | $4.4B | −4.2% |
 
+**Empty cells** — a cell with no value carries an em-dash `—` marked `.nil`, in **any** column, not just names. It renders in accent-400: clearly present as "nothing here", but roughly 7× lighter than a real figure, so the eye skips it and lands on the numbers (rule 5). Don't render blanks at full text weight — a column of dashes then competes with the data beside it — and don't go lighter than `.nil` either, or they read as a rendering fault rather than a deliberate blank.
+
 **Column-header tooltips** — every table column header carries a plain-language definition via the native HTML `title` attribute. **No custom tooltip component, no JavaScript, no CSS** — on hover (~1s browser delay) the browser renders its default tooltip: system font and size, positioned at the cursor. Styling is deliberately left to the browser/OS. The text states the metric's formula or meaning in one sentence:
 
 ```html
@@ -277,7 +279,7 @@ $92.8B
 
    ⚠️ **`--peek-window` must equal the column's real width.** Because every table uses fixed layout (§08a), the `<col>` width *is* the window and the class's own `max-width` is ignored. A stale value isn't a near-miss — the pan is measured against a width the cell doesn't have, so a name that fits fine gets slid out of view on hover. Write the live column width into `--peek-window` on first render and on every resize.
 
-**Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` in muted `var(--color-accent-800)` (#32485e).
+**Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` using `.nil`, the same treatment as any empty cell (below).
 
 ```html
 <td class="company"><span class="company__inner">International Business Machines</span></td>

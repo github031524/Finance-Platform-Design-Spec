@@ -526,6 +526,16 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .table th.text,
 .table td.text { text-align: left; font-variant-numeric: normal; }
 
+/* Empty cells — ANY column, not just names. A cell with no value carries an
+   em-dash at accent-400, which sits ~2.2:1 on the page and ~6.8:1 away from a
+   real figure: plainly visible as "nothing here", but light enough that the
+   eye skips it and lands on the numbers (rule 5, data first). Accent-800 —
+   the value used before — reads at 8.4:1, barely a step from live data, so a
+   column of blanks competed with the figures beside it. Don't go lighter than
+   this either: accent-300 falls to 1.4:1 and starts looking like a rendering
+   fault rather than a deliberate blank. */
+.nil { color: var(--color-accent-400); }
+
 /* Wrap tables in .blueprint; this keeps the frame flush */
 /* A table wrapped in a frame sits flush against it — the frame's default
    --space-4 padding would otherwise float the table inside its own border,
@@ -732,8 +742,8 @@ textarea.input {
    ellipsis, and on hover the name marquee-scrolls to reveal itself. Wrap the
    name in .company__inner so the marquee has something to translate; the §02
    prefers-reduced-motion reset disables the scroll automatically. A missing
-   name makes the transform return null and the app renders an em-dash in muted
-   accent-800 (.company--null). */
+   name makes the transform return null and the app renders an em-dash
+   (.company--null, the same treatment as any empty cell — see .nil in §08). */
 
 /* --peek-window MUST match the cell's real rendered width. Inside a table
    (§08a requires table-layout: fixed on all of them) the <col> width is the
@@ -785,4 +795,6 @@ textarea.input {
   to   { transform: translateX(min(0px, calc(var(--peek-window, 160px) - 100%))); }
 }
 
-.company--null { color: var(--color-accent-800); }
+/* The company column's blank is the same blank as any other — kept as a name
+   for readability at the call site, but it is just .nil (§08). */
+.company--null { color: var(--color-accent-400); }
