@@ -40,7 +40,7 @@
 | `loss` | `#b42d36` |
 | `hairline` | `#c9cacc` |
 
-Gain/loss are chosen for legibility on small tabular numbers: both clear WCAG AA (4.5:1) on every background in the system — plain `bg`, banded `surface` rows, and `accent-100` hover — bottoming out at 5.12:1.
+Gain/loss are chosen for legibility on small tabular numbers: both clear WCAG AA (4.5:1) on every background in the system — plain `bg`, banded `surface` rows, and `accent-200` hover — bottoming out at 4.84:1 on a hovered row. Re-check this pair against any new row background before adding one.
 
 **Accent ramp:**
 
@@ -350,7 +350,7 @@ For tables whose rows fall into natural groups (e.g. every ticker reporting on t
 |---|---|---|
 | Default row background | `#f2f2f3` | `--color-bg` |
 | Alternating band (every other group) | `#e9e9ea` | `--color-surface` |
-| Row hover | `#edf2f7` | `--color-accent-100` (`.table tbody tr:hover`, §08 — always wins over banding) |
+| Row hover | `#dbe4ee` | `--color-accent-200` (`.table tbody tr:hover`, §08 — always wins over banding) |
 | Standard row divider | `#c9cacc` (1px) | `--hairline-color` (`.table td` default, §08) |
 | Group-gap divider | `#5980a6` (2px) | `--color-accent-500` |
 

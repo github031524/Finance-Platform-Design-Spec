@@ -386,14 +386,18 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* THE ONE EXCEPTION — the single solid object in the system.
-   Accent fill; corners rounded to --radius (8px). */
+   Accent fill; corners rounded to --radius (8px). Filled at 600, not 500:
+   white on 500 measures 4.15:1, under the 4.5 needed for a label this small,
+   and this is the most important control in the system. 600 takes it to
+   5.26:1 and is already in the ramp, so no new colour enters the palette.
+   Hover/active step down the ramp from there. */
 .btn-primary {
-  background: var(--color-accent-500);
-  border-color: var(--color-accent-500);
+  background: var(--color-accent-600);
+  border-color: var(--color-accent-600);
   color: #fff;
 }
 
-.btn-primary:hover { background: var(--color-accent-600); border-color: var(--color-accent-600); }
+.btn-primary:hover { background: var(--color-accent-700); border-color: var(--color-accent-700); }
 .btn-primary:active { background: var(--color-accent-800); border-color: var(--color-accent-800); color: #fff; }
 
 /* Ghost — outline only, no hairline box */
@@ -512,7 +516,11 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 }
 
 .table tbody tr:last-child td { border-bottom: 0; }
-.table tbody tr:hover { background: var(--color-accent-100); }
+/* Accent-200, not 100. Against a plain row, 100 differs by 1.01 — the same
+   colour to the eye, so hovering a wide row gave no feedback at all. 200
+   reads clearly while staying a tint, not a selection. Still declared after
+   the banding rules so hover wins on banded rows too (§14). */
+.table tbody tr:hover { background: var(--color-accent-200); }
 
 /* Numbers right-aligned & tabular */
 .table th.num,
@@ -618,8 +626,12 @@ textarea.input {
   font-variant-numeric: tabular-nums;
 }
 
+/* Accent-600, not 400. A placeholder is text you are meant to read, so it
+   needs 4.5:1 — 400 measures 2.17 and is barely legible. 400 stays the value
+   for .nil (§08), where a blank SHOULD recede; the two look similar but do
+   opposite jobs, so don't unify them. */
 .input::placeholder {
-  color: var(--color-accent-400);
+  color: var(--color-accent-600);
   text-transform: uppercase;
   font-size: var(--size-label);
   letter-spacing: var(--track-label);
