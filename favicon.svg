@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 28 100 100" role="img" aria-label="NC Futures">
-  <!-- The three rising bars from logo.svg, unchanged geometry, cropped to a
-       square viewBox (wordmark omitted — illegible at favicon size). -->
-  <g fill="#5980a6">
-    <rect x="28" y="92" width="24" height="36" rx="2"/>
-    <rect x="58" y="65" width="24" height="63" rx="2"/>
-    <rect x="88" y="28" width="24" height="100" rx="2"/>
-  </g>
-</svg>

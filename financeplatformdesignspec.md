@@ -6,7 +6,7 @@
 
 > **Source of truth — this document wins.** If this spec and any app disagree, the spec is right and the app is out of date; bring the app up to the spec, never the reverse. That includes **Earnings Tracker** (`github031524/earnings-tracker`), which seeded this system and is still the best worked example of it, but is not the authority: the spec has moved ahead of it more than once, and an app lagging behind is a to-do, not a correction.
 >
-> Take `styles.css`, `logo.svg` and `favicon.svg` from **this repo** — they are the shipping artifacts, not illustrations. Read the reference app's components (`Blueprint.tsx`, `PageTabs.tsx`, `NcFuturesLogo.tsx`) for how the markup goes together, then check what you copy against this document before shipping it.
+> Take `styles.css`, `logo.svg` and `favicon.png` from **this repo** — they are the shipping artifacts, not illustrations. Read the reference app's components (`Blueprint.tsx`, `PageTabs.tsx`, `NcFuturesLogo.tsx`) for how the markup goes together, then check what you copy against this document before shipping it.
 
 > **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
 
@@ -107,8 +107,9 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 **B · Content region** — the only part an app owns.
 
 ```html
-<!-- In <head> — the shared favicon (§04a), so the browser tab carries the brand: -->
-<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<!-- In <head> — the shared favicon (§04a). PNG, not SVG, and no manifest:
+     an SVG icon makes Chrome offer to install the app. See §04a. -->
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
 
 <header class="topbar">
   <span class="topbar__brand"><img src="logo.svg" alt="NC Futures" /></span>
@@ -150,13 +151,26 @@ The logo is a **literal shared asset**, not a per-app redraw: three rising bars 
 
 Do not hand-recreate the mark as inline SVG shapes or a text lockup — use the file as-is.
 
-**Favicon — required.** Every app also serves the shared favicon so its browser tab carries the brand: the three bars alone, cropped square (the wordmark is illegible at 16px). Copy `favicon.svg` from this repo unmodified — same rule as the logo, no per-app redraws — and declare it in `<head>`:
+**Favicon — required, and it must be the small PNG.** Every app serves the shared favicon so its browser tab carries the brand: the three bars alone, cropped square (the wordmark is illegible at 16px). Copy `favicon.png` from this repo unmodified — same rule as the logo, no per-app redraws — and declare it in `<head>`:
 
 ```html
-<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
 ```
 
 An app whose tab shows the browser's default globe icon is missing its favicon and out of spec.
+
+### Never make the app installable
+
+These are browser tabs, not installed applications. Chrome offers **"Install app"** — rather than a plain shortcut — once a site looks installable, and the icon alone is enough to tip it over. Two rules keep every module on the same side of that line:
+
+1. **The favicon is a 32×32 PNG. Never an SVG.** An SVG has no intrinsic size, so it satisfies the large-icon test at any size and Chrome starts offering to install the app. A 32×32 raster is unambiguously too small. This is the whole reason the file is a PNG — do not "upgrade" it back to SVG for sharpness.
+2. **No web app manifest.** No `manifest.json`, no `<link rel="manifest">`. Nothing here needs one.
+
+**A manifest cannot undo rule 1.** Adding a manifest with `display: browser` to suppress the prompt does not work — it was tried and changed nothing, because the manifest was never the cause. The icon is. Fix the icon.
+
+**The top-bar logo stays SVG.** `logo.svg` is loaded as a picture in the page, not declared as the site icon, so it plays no part in this. Do not convert it to PNG — that only makes the brand mark blurry and fixes nothing.
+
+**How to check.** In Chrome DevTools → Application → Manifest, a correctly built module reports `no-manifest` and `no-acceptable-icon`. Both are the desired state. In the browser's menu the entry should read "Create shortcut…", never "Install app".
 
 ---
 
@@ -379,7 +393,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 
 **Retrofit vs. rebuild:** default to retrofitting incrementally — one step at a time, with a build/test and a git commit after each. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout. Either way, check the result against the Step 0 inventory before calling it done — that's what actually prevents silent regressions.
 
-1. Link `styles.css` and copy `logo.svg` + `favicon.svg` (with its `<head>` link tag, §04a); wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
+1. Link `styles.css` and copy `logo.svg` + `favicon.png` (with its `<head>` link tag, §04a — PNG not SVG, and delete any manifest); wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
 3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the hex values in §02.
 4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks.**
@@ -669,3 +683,5 @@ curl -sI -H 'Cookie: ncf_auth=v1.eyJ1IjoieCJ9.forged' https://APP/   # 401 — b
 ```
 
 Then unset one variable in Railway and confirm the app returns `503` everywhere instead of letting anyone in. An app that answers `200` on any of the first four lines is out of spec and publicly readable.
+
+Also confirm the app is **not installable** (§04a): Chrome's menu should offer "Create shortcut…", not "Install app", and DevTools → Application → Manifest should report `no-manifest` and `no-acceptable-icon`. If it offers to install, the favicon is an SVG or a manifest crept in.
