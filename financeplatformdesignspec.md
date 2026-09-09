@@ -170,7 +170,14 @@ These are browser tabs, not installed applications. Chrome offers **"Install app
 
 **The top-bar logo stays SVG.** `logo.svg` is loaded as a picture in the page, not declared as the site icon, so it plays no part in this. Do not convert it to PNG — that only makes the brand mark blurry and fixes nothing.
 
-**How to check.** In Chrome DevTools → Application → Manifest, a correctly built module reports `no-manifest` and `no-acceptable-icon`. Both are the desired state. In the browser's menu the entry should read "Create shortcut…", never "Install app".
+**How to check.** In Chrome DevTools → Application → Manifest, a correctly built module reports `no-manifest` and `no-acceptable-icon`. Both are the desired state. The browser menu is the quick tell, and the wording differs by device:
+
+| Device | Correct | Wrong |
+|---|---|---|
+| Desktop Chrome | "Create shortcut…" | "Install app" |
+| Android Chrome | "Add to Home screen" | "Install app" |
+
+"Install app" on either means the icon is an SVG or a manifest crept in. Check on a phone as well as a desktop — the Android prompt is the one people actually notice.
 
 ---
 
@@ -684,4 +691,4 @@ curl -sI -H 'Cookie: ncf_auth=v1.eyJ1IjoieCJ9.forged' https://APP/   # 401 — b
 
 Then unset one variable in Railway and confirm the app returns `503` everywhere instead of letting anyone in. An app that answers `200` on any of the first four lines is out of spec and publicly readable.
 
-Also confirm the app is **not installable** (§04a): Chrome's menu should offer "Create shortcut…", not "Install app", and DevTools → Application → Manifest should report `no-manifest` and `no-acceptable-icon`. If it offers to install, the favicon is an SVG or a manifest crept in.
+Also confirm the app is **not installable** (§04a), on desktop and on a phone: desktop Chrome should offer "Create shortcut…" and Android Chrome "Add to Home screen" — never "Install app" on either — and DevTools → Application → Manifest should report `no-manifest` and `no-acceptable-icon`. If it offers to install, the favicon is an SVG or a manifest crept in.
