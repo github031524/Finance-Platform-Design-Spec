@@ -18,7 +18,7 @@
      06  Buttons & tags
      07  KPI tile
      08  Data table
-     09  Tabs
+     09  Toolbar & tabs
      10  Fields & inputs
      11  Grid helpers
      12  Numeric & delta treatment
@@ -622,12 +622,49 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .blueprint:has(> .table) > .table:only-child { margin: 0; width: 100%; }
 
 
-/* 09 · TABS =============================================================== */
+/* 09 · TOOLBAR & TABS ===================================================== */
 
-/* Tabs are page-local, not a shell row. Center them inside the page's own
-   toolbar row (a 3-zone layout: existing left content, centered .tabs,
-   existing right content), using absolute positioning within a `relative`
-   toolbar container. */
+/* The page's toolbar row — three zones on one grid: left content (a
+   selector, status text), the page's .tabs in the centre, action buttons on
+   the right. Both outer tracks are the same size (minmax(0, 1fr)), so the
+   middle stays exactly centred whatever sits either side — and unlike the
+   absolute centring apps used to hand-build, it can never land on top of
+   them. Controls inside are content-sized (an .input is otherwise 100%
+   wide) and status text never wraps. Under 720px the three zones stack. */
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.toolbar__left,
+.toolbar__right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.toolbar__left   { justify-self: start; }
+.toolbar__center { justify-self: center; }
+.toolbar__right  { justify-self: end; }
+
+.toolbar .input { width: auto; }
+.toolbar .micro { white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .toolbar { grid-template-columns: 1fr; }
+  .toolbar__left,
+  .toolbar__center,
+  .toolbar__right { justify-self: stretch; }
+  .toolbar .tabs { justify-content: center; }
+}
+
+/* Tabs are page-local, not a shell row. They live in .toolbar__center —
+   never in a dedicated row of their own. */
 
 .tabs {
   display: flex;

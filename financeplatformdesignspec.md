@@ -313,7 +313,17 @@ $92.8B
 
 `.company` is the named instance of the general **peek-marquee pattern** (stylesheet §16), usable on *any* element whose text may overflow: a window (hidden overflow + `nowrap` + ellipsis) that is a CSS size container, an inner span that is **inline at rest** (the browser only draws the `…` for inline text — an `inline-block` child is silently clipped without one) and becomes `inline-block` only while panning, and on hover ellipsis→clip plus a `translateX` animation ending at `min(0px, calc(100cqw − 100%))` — `100cqw` is the window's own width, so the text slides left exactly until its last character reaches the window's right edge, and text that fits never moves. `6s linear infinite alternate` (tune `--marquee-speed`): a slow back-and-forth **pan**, not a looping ticker tape; layout never shifts, and mouse-out snaps back to the ellipsis. Reduced-motion users get the static ellipsis (stylesheet §16, reduced-motion block). The window needs no declared width: the container unit reads it live, so resized columns (§08a) stay exact. Give the element a width (a `<col>`, a `max-width`, a grid track) — the pattern never sizes itself.
 
-**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. Put them **centered inside the page's own toolbar row**, never in a dedicated row of their own. The toolbar is a 3-zone layout: existing content on the left, `.tabs` centered via `absolute left-1/2 -translate-x-1/2` inside a `relative` container, existing content on the right.
+**Toolbar** — `.toolbar`, the page's own control row: three zones on one grid — `.toolbar__left` (a selector, status text), `.toolbar__center` (the page's `.tabs`), `.toolbar__right` (action buttons). The middle stays exactly centred whatever sits either side and can never overlap it; under 720px the three zones stack into rows. Controls inside are content-sized and status text never wraps. Don't hand-build this with absolute positioning.
+
+```html
+<div class="toolbar">
+  <div class="toolbar__left"><select class="input">…</select><span class="micro">12 symbols</span></div>
+  <div class="toolbar__center"><div class="tabs">…</div></div>
+  <div class="toolbar__right"><button class="btn">Open All</button><button class="btn btn-primary">Refresh</button></div>
+</div>
+```
+
+**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. Put them **in the toolbar's centre zone**, never in a dedicated row of their own.
 
 **Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
 
@@ -336,7 +346,7 @@ Entity title (the ticker — not the app name) + price/status row → tabs → K
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
 
 **Tracker / calendar** *(e.g. Earnings Tracker — the reference app)*
-Toolbar row: left content (e.g. a list/view selector) → centered `.tabs` → right content (action buttons). A second toolbar-style row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group.
+`.toolbar` row (§06): left zone (e.g. a list/view selector) → centred `.tabs` → right zone (action buttons). A second `.toolbar` row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group.
 
 **List / builder** *(e.g. Indexer)*
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
@@ -410,7 +420,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 5. Right-align numeric columns; set `tabular-nums`.
 6. Gains → `#206f31`, losses → `#b42d36`. Nothing else colored.
 7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in).
-8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, centered in a toolbar row per §06.
+8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, in the centre zone of a `.toolbar` row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab) — no bare symbols anywhere.
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
 11. Apply the **company name cell** treatment (§06) — shorten, truncate, marquee on hover, em-dash when missing.
