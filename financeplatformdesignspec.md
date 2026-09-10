@@ -65,7 +65,7 @@ Light steps (100–300) for tinted fills and hovers; 500 is base; 700–900 for 
 - `--font-heading` = Inter · 600 · UPPERCASE — headings, figures, labels
 - `--font-body` = Inter · 400/500 — paragraphs, table cells, and all numbers
 
-One typeface carries all text and numbers; both `--font-heading` and `--font-body` are set to Inter.
+One typeface carries all text and numbers; both `--font-heading` and `--font-body` are set to Inter. Form controls inherit it too — the stylesheet resets `button`, `input`, `select` and `textarea` to the page font, so even a control that is missing its `.btn`/`.input` class renders in Inter rather than the browser's Arial (the classes still supply size, weight and case).
 
 **Scale**
 
