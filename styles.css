@@ -33,10 +33,11 @@
    NC FUTURES — PLATFORM STYLESHEET
    Implements the Finance Platform Design Specification, the master UI
    template. One living stylesheet — no versions.
-   Source of truth: Earnings Tracker (github031524/earnings-tracker), the
-   first app built against this system and the reference every other module
-   should match pixel-for-pixel. One stylesheet. Every module links this and
-   supplies only the content region.
+   Source of truth: the spec (financeplatformdesignspec.md) — this stylesheet
+   implements it. Earnings Tracker (github031524/earnings-tracker) is the
+   reference example, not the authority; where the two disagree the spec
+   wins. One stylesheet. Every module links this and supplies only the
+   content region.
 
    CONTENTS
      01  Tokens
@@ -77,7 +78,6 @@
   --color-bg:      #f2f2f3;
   --color-surface: #e9e9ea;
   --color-text:    #1d1f20;
-  --color-loss:    #b42d36;
 
   /* Accent ramp — 500 is base; 100–300 tinted fills & hovers;
      700–900 text on tint and pressed states. */
@@ -92,19 +92,24 @@
   --color-accent-900: #253544;
 
   --color-accent: var(--color-accent-500);
+
   /* Gain/loss — the one documented break from "one color". Both clear WCAG AA
      (4.5:1) on every background in the system: plain bg, banded surface rows,
-     and accent-100 hover, bottoming out at 5.12:1. Small tabular numbers, so
-     legibility governs the choice. */
+     and accent-200 hover, bottoming out at 4.84:1 on a hovered row. Small
+     tabular numbers, so legibility governs the choice. */
   --color-gain:   #206f31;
+  --color-loss:   #b42d36;
 
   /* Hairline — the only border in the system */
   --hairline-color: #c9cacc;
   --hairline: 1px solid var(--hairline-color);
 
-  /* Type */
-  --font-heading: "Inter", system-ui, -apple-system, sans-serif;
-  --font-body:    "Inter", system-ui, -apple-system, sans-serif;
+  /* Type. Inter has no Chinese glyphs, so Traditional-Chinese company names
+     (Taiwan Screener) fall through to a NAMED face — PingFang on Mac,
+     JhengHei on Windows, Noto Sans TC elsewhere — instead of whatever each
+     machine happens to pick. Latin text never reaches the fallbacks. */
+  --font-heading: "Inter", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, -apple-system, sans-serif;
+  --font-body:    "Inter", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, -apple-system, sans-serif;
 
   --size-title:   clamp(34px, 3.2vw, 40px);
   --size-section: 15px;
@@ -139,6 +144,9 @@
   --gutter: clamp(16px, 3vw, 32px);
   --grid-gap: clamp(12px, 1.5vw, 20px);
   --topbar-h: 48px;
+
+  /* Company-cell marquee (§16) — the duration of one pan; tune per app */
+  --marquee-speed: 6s;
 }
 
 
@@ -681,8 +689,9 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .table tbody tr:last-child td { border-bottom: 0; }
 /* Accent-200, not 100. Against a plain row, 100 differs by 1.01 — the same
    colour to the eye, so hovering a wide row gave no feedback at all. 200
-   reads clearly while staying a tint, not a selection. Still declared after
-   the banding rules so hover wins on banded rows too (§14). */
+   reads clearly while staying a tint, not a selection. Wins over banding
+   (§14) on specificity — a lone class can't outrank .table tbody tr:hover —
+   so the order of the two sections doesn't matter. */
 .table tbody tr:hover { background: var(--color-accent-200); }
 
 /* Numbers right-aligned & tabular */
@@ -722,11 +731,6 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
      and silently kill the sticky header. */
   clip-path: inset(0 round var(--radius));
 }
-
-/* Fallback for browsers without :has() — same result when the table is the
-   frame's only child, which is the common case. */
-.blueprint > .table:only-child { margin: calc(var(--space-4) * -1); width: calc(100% + var(--space-4) * 2); }
-.blueprint:has(> .table) > .table:only-child { margin: 0; width: 100%; }
 
 
 /* 09 · TOOLBAR & TABS ===================================================== */
@@ -886,7 +890,7 @@ textarea.input {
 .grid--kpi { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .grid--week { grid-template-columns: repeat(5, 1fr); }
 
-/* Layout recipes — §06 of the spec */
+/* Layout recipes — §07 of the spec */
 .split--dashboard { display: grid; gap: var(--grid-gap); grid-template-columns: 2.1fr 1fr; }
 .split--screener  { display: grid; gap: var(--grid-gap); grid-template-columns: 260px 1fr; }
 .split--list      { display: grid; gap: var(--grid-gap); grid-template-columns: 1.5fr 1fr; }
@@ -925,16 +929,26 @@ textarea.input {
 ::-webkit-scrollbar-thumb { background: var(--color-accent-300); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--color-accent-500) 60%, transparent); }
 
+/* Browsers without the WebKit pseudo-elements (Firefox) get the standard
+   properties instead. Guarded, because in Chrome setting scrollbar-color
+   would switch the 6px WebKit styling above off. */
+@supports not selector(::-webkit-scrollbar) {
+  :root {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-300) var(--color-surface);
+  }
+}
+
 
 /* 14 · ROW BANDING & GROUPING =============================================
    For tables whose rows fall into natural groups (e.g. one earnings date
    spanning several tickers). Reuses existing tokens — no new colors:
      - default row:        var(--color-bg)        #f2f2f3
      - alternate band:     var(--color-surface)    #e9e9ea
-     - row hover:          var(--color-accent-100) #edf2f7 (already .table
-                            tbody tr:hover in §08 — hover always wins, since
-                            it's declared after banding at equal specificity
-                            and only applies on interaction)
+     - row hover:          var(--color-accent-200) #dbe4ee (.table tbody
+                            tr:hover in §08 — hover always wins: it outranks
+                            a lone class on specificity, and only applies on
+                            interaction)
      - standard row rule:  var(--hairline-color)   #c9cacc (1px, .table td
                             default from §08)
      - group-gap rule:     var(--color-accent-500) #5980a6 (2px — heavier,
@@ -1064,7 +1078,7 @@ textarea.input {
 .company:hover .company__inner {
   display: inline-block;
   will-change: transform;
-  animation: company-marquee var(--marquee-speed, 6s) linear infinite alternate;
+  animation: company-marquee var(--marquee-speed) linear infinite alternate;
 }
 
 @keyframes company-marquee {
