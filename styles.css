@@ -27,6 +27,7 @@
      15  Symbol / ticker link
      16  Company name cell
      17  Dropzone
+     18  States — loading, empty, error, invalid field
    ========================================================================== */
 
 
@@ -1009,4 +1010,36 @@ textarea.input {
   grid-auto-flow: column;
   justify-content: space-between;
   padding: var(--space-2) var(--space-4);
+}
+
+
+/* 18 · STATES ============================================================= */
+
+/* One look for the moments a page has nothing to show, on existing tokens
+   and components — so six apps stop inventing six spinners and six error
+   boxes (spec §06, States).
+     loading:  the control is disabled and a .micro readout ("Loading…") sits
+               beside it, exactly like §06 status text. No spinner.
+     empty:    a .blueprint.state — one .micro line saying what would change
+               it ("No rows match — widen the filters") and, if there is one,
+               the button that does (.btn-ghost).
+     error:    the same frame — one .micro line naming the failure
+               ("Couldn't load prices (HTTP 502)") and a Retry .btn. Errors
+               are not red: red is for losses (rule 2).
+     invalid:  .input[aria-invalid="true"] darkens the field's border to
+               accent-800; a .micro line under the field says how to fix it,
+               linked with aria-describedby. No red here either. Declared
+               after .input:focus so an invalid field stays marked while
+               focused. */
+.state {
+  display: grid;
+  place-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-accent-800);
+  box-shadow: inset 0 0 0 1px var(--color-accent-800);
 }
