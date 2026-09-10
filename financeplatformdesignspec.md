@@ -358,9 +358,12 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 | Large money | compact, one decimal: `$92.8B`, `$8.2M`, `$412K` | `$92,800,000,000` |
 | Counts, shares, volume | thousands separated with commas: `12,480` | `12480` |
 | Missing value | `—` marked `.nil` (Empty cells, below) | blank, `N/A`, `null` |
-| Dates | `Jul 19`; add the year only when it isn't this year: `Jul 19, 2025` | `07/19/2025`, `2025-07-19` |
+| Event dates — a report date, an expiry, a next/prev date, any date column | weekday first, comma, then the date: `Wed, Sep 9`; add the year only when it isn't this year: `Wed, Sep 10, 2025`. Three-letter weekday, three-letter month | `Sep 9` (weekday dropped), `Wednesday, September 9`, `Sept 9`, `09/09/2025`, `2025-09-09` |
+| Timestamps — when the app fetched, refreshed or computed something | `Jul 19`, no weekday; add the year only when it isn't this year: `Jul 19, 2025` | `Sat, Jul 19` in a status line, `07/19/2025`, `2025-07-19` |
 | Times | local time, 12-hour: `3:50 AM` | `15:50`, `03:50` |
 | Status text | `Updated Jul 19, 3:50 AM` (Status/freshness text, below) | `Last refreshed at 15:50:12` |
+
+**Two kinds of date.** An *event* date says when something happens — a report date, an expiry, the next/prev date in an earnings list, any date column in a table — and **carries the weekday**, because the day of the week is part of the information: an earnings week is read by day, and "before the open Wednesday" is how the timing is used. A *timestamp* says when the app last did something — fetched, refreshed, computed — and doesn't. They are two different figures with two different rules, like a price and a percentage: never strip the weekday from an event date to make it "match" a timestamp, and never add one to a timestamp. Sorting stays chronological whatever the display (Sortable columns, below).
 
 Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is standard in a KPI delta and optional in a table cell, where the sign and the colour already say it.
 
@@ -507,7 +510,7 @@ Entity title (the ticker — not the app name) + price/status row → tabs → K
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
 
 **Tracker / calendar** *(e.g. PRE-earnings Drift — upcoming earnings scored on expected pre-earnings drift, one metric per column)*
-`.toolbar` row (§06): left zone (e.g. a list/view selector) → centred `.tabs` → right zone (action buttons). A second `.toolbar` row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group. A tab may swap the table for a full-width chart panel (`.blueprint`) under the same toolbar — PRE-earnings Drift's "Results" tab is a scatter plot of score against actual excess performance.
+`.toolbar` row (§06): left zone (e.g. a list/view selector) → centred `.tabs` → right zone (action buttons). A second `.toolbar` row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group; its date columns are event dates and keep the weekday — `Wed, Sep 9` (§06 Numbers & dates). A tab may swap the table for a full-width chart panel (`.blueprint`) under the same toolbar — PRE-earnings Drift's "Results" tab is a scatter plot of score against actual excess performance.
 
 **List / builder** *(e.g. Indexer)*
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
@@ -590,7 +593,7 @@ It downloads the current `styles.css`, `fonts/`, `logo.svg` and `favicon.png` fr
 4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks.**
 5. Right-align numeric columns; set `tabular-nums`.
 6. Gains → `#206f31`, losses → `#b42d36`; AM/PM report-time tags → `.tag-am` / `.tag-pm` (§06). Nothing else colored.
-7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in). Spell every number and date per §06 Numbers & dates — signed deltas with a real minus sign, one-decimal percentages, `Jul 19` dates.
+7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in). Spell every number and date per §06 Numbers & dates — signed deltas with a real minus sign, one-decimal percentages, `Wed, Sep 9` event dates (weekday kept), `Jul 19` timestamps.
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, in the centre zone of a `.toolbar` row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab, exchange-qualified where a bare ticker is ambiguous, via the same helper Open All uses) — no bare symbols anywhere.
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
