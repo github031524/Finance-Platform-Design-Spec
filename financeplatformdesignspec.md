@@ -229,7 +229,7 @@ export const MODULES = [
 
 No inline padding needed — `.blueprint` already carries a sensible default (`--space-4`, 13.6px). Add `style="padding:..."` only to override it for a specific tile. Default spacing below each panel is also `--space-4` — override for tiles that need tighter stacking.
 
-**A frame wrapping a table has no padding** — the stylesheet zeroes it automatically, so the table sits flush against the border and its own cell padding does the spacing. Don't add `style="padding:0"` by hand.
+**A frame wrapping a table has no padding** — directly, or through the table's `.table-scroll` wrapper (§08a) — the stylesheet zeroes it automatically, so the table sits flush against the border and its own cell padding does the spacing. Don't add `style="padding:0"` by hand.
 
 Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrappers, and floating panels (add `.blueprint--solid` for dropdowns/popovers that need an opaque fill so page content doesn't show through).
 
@@ -351,7 +351,7 @@ Status row → dropzone (blueprint, collapses to a slim "add another" bar once d
 **Required on every data table.** Any column the user can read, they can widen — no table ships with fixed, immovable columns. Widths persist, so a table opens the way it was left:
 
 - Column widths stored in component state, seeded from a `COLUMNS` config array, persisted to `localStorage` under an app-specific key.
-- `<table class="table" style="table-layout:fixed; width:<sum>">` with a `<colgroup>` of `<col style="width:...px">` per column, driven by that state.
+- `<div class="table-scroll"><table class="table" style="table-layout:fixed; width:<sum>">` with a `<colgroup>` of `<col style="width:...px">` per column, driven by that state. The `.table-scroll` wrapper is the scroll box (below).
 - A `ResizeHandle` — an absolutely-positioned `6px`-wide strip at the right edge of each resizable `<th>`. **Invisible at rest — no border, no vertical line.** The affordances are `cursor: col-resize` over the strip and an accent tint that appears on hover and stays while dragging. Nothing is drawn when the column is not being resized.
 - Drag updates width via `mousemove`/`mouseup` listeners on `window`, clamped to a `40px` minimum.
 
@@ -359,12 +359,10 @@ Status row → dropzone (blueprint, collapses to a slim "add another" bar once d
 
 | The table… | Header pins with | Because |
 |---|---|---|
-| sits in its own scrolling box — **the usual case here** | `top: 0` | it pins to that box, which already starts below the bar |
-| scrolls with the page, no wrapper | `top: var(--topbar-h)` | it has to clear the 48px top bar |
+| sits in a `.table-scroll` wrapper — **the usual case here** | `top: 0`, set by the wrapper class | it pins to that box, which already starts below the bar |
+| scrolls with the page, no wrapper | `top: var(--topbar-h)`, the stylesheet default | it has to clear the 48px top bar |
 
-Expect the first row. Fixed layout gives the table an explicit total width, which on a wide table overflows its container and needs an `overflow-x: auto` wrapper — and that wrapper becomes the scroll container. The stylesheet ships the page-scroll value, so **override to `top: 0` whenever you add that wrapper**.
-
-A sticky header can only pin to its nearest scrolling ancestor. So if a wide table gets an `overflow-x: auto` wrapper, that wrapper becomes the scroll container and the default `top: var(--topbar-h)` pushes the header 48px *down* inside it. Override to `top: 0` in that case. Never put `overflow: hidden` on a wrapper around a table — it silently kills sticky entirely.
+Expect the first row. Fixed layout gives the table an explicit total width, which on a wide table overflows its frame — so wrap it: `<div class="blueprint"><div class="table-scroll"><table class="table">…`. The wrapper is the scroll box (add a `max-height` if it should scroll vertically too); the class pins the header at the box's own top and keeps the frame flush (§05), so there is nothing to override. A plain `overflow-x: auto` wrapper without the class does neither: the header floats 48px *down* inside the box with rows passing above it, and the frame keeps its padding. Never put `overflow: hidden` on a wrapper around a table — it silently kills sticky entirely.
 
 **Resizing and the company cell:** nothing to do — the peek-marquee window (§06) measures itself, so a resized column pans correctly on the next hover. (Only a legacy `<td class="company">` needs its *inner* width written to `--peek-window` on every resize.)
 
