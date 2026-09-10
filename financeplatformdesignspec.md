@@ -346,7 +346,7 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 - **Composes with the rest of the table**: Open All opens tabs in the new order; group banding (§08b) recomputes from the new order; the §08a resize strip at the header's right edge is a drag target, not a sort target — a click there never sorts.
 - Sorting is app code (state + re-render); the stylesheet supplies only the affordance.
 
-**Symbol / ticker link** — every ticker symbol shown anywhere (table cells, KPI tiles, headers, detail asides) is a clickable `.symbol` link to its TradingView chart, opened in a new tab. Never render a bare, unlinked symbol. URL pattern: `https://www.tradingview.com/chart/3Ojf0qKU/?symbol=<SYMBOL>` — the shared chart layout `3Ojf0qKU` with the symbol appended (case-insensitive), e.g. `?symbol=aapl`.
+**Symbol / ticker link** — every ticker symbol shown anywhere (table cells, KPI tiles, headers, detail asides) is a clickable `.symbol` link to its TradingView chart, opened in a new tab. Never render a bare, unlinked symbol. URL pattern: `https://www.tradingview.com/chart/3Ojf0qKU/?symbol=<SYMBOL>` — the shared chart layout `3Ojf0qKU` with the symbol appended (case-insensitive), e.g. `?symbol=aapl`. **Where a bare ticker is ambiguous, qualify it with the exchange** exactly as Open All does — `?symbol=TWSE:2330`, `?symbol=LSE:VOD` — through one shared helper, `tvSymbol(ticker, exchange)`, used by both the row's link and the Open All button, so the two can never disagree. A bare `2330` in a Taiwan Screener link resolves to the wrong chart while the button beside it opens the right one.
 
 ```html
 <a class="symbol" href="https://www.tradingview.com/chart/3Ojf0qKU/?symbol=aapl"
@@ -358,7 +358,7 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 **Open All (bulk chart review)** — every view that lists stock tickers carries an **Open All** button (`.btn`, secondary — never the page's primary). One click opens each listed ticker's TradingView chart (the §06 symbol-link URL) in its own browser tab, replacing N clicks with one full-depth review session:
 
 - **Order-aware** — tabs open in the list's current sort/filter state, so the on-screen ranking becomes the review order.
-- **Symbol-aware** — each ticker maps to the exchange-qualified symbol where needed (e.g. `NASDAQ:AAPL`, `TWSE:2330`, `LSE:VOD`), so US, Asian and European listings all resolve to the right chart.
+- **Symbol-aware** — each ticker maps to the exchange-qualified symbol where needed (e.g. `NASDAQ:AAPL`, `TWSE:2330`, `LSE:VOD`), so US, Asian and European listings all resolve to the right chart — through the same `tvSymbol()` helper the row's `.symbol` link uses (above), never a second mapping.
 - **Stocks only** — derived rows (benchmarks, totals, index lines) are excluded.
 - **Guardrail** — above ~25 tickers, a confirmation dialog states the tab count before opening.
 - **Affordance** — the button's tooltip warns that the browser's pop-up blocker must allow the site, since blockers typically permit only the first tab.
@@ -546,7 +546,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 6. Gains → `#206f31`, losses → `#b42d36`. Nothing else colored.
 7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in). Spell every number and date per §06 Numbers & dates — signed deltas with a real minus sign, one-decimal percentages, `Jul 19` dates.
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, in the centre zone of a `.toolbar` row per §06.
-9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab) — no bare symbols anywhere.
+9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab, exchange-qualified where a bare ticker is ambiguous, via the same helper Open All uses) — no bare symbols anywhere.
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
 11. Apply the **company name cell** treatment (§06) — shorten, truncate, marquee on hover, the full name in the cell's `title`, em-dash when missing.
 12. Add an **Open All** button to every ticker-list view (§06).
