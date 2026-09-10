@@ -1,4 +1,33 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+/* Inter, self-hosted. The three faces live in fonts/ beside this file — Latin
+   and Latin Extended subsets, woff2, about 50KB each — so there is no
+   third-party request, no render-blocking chain (stylesheet, then Google's
+   font CSS, then the font file, in series), and the same rendering on every
+   machine. Copy the folder with the stylesheet: the URLs are relative to it.
+   font-display: swap shows text in the fallback face until Inter arrives
+   rather than hiding it. Licence: fonts/LICENSE.txt (SIL Open Font License). */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/Inter-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/Inter-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/Inter-SemiBold.woff2") format("woff2");
+}
 
 /* ==========================================================================
    NC FUTURES — PLATFORM STYLESHEET

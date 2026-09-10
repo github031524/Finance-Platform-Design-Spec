@@ -6,7 +6,7 @@
 
 > **Source of truth — this document wins.** If this spec and any app disagree, the spec is right and the app is out of date; bring the app up to the spec, never the reverse. That includes **Earnings Tracker** (`github031524/earnings-tracker`), which seeded this system and is still the best worked example of it, but is not the authority: the spec has moved ahead of it more than once, and an app lagging behind is a to-do, not a correction.
 >
-> Take `styles.css`, `logo.svg` and `favicon.png` from **this repo** — they are the shipping artifacts, not illustrations. Read the reference app's components (`Blueprint.tsx`, `PageTabs.tsx`, `NcFuturesLogo.tsx`) for how the markup goes together, then check what you copy against this document before shipping it.
+> Take `styles.css` (with its `fonts/` folder), `logo.svg` and `favicon.png` from **this repo** — they are the shipping artifacts, not illustrations. Read the reference app's components (`Blueprint.tsx`, `PageTabs.tsx`, `NcFuturesLogo.tsx`) for how the markup goes together, then check what you copy against this document before shipping it.
 
 > **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
 
@@ -67,7 +67,7 @@ Light steps (100–300) for tinted fills and hovers; 500 is base; 700–900 for 
 - `--font-heading` = Inter · 600 · UPPERCASE — headings, figures, labels
 - `--font-body` = Inter · 400/500 — paragraphs, table cells, and all numbers
 
-One typeface carries all text and numbers; both `--font-heading` and `--font-body` are set to Inter. Form controls inherit it too — the stylesheet resets `button`, `input`, `select` and `textarea` to the page font, so even a control that is missing its `.btn`/`.input` class renders in Inter rather than the browser's Arial (the classes still supply size, weight and case).
+One typeface carries all text and numbers; both `--font-heading` and `--font-body` are set to Inter. **Inter ships with the stylesheet:** the three faces (400 / 500 / 600) are self-hosted in `fonts/` next to `styles.css` — Latin and Latin Extended subsets, about 50KB each — and the stylesheet loads them itself. No Google Fonts link, no `@import`, no other font loader: that removed the only third-party request the apps made and a three-hop render-blocking chain, and it renders identically on every machine. Copy the folder wherever `styles.css` goes; the paths are relative to it. Form controls inherit it too — the stylesheet resets `button`, `input`, `select` and `textarea` to the page font, so even a control that is missing its `.btn`/`.input` class renders in Inter rather than the browser's Arial (the classes still supply size, weight and case).
 
 **Scale**
 
@@ -154,7 +154,7 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 
 ### Architecture
 
-There is no shared console, no iframing, and no micro-frontend layer. Every app is a **fully standalone deploy** — it copies `styles.css` (and the shared `logo.svg`) into its own repo and reproduces the top bar locally, rather than mounting inside a parent shell. "Every app inherits the same chrome" means every app's markup matches, not that they run inside one host application.
+There is no shared console, no iframing, and no micro-frontend layer. Every app is a **fully standalone deploy** — it copies `styles.css` (with its `fonts/` folder), `logo.svg` and `favicon.png` into its own repo and reproduces the top bar locally, rather than mounting inside a parent shell. "Every app inherits the same chrome" means every app's markup matches, not that they run inside one host application.
 
 There is no shared auth or shared data layer, implemented or implied — no SSO, no shared session store, no identity service. Every app gates itself, alone, with its own copy of the §10 access control and its own credential env vars. There is also no hub, launcher, or landing page tying the apps together — they are opened one at a time in separate browser tabs, and none should be created. Each app holds its own env-var API key and manages its own data independently.
 
@@ -512,8 +512,8 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 
 **Retrofit vs. rebuild:** default to retrofitting incrementally — one step at a time, with a build/test and a git commit after each. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout. Either way, check the result against the Step 0 inventory before calling it done — that's what actually prevents silent regressions.
 
-1. Give the page the §03 `<head>` — language, viewport, light-only, the `<Module name> · NC Futures` title, favicon (PNG not SVG), stylesheet — and delete any manifest; copy `styles.css`, `logo.svg` and `favicon.png` from this repo; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
-2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
+1. Give the page the §03 `<head>` — language, viewport, light-only, the `<Module name> · NC Futures` title, favicon (PNG not SVG), stylesheet — and delete any manifest; copy `styles.css`, its `fonts/` folder (kept next to it), `logo.svg` and `favicon.png` from this repo; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
+2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading. Inter arrives with the stylesheet (self-hosted in `fonts/`, §02) — remove any Google Fonts link or other font loader the app had.
 3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the hex values in §02.
 4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks.**
 5. Right-align numeric columns; set `tabular-nums`.
