@@ -749,14 +749,28 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 
 /* The page's toolbar row — three zones on one grid: left content (a
    selector, status text), the page's .tabs in the centre, action buttons on
-   the right. Both outer tracks are the same size (minmax(0, 1fr)), so the
-   middle stays exactly centred whatever sits either side — and unlike the
-   absolute centring apps used to hand-build, it can never land on top of
-   them. Controls inside are content-sized (an .input is otherwise 100%
-   wide) and status text never wraps. Under 720px the three zones stack. */
+   the right. Both outer tracks share the free space equally, so the middle
+   stays exactly centred whatever sits either side; and neither track can
+   shrink below its own content (minmax(min-content, 1fr)), so nothing can
+   ever land on top of the tabs — if a side zone is wider than its half, the
+   tabs shift off-centre instead and the zone's items wrap. The toolbar is a
+   size container: below 800px OF ITS OWN WIDTH — not the screen's, so a
+   toolbar inside a narrow panel stacks too — the three zones stack into rows
+   (the @container block below). Being a size container also makes the
+   toolbar a stacking context, so it gets a z-index between the table header
+   (10) and the top bar (100): a dropdown or popover inside the toolbar
+   floats above sticky column headers, as before. (Full-screen overlays
+   belong outside the toolbar in the markup anyway — a position: fixed
+   element nested inside it would be positioned relative to the toolbar.)
+   Controls inside are content-sized (an .input is otherwise 100% wide) and
+   status text never wraps. */
 .toolbar {
+  container-type: inline-size;
+  container-name: toolbar;
+  position: relative;
+  z-index: 20;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: minmax(min-content, 1fr) auto minmax(min-content, 1fr);
   align-items: center;
   gap: var(--space-4);
   margin-bottom: var(--space-4);
@@ -775,15 +789,45 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .toolbar__center { justify-self: center; }
 .toolbar__right  { justify-self: end; }
 
-.toolbar .input { width: auto; }
+/* In the single-row layout a control is at most about a third of the
+   toolbar (35cqw = 35% of the toolbar's width), so a dropdown with one very
+   long option name truncates instead of shoving the tabs aside and pushing
+   the buttons off the right edge. Lifted again when stacked, where a control
+   has the whole row. */
+.toolbar .input { width: auto; max-width: 35cqw; }
 .toolbar .micro { white-space: nowrap; }
 
-@media (max-width: 720px) {
-  .toolbar { grid-template-columns: 1fr; }
+/* Stacked: each zone spans all three columns, so they fall into rows. (A
+   container can't restyle itself from inside its own query, so the columns
+   stay and the zones span them.) Keyed to the toolbar's own width, which is
+   what actually runs out. A control may fill the row (100cqw = the toolbar's
+   width) but never exceed it — with a plain 100% cap the row would still
+   grow to fit one long dropdown label and push past the edge. Tabs that
+   don't fit on one line wrap rather than overflow the page. */
+@container toolbar (width < 800px) {
   .toolbar__left,
   .toolbar__center,
-  .toolbar__right { justify-self: stretch; }
-  .toolbar .tabs { justify-content: center; }
+  .toolbar__right { grid-column: 1 / -1; justify-self: stretch; }
+  .toolbar .tabs { justify-content: center; flex-wrap: wrap; }
+  .toolbar .input { max-width: 100cqw; }
+}
+
+/* Small phones: tighter tab padding, so four tabs still fit on one line. */
+@container toolbar (width < 420px) {
+  .toolbar .tab { padding-inline: var(--space-3); }
+}
+
+/* Browsers without container queries (before 2023) fall back to stacking by
+   screen width instead. */
+@supports not (container-type: inline-size) {
+  @media (max-width: 799px) {
+    .toolbar { grid-template-columns: minmax(0, 1fr); }
+    .toolbar__left,
+    .toolbar__center,
+    .toolbar__right { justify-self: stretch; }
+    .toolbar .tabs { justify-content: center; flex-wrap: wrap; }
+    .toolbar .input { max-width: 100%; }
+  }
 }
 
 /* Tabs are page-local, not a shell row. They live in .toolbar__center —
