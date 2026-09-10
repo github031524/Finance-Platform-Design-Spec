@@ -89,6 +89,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 - Content top/bottom padding: `clamp(16px, 3vw, 32px)`
 - Card / tile grid gap: `clamp(12px, 1.5vw, 20px)`
 - Table cell padding: `4px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
+- Control height: `28px` (`--control-h`) — buttons, inputs and selects are all exactly this tall, so a toolbar row lines up. Only `.btn-icon` may be smaller.
 
 ---
 
@@ -245,6 +246,8 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 | Ghost | outline | `.btn .btn-ghost` |
 | Icon (compact) | icon-only, tight padding | `.btn .btn-icon` |
 | Tag | accent | `.tag .tag-accent` |
+
+**Every control is the same height** — `--control-h`, 28px: buttons (whether `<button>` or `<a class="btn">`), `.input` text fields and selects all measure exactly that, so anything placed in one toolbar row lines up without per-app fixes. Button labels never wrap. `textarea.input` grows instead (at least two control heights); `.btn-icon` is the one control allowed to be smaller.
 
 **KPI tile** — blueprint frame · label / figure / delta
 
