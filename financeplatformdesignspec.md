@@ -58,9 +58,21 @@ Gain/loss are chosen for legibility on small tabular numbers: both clear WCAG AA
 | 800 | `#32485e` |
 | 900 | `#253544` |
 
-Light steps (100–300) for tinted fills and hovers; 500 is base; 700–900 for text on tint and pressed states.
+What each step is for — this is the whole list; a new use picks from it rather than adding a shade:
 
-**800 is the one accent value for text** — labels, micro text, table headers, tabs, field labels, tag text, ticker symbols and plain links all use it. Don't reach for 700 to make one kind of text "slightly different": 700 and 800 differ by only 1.34:1, so the distinction is invisible at body and label sizes while adding a second value to the ramp. 700 is left for the `:focus-visible` outline; 900 for pressed states.
+| Step | Used for |
+|---|---|
+| 100 | tint fills: button hover, the current module in the switcher, tag fill, drop-zone drag-over, `.blueprint--tint` |
+| 200 | row hover, pressed secondary button |
+| 300 | scrollbar thumb, resize-handle tint |
+| 400 | blank cells (`.nil`) — deliberately faint |
+| 500 | the base: logo bars, tab underline, group-gap rule, tag border, focused input border, native checkbox/radio accent |
+| 600 | primary button fill, placeholder text |
+| 700 | primary button hover, focus ring |
+| 800 | **all accent text** — labels, micro, table headers, tabs, field labels, tag text, tickers, plain links; the invalid-field border; primary button pressed |
+| 900 | pressed secondary button text |
+
+**800 is the one accent value for text.** Don't reach for 700 to make one kind of text "slightly different": 700 and 800 differ by only 1.34:1, so the distinction is invisible at body and label sizes while adding a second value to the ramp.
 
 ### Type — Inter only
 
@@ -84,7 +96,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 
 ### Spacing & grid
 
-- Space tokens `--space-1` … `--space-8` (3.4 → 27px, a 0.85× scale)
+- Space tokens `--space-1` … `--space-8` (3.4 → 27.2px, in 3.4px steps — 0.85 × a 4px base)
 - **Radius is `8px` everywhere** — a deliberate, visible rounding. Not square.
 - Content column max-width: `1680px`. Not full-bleed: unbounded width stretches table columns apart rather than adding useful density.
 - Gutter: `clamp(16px, 3vw, 32px)`
@@ -229,7 +241,7 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 | Taiwan Screener | `https://taiwan-revenue-screener-production.up.railway.app/#/` |
 
 ```js
-// Copy verbatim into each app; mark the current one with `current: true`.
+// Copy verbatim into each app — this list is identical everywhere. Never edit it per app.
 export const MODULES = [
   { name: "Options Analyzer", url: "https://options-analyzer-production-24d8.up.railway.app/" },
   { name: "Earnings Tracker", url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
@@ -238,6 +250,10 @@ export const MODULES = [
   { name: "PEAD",             url: "https://pead-watchlist-e1a53.up.railway.app/" },
   { name: "Taiwan Screener",  url: "https://taiwan-revenue-screener-production.up.railway.app/#/" },
 ];
+
+// The ONE line that differs per app:
+export const CURRENT_MODULE = "Earnings Tracker";
+// render: m.name === CURRENT_MODULE ? inert <span aria-current="page"> : <a target="_blank" rel="noopener">
 ```
 
 **Rules**
@@ -245,7 +261,7 @@ export const MODULES = [
 1. **Trigger label = the current app's name** — never the word "Modules".
 2. **Entries open in a new tab** — `target="_blank" rel="noopener"`. The current tab never navigates away.
 3. **The current app stays in the list**, rendered as inert text with `aria-current="page"` — not a link.
-4. **The list is append-only in practice** — when a module is added, update this table and re-copy the constant into every app so all switchers stay identical. A switcher missing an app is stale, not a variant.
+4. **Every change here — a module added *or* retired — is re-copied into every app** so all switchers stay identical (two modules have already been retired). A switcher missing an app, or still listing a retired one, is stale, not a variant. The current app is marked by the separate `CURRENT_MODULE` constant, never by editing the list.
 5. Names here are the display names — use them verbatim, in the switcher label and in the tab title (`<Module name> · NC Futures`, §03).
 
 ---
@@ -276,7 +292,7 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 |---|---|---|
 | Primary | accent fill | `.btn .btn-primary` |
 | Secondary | neutral | `.btn` |
-| Ghost | outline | `.btn .btn-ghost` |
+| Ghost | borderless; the hairline appears on hover | `.btn .btn-ghost` |
 | Icon (compact) | icon-only, tight padding | `.btn .btn-icon` |
 | Tag | accent | `.tag .tag-accent` |
 
@@ -368,7 +384,7 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 **Company name cell** — long names in a company column are shortened by a `shortenCompanyName(name)` transform, truncated by CSS, then marquee-scrolled on hover:
 
 1. **Strip a leading "The"** — `The Kraft Heinz Company` → `Kraft Heinz Company`.
-2. **Strip suffixes** — repeatedly remove trailing corporate suffixes and share-class/ADR noise until nothing more matches: `Inc` / `Inc.`, `Corp` / `Corporation`, `Ltd`, `LLC` / `L.L.C.`, `plc`, `Holdings` / `Holding`, `Group`, `Technologies` / `Technology`, `& Co` / `Co.` / `Cos.`, `Class A`, `Series A Preferred`, `Common Stock`, `American Depositary Shares` / `Receipts`, `ADR`, `ADS`, `Ordinary Shares (...)`, `Subordinate Voting Shares`. Loops until stable: `Foo Inc. Common Stock` → `Foo Inc.` → `Foo`.
+2. **Strip suffixes** — repeatedly remove trailing corporate suffixes and share-class/ADR noise until nothing more matches: `Inc` / `Inc.`, `Corp` / `Corporation`, `Ltd`, `LLC` / `L.L.C.`, `plc`, `Holdings` / `Holding`, `Group`, `Technologies` / `Technology`, `& Co` / `Co.` / `Cos.`, `Class A` / `B` / `C` (any single-letter share class), `Series A`–`Z` `Preferred`, `Common Stock`, `American Depositary Shares` / `Receipts`, `ADR`, `ADS`, `Ordinary Shares (...)`, `Subordinate Voting Shares`. Loops until stable: `Foo Inc. Common Stock` → `Foo Inc.` → `Foo`.
 3. **Cap to 3 words** — keep only the first 3 words that remain: `International Business Machines Corporation` → (strip `Corporation`) → `International Business Machines`.
 4. **Truncate + marquee** — inside the company `<td>` (marked `.text`), a `.company` block wraps the name in a `.company__inner` span; anything too wide for the column gets a trailing `…`. On hover it marquee-scrolls at a steady, readable speed to reveal the full shortened name. Honors `prefers-reduced-motion` — the stylesheet switches the pan off and keeps the `…`, so reduced-motion users see the still, truncated name (the generic reset alone would leave a 0.01ms looping animation jittering).
 
@@ -376,7 +392,7 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 
    ♿ **The full name travels in `title` on the `<td>`** — the original, unshortened name, exactly as the data source gives it. The marquee is mouse-only: a phone has no hover, a keyboard has none, and a screen reader hears only the shortened three-word version. The `title` gives all three the full name (a long-press on a phone) with the same native-tooltip approach the column headers use, and no extra markup.
 
-**Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` using `.nil`, the same treatment as any empty cell (below), and carries no `title`.
+**Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` using `.nil`, the same treatment as any empty cell (above), and carries no `title`.
 
 ```html
 <td class="text" title="International Business Machines Corporation"><div class="company"><span class="company__inner">International Business Machines</span></div></td>
@@ -490,7 +506,7 @@ Status row → `.dropzone` (§06; `.dropzone--slim` once data is loaded) → KPI
 - Column widths stored in component state, seeded from a `COLUMNS` config array, persisted to `localStorage` under an app-specific key.
 - `<div class="table-scroll"><table class="table" style="table-layout:fixed; width:<sum>">` with a `<colgroup>` of `<col style="width:...px">` per column, driven by that state. The `.table-scroll` wrapper is the scroll box (below).
 - A resize handle — `<span class="th-resize"></span>` as the last child of each resizable `<th>`: a `6px`-wide strip straddling the header's right edge, styled by the stylesheet. **Invisible at rest — no border, no vertical line.** The affordances are `cursor: col-resize` over the strip and an accent-300 tint that appears on hover and stays while dragging (add `.is-dragging` for the duration of the drag). Nothing is drawn when the column is not being resized.
-- Drag updates width via `mousemove`/`mouseup` listeners on `window`, clamped to a `40px` minimum.
+- Drag updates width with pointer events: `pointerdown` on the handle calls `setPointerCapture`, then `pointermove`/`pointerup` on the handle itself — no `window` listeners; mouse, touch and pen all work, and a fast drag can't escape the strip — clamped to a `40px` minimum. The handle's `touch-action: none` keeps a finger drag from scrolling the page.
 
 **Where the header sticks depends on where the table scrolls** — get this wrong and the header scrolls away. A sticky header pins to its nearest scrolling ancestor, so:
 
@@ -831,7 +847,7 @@ In the Railway dashboard: **project → service → Variables → New Variable**
 
 ```sh
 curl -sI https://APP/                      # 401 + WWW-Authenticate: Basic realm="NC Futures"
-curl -sI https://APP/health                # 200, body {"status":"ok"}
+curl -si https://APP/health                # 200, body {"status":"ok"}  (-i, not -I: a HEAD request has no body)
 curl -sI https://APP/api/anything          # 401 — API is not a side door
 curl -sI https://APP/assets/index.js       # 401 — static assets are not a side door
 curl -sI -u "$APP_USERNAME:$APP_PASSWORD" https://APP/
