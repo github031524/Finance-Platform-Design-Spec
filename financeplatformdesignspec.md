@@ -668,6 +668,7 @@ The gate is deliberately the cheapest thing that works: **HTTP Basic Auth on the
 9. **No custom login UI.** The browser's own Basic Auth dialog is the login screen — the same reasoning as the native column-header tooltips (§06): the OS draws it, there's nothing to style and nothing to keep in spec. Challenge with `WWW-Authenticate: Basic realm="NC Futures"`.
 10. **Per app, not shared.** Each deploy carries its own variables. Reusing the same username/password across modules is fine and convenient, but each app still prompts once on its own domain — cookies don't cross domains, so opening a module from the switcher (§04b) prompts the first time and then goes quiet for 30 days. Rotating an app's `SECRET_KEY` invalidates its cookies immediately; that's the logout button.
 11. **Four headers on every response, and no framework banner.** `Content-Security-Policy: frame-ancestors 'none'` — §03 forbids framing the apps; this is what enforces it — with `X-Frame-Options: DENY` for older browsers; `X-Content-Type-Options: nosniff`, so a browser never guesses a file type; `Referrer-Policy: no-referrer`, so a click out to TradingView doesn't hand it the app's URL. Turn off `X-Powered-By`. Set them once, above `/health`, so even the public route carries them. Nothing visible changes.
+12. **Failed logins are rate-limited.** After 10 wrong passwords from one address within 15 minutes, the gate answers `429` to that address for the rest of the window — a long passphrase makes guessing impractical; this makes it pointless. Only presented-and-wrong credentials count, never the first credential-less visit, and a right password clears the address's count. Counted in memory (it resets on deploy, which is fine). Railway forwards the visitor's address in `X-Forwarded-For`, so `app.set("trust proxy", 1)` (Express) / `ProxyFix` (Flask) must be on — otherwise every visitor shares one counter and ten wrong guesses lock everyone out.
 
 ### Cookie format
 
@@ -691,6 +692,8 @@ const MISSING = ["APP_USERNAME", "APP_PASSWORD", "SECRET_KEY"].filter((k) => !pr
 const COOKIE = "__Host-ncf_auth"; // __Host-: the browser refuses it unless Secure, Path=/ and no Domain
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 const RENEW_BELOW = 60 * 60 * 24 * 7; // re-issue a valid cookie that has under 7 days left
+const MAX_FAILS = 10, FAIL_WINDOW = 15 * 60 * 1000; // rule 12: 10 wrong passwords per address per 15 minutes
+const fails = new Map(); // ip -> { n, until } — in memory, so it resets on every deploy; fine for a personal tool
 
 if (MISSING.length) console.error(`[auth] missing env: ${MISSING.join(", ")} — all routes will 503`); // names only, never values
 
@@ -704,6 +707,14 @@ const safeEqual = (a, b) =>
     crypto.createHash("sha256").update(String(a)).digest(),
     crypto.createHash("sha256").update(String(b)).digest(),
   );
+
+const tooMany = (ip) => { const f = fails.get(ip); return !!f && f.n >= MAX_FAILS && Date.now() < f.until; };
+function noteFail(ip) {
+  const now = Date.now();
+  for (const [k, f] of fails) if (f.until < now) fails.delete(k); // forget expired windows
+  const f = fails.get(ip) || { n: 0, until: 0 };
+  f.n += 1; f.until = now + FAIL_WINDOW; fails.set(ip, f);
+}
 
 // Returns the verified payload ({ u, exp }) or null — the caller needs exp for renewal.
 function validCookie(token) {
@@ -744,13 +755,17 @@ export function requireAuth(req, res, next) {
     return next();
   }
 
+  if (tooMany(req.ip)) return res.status(429).type("text/plain").send("Too many attempts — try again later");
+
   const header = req.headers.authorization || "";
   if (header.startsWith("Basic ")) {
     const [user, ...rest] = Buffer.from(header.slice(6), "base64").toString("utf8").split(":");
     if (safeEqual(user, APP_USERNAME) && safeEqual(rest.join(":"), APP_PASSWORD)) {
+      fails.delete(req.ip);
       issueCookie(res, user);
       return next();
     }
+    noteFail(req.ip); // credentials were presented and were wrong — the first, credential-less visit never counts
   }
   res.set("WWW-Authenticate", 'Basic realm="NC Futures", charset="UTF-8"');
   res.status(401).type("text/plain").send("Authentication required"); // never log `header`
@@ -760,6 +775,7 @@ export function requireAuth(req, res, next) {
 ```js
 // server/index.js — order is the whole point
 app.disable("x-powered-by");                                   // no framework banner
+app.set("trust proxy", 1);                                     // Railway's proxy forwards the visitor's address — req.ip needs this (rule 12)
 app.use((_req, res, next) => {                                 // rule 11: four headers on every response
   res.set({
     "Content-Security-Policy": "frame-ancestors 'none'",       // no framing — §03 forbids it, this enforces it
@@ -791,6 +807,20 @@ USER, PASSWORD, KEY = (os.environ.get(k) for k in ("APP_USERNAME", "APP_PASSWORD
 MISSING = [k for k in ("APP_USERNAME", "APP_PASSWORD", "SECRET_KEY") if not os.environ.get(k)]
 COOKIE, MAX_AGE = "__Host-ncf_auth", 60 * 60 * 24 * 30  # 30 days; __Host-: browser-enforced Secure + Path=/ + no Domain
 RENEW_BELOW = 60 * 60 * 24 * 7                          # re-issue a valid cookie that has under 7 days left
+MAX_FAILS, FAIL_WINDOW = 10, 15 * 60                    # rule 12: 10 wrong passwords per address per 15 minutes
+_fails = {}                                             # ip -> [count, until]; in memory, resets on deploy
+
+def _too_many(ip):
+    f = _fails.get(ip)
+    return bool(f) and f[0] >= MAX_FAILS and time.time() < f[1]
+
+def _note_fail(ip):
+    now = time.time()
+    for k in [k for k, f in _fails.items() if f[1] < now]:   # forget expired windows
+        del _fails[k]
+    f = _fails.setdefault(ip, [0, 0])
+    f[0] += 1
+    f[1] = now + FAIL_WINDOW
 
 _b64 = lambda b: base64.urlsafe_b64encode(b).decode().rstrip("=")
 _unb64 = lambda s: base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
@@ -817,11 +847,17 @@ def require_auth():
         if cookie["exp"] - time.time() < RENEW_BELOW:  # sliding renewal
             g.issue_cookie = True
         return None
+    ip = request.remote_addr
+    if _too_many(ip):
+        return Response("Too many attempts — try again later", 429)
     auth = request.authorization
     if auth and hmac.compare_digest(_digest(auth.username), _digest(USER)) \
             and hmac.compare_digest(_digest(auth.password), _digest(PASSWORD)):
+        _fails.pop(ip, None)
         g.issue_cookie = True
         return None
+    if auth:
+        _note_fail(ip)                                 # credentials were presented and were wrong
     return Response("Authentication required", 401,
                     {"WWW-Authenticate": 'Basic realm="NC Futures", charset="UTF-8"'})
 
@@ -833,6 +869,8 @@ def issue_cookie(response):
     return response
 
 # app.py
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)    # Railway's proxy forwards the visitor's address (rule 12)
 app.before_request(require_auth)
 app.after_request(issue_cookie)
 
@@ -889,6 +927,8 @@ curl -sI -H 'Cookie: __Host-ncf_auth=v1.eyJ1IjoieCJ9.forged' https://APP/   # 40
 curl -sI https://APP/health | grep -i 'frame-ancestors'             # present — the headers ride on every response, the public one included
 # Sliding renewal: a valid cookie with under 7 days left answers 200 plus a fresh Set-Cookie;
 # a cookie with more than 7 days left answers 200 with no Set-Cookie.
+for i in $(seq 11); do curl -s -o /dev/null -w '%{http_code} ' -u "$APP_USERNAME:wrong" https://APP/; done; echo
+                                           # ten 401s, then 429 — and 429 for the right password too, until the window passes
 ```
 
 Then unset one variable in Railway and confirm the app returns `503` everywhere instead of letting anyone in. An app that answers `200` on any of the first four lines is out of spec and publicly readable.
