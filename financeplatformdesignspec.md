@@ -148,9 +148,9 @@ There is no shared auth or shared data layer, implemented or implied — no SSO,
 
 ## 04a · The Brand Mark
 
-The logo is a **literal shared asset**, not a per-app redraw: three rising bars (accent-500 fill) beside the "NC Futures" wordmark, tight kerning (`NC` to `Futures` gap ≈ 2 SVG units at the reference's 600×150 viewBox; bar-to-text gap ≈ 20 units). Every app embeds the **exact same file**, unmodified — get it from `github031524/earnings-tracker:client/src/assets/logo.svg` (also mirrored as `logo.svg` in this design-spec repo). Render it at `height: 34.56px` in the top bar; width follows automatically from the SVG's aspect ratio.
+The logo is a **literal shared asset**, not a per-app redraw: three rising bars (accent-500 fill) beside the "NC Futures" wordmark, set in **Inter Regular at 90 units and outlined to paths**. Outlined on purpose: an SVG loaded as an `<img>` cannot load web fonts, so a live-text wordmark renders in whatever the viewer's machine happens to have — Arial on Mac and Windows, Roboto on Android — and never in Inter. As paths it is identical everywhere. Bar-to-text gap ≈ 20 units, a word space between the two words, on a 619×150 viewBox. Every app embeds the **exact same file**, unmodified — take `logo.svg` from **this repo** (the reference app's copy is the older live-text version and is out of date). Render it at `height: 34.56px` in the top bar; width follows automatically from the SVG's aspect ratio (≈ 143px).
 
-Do not hand-recreate the mark as inline SVG shapes or a text lockup — use the file as-is.
+Do not hand-recreate the mark as inline SVG shapes or a text lockup, and don't regenerate the wordmark from live text — use the file as-is.
 
 **Favicon — required, and it must be the small PNG.** Every app serves the shared favicon so its browser tab carries the brand: the three bars alone, cropped square (the wordmark is illegible at 16px). Copy `favicon.png` from this repo unmodified — same rule as the logo, no per-app redraws — and declare it in `<head>`:
 
