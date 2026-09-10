@@ -607,6 +607,26 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
   user-select: none;
 }
 
+/* Keyboard-operable sort. A click handler on a <th> can't be reached with
+   Tab, so the header's text sits in a <button class="th-sort"> that looks
+   exactly like the plain header — every property inherited, all button
+   chrome removed — and gets keyboard access and the focus ring for free:
+   Enter or Space sorts. The title tooltip goes on the button; the resize
+   handle stays outside it, a sibling in the <th>. */
+.th-sort {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  white-space: inherit;
+  cursor: pointer;
+}
+
 /* The scroll wrapper. §08a's fixed-layout tables overflow their frame and
    need a scrolling box — and that box becomes the nearest scrolling ancestor,
    so the sticky header must pin at 0 inside it: the page-scroll value floated

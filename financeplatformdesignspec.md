@@ -332,7 +332,14 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 <th class="num" title="Trailing-twelve-month revenue, sum of the last four reported quarters">REVENUE (TTM)</th>
 ```
 
-**Sortable columns** — every column showing a comparable value is sortable by clicking its header (`.table th.sortable` — pointer cursor, no text selection):
+**Sortable columns** — every column showing a comparable value is sortable from its header, by mouse **and by keyboard**: the header text sits in a `<button class="th-sort">` inside the `<th>` (`.table th.sortable` — pointer cursor, no text selection). The button looks identical to a plain header, but Tab reaches it and Enter or Space sorts — a click handler on the `<th>` itself is unreachable without a mouse. The `title` tooltip (above) goes on the button; the resize handle (§08a) stays a sibling.
+
+```html
+<th class="num sortable" aria-sort="descending">
+  <button class="th-sort" type="button" title="Last trade price">Price ▼</button>
+  <span class="th-resize"></span>
+</th>
+```
 
 - **Click to sort, click again to flip.** First click on a numeric column sorts **descending** (biggest first — the finance default); on a text column **ascending** (A→Z). The active header appends a `▲`/`▼` glyph (inheriting the header color — no new colors); inactive headers carry no glyph. Set `aria-sort` on the active `<th>`.
 - **Sort by type** — numbers numerically, text case-insensitively, dates chronologically. Null/`—` cells always sort last, in either direction.
@@ -542,7 +549,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 11. Apply the **company name cell** treatment (§06) — shorten, truncate, marquee on hover, em-dash when missing.
 12. Add an **Open All** button to every ticker-list view (§06).
 13. Give every column header a native `title` tooltip (§06).
-14. Make every comparable column sortable (§06), and every column resizable with persisted widths (§08a).
+14. Make every comparable column sortable (§06) — header text in a `.th-sort` button so it works by keyboard — and every column resizable with persisted widths (§08a).
 15. Give every view its **loading, empty and error states** and every validated field its invalid state (§06 States) — no app-specific spinners or red boxes.
 16. Put the app behind the **§10 access gate**, and run the §10 secrets-hygiene check on the repo.
 
