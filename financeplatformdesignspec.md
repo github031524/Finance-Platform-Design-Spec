@@ -247,14 +247,27 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 | Icon (compact) | icon-only, tight padding | `.btn .btn-icon` |
 | Tag | accent | `.tag .tag-accent` |
 
+```html
+<button class="btn btn-primary" type="button">Run Scan</button>
+<button class="btn" type="button">Open All</button>
+<button class="btn btn-ghost" type="button">Clear</button>
+<button class="btn btn-icon" type="button" aria-label="Remove"><svg …></svg></button>
+<span class="tag tag-accent">ADR</span>
+```
+
 **Every control is the same height** — `--control-h`, 28px: buttons (whether `<button>` or `<a class="btn">`), `.input` text fields and selects all measure exactly that, so anything placed in one toolbar row lines up without per-app fixes. Button labels never wrap. `textarea.input` grows instead (at least two control heights); `.btn-icon` is the one control allowed to be smaller.
 
-**KPI tile** — blueprint frame · label / figure / delta
+**KPI tile** — blueprint frame · label / figure / delta. The delta carries `.gain` or `.loss` (rule 2); a tile with nothing to compare against simply omits it. Tiles sit in a `.grid.grid--kpi` (auto-fit, 180px minimum per tile).
 
-```
-REVENUE (TTM)
-$92.8B
-▲ +33.8% YoY
+```html
+<div class="grid grid--kpi">
+  <div class="blueprint kpi">
+    <div class="kpi__label">Revenue (TTM)</div>
+    <div class="kpi__figure">$92.8B</div>
+    <div class="kpi__delta gain">▲ +33.8% YoY</div>
+  </div>
+  <!-- … one .blueprint.kpi per figure … -->
+</div>
 ```
 
 **Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`). **Every column after the first is right-aligned by default** — the numbers rule — so mark a text column that is not first (a company or name column) with `.text` on its `<th>` and `<td>`s to keep it left-aligned; `.num` forces the opposite. (The `.company` block sets its own alignment either way.) **Column headers are sticky**: rows scroll, the header row stays pinned so columns are always identifiable — see §08a for which `top` value to use, since it depends on whether the table scrolls with the page or inside its own box. Columns are **resizable** (§08a) and **sortable** (below) on every table.
@@ -323,9 +336,23 @@ $92.8B
 </div>
 ```
 
-**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. Put them **in the toolbar's centre zone**, never in a dedicated row of their own.
+**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. Put them **in the toolbar's centre zone**, never in a dedicated row of their own. The active tab carries `aria-selected="true"`; that attribute is what the stylesheet styles, so keep it in step with the app's state.
 
-**Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
+```html
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" type="button">Watchlist</button>
+  <button class="tab" role="tab" aria-selected="false" type="button">Upcoming</button>
+</div>
+```
+
+**Filter field** — `.field` wrapping a `<label>` and an `.input` (e.g. "Min YoY growth" → `+20%`). Link the two with `for`/`id` so clicking the label focuses the field and screen readers name it. `select.input` for a dropdown, `textarea.input` for multi-line.
+
+```html
+<div class="field">
+  <label for="min-yoy">Min YoY growth</label>
+  <input id="min-yoy" class="input" placeholder="+20%">
+</div>
+```
 
 **Dropzone** — `.dropzone`, the input of the Upload / analyze recipe (§07): a frame the user drops a file or screenshot on, or clicks to browse. Three states, no new colours — idle is a *dashed* hairline (the one dashed border in the system, so a drop target reads as different from a content frame); drag-over adds `.is-dragover` (accent border, accent-100 tint) for the duration of the drag; once data is loaded, `.dropzone--slim` collapses it to a one-line "add another" bar. The label is `.micro`; the app handles the file input and the drag events.
 
@@ -335,6 +362,10 @@ $92.8B
 ```
 
 **Status/freshness text** — plain `.micro` text (uppercase, 9.5px, accent-800), placed inline in a page's toolbar next to the action it describes (e.g. "Updated 3:50 AM" beside a "Refresh Data" button). **Not a pill** — no border, no fill. A badge around it implies something you can click or dismiss; this is a passive readout, and boxing it makes it compete with the actual controls in the same row.
+
+```html
+<span class="micro">Updated 3:50 AM</span> <button class="btn" type="button">Refresh Data</button>
+```
 
 `.tag` stays for things that really are tags — a short accent-marked classifier attached to a row or record, not a status line.
 
