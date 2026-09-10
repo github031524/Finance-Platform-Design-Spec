@@ -136,6 +136,18 @@ body {
 
 img, svg, canvas { display: block; max-width: 100%; }
 
+/* Plain links — anything that is not a ticker (.symbol, §15) or a control.
+   Accent-800, the one accent value for text, with a thin offset underline;
+   never the browser's blue and visited-purple, which are stray colours in a
+   one-colour system. Hover thickens the underline; no colour change. */
+a {
+  color: var(--color-accent-800);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover { text-decoration-thickness: 2px; }
+
 :focus-visible {
   outline: 2px solid var(--color-accent-700);
   outline-offset: 2px;
