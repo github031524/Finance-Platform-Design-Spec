@@ -123,7 +123,7 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 
 **Every page's `<head>`** carries the same seven lines and nothing that makes the app installable (§04a): the language, the charset, the viewport (without it a phone renders the page zoomed out), the light-only declaration (§02), the tab title, the favicon and the stylesheet.
 
-**The tab title is `<Module name> · NC Futures`** — the module's registry name (§04b) first, so several open tabs stay tellable apart even when the browser truncates them; the brand second, for tab search. Never a page or entity name in it — the tab names the app, the content names itself.
+**The tab title is the module name alone** — the module's registry name (§04b), verbatim, and nothing else, so several open tabs stay tellable apart even when the browser truncates them. No brand suffix — the favicon (§04a) already carries the brand in the tab. Never a page or entity name in it — the tab names the app, the content names itself.
 
 ```html
 <!doctype html>
@@ -132,7 +132,7 @@ The top bar carries only the brand mark and the Modules switcher — no global s
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="only light" />  <!-- light-only; stops Android Chrome's auto-dark (§02) -->
-  <title>Options Analyzer · NC Futures</title>       <!-- module name first, brand second -->
+  <title>Options Analyzer</title>                    <!-- the module name alone — no brand suffix -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />  <!-- PNG, never SVG (§04a) -->
   <link rel="stylesheet" href="styles.css" />
   <!-- No <link rel="manifest">, no apple-touch-icon — either makes the app installable (§04a). -->
@@ -264,7 +264,7 @@ export const CURRENT_MODULE = "Options Analyzer";
 2. **Entries open in a new tab** — `target="_blank" rel="noopener"`. The current tab never navigates away.
 3. **The current app stays in the list**, rendered as inert text with `aria-current="page"` — not a link.
 4. **Every change here — a module added *or* retired — is re-copied into every app** so all switchers stay identical (two modules have already been retired). A switcher missing an app, or still listing a retired one, is stale, not a variant. The current app is marked by the separate `CURRENT_MODULE` constant, never by editing the list.
-5. Names here are the display names — use them verbatim, in the switcher label and in the tab title (`<Module name> · NC Futures`, §03).
+5. Names here are the display names — use them verbatim, in the switcher label and as the tab title (the module name alone, §03).
 
 ---
 
@@ -568,7 +568,7 @@ sh sync-spec.sh
 
 It downloads the current `styles.css`, `fonts/`, `logo.svg` and `favicon.png` from this repo's `main` branch, and puts the shared **`CLAUDE.md`** at the app's repo root — the house rules for how Claude works in every app (no changes without a go-ahead, auto-PR and auto-merge, plain-English replies, one action per step) — so "bring the app up to the spec" starts with one command instead of five copy-pastes; copying by hand is exactly how apps fall behind. `CLAUDE.md` is identical in every app, like `styles.css`: the script replaces whatever was there, so app-specific notes for Claude don't belong in it. It refreshes files, not code: markup the spec asks for (the company cell, the toolbar, the switcher, sort headers) still needs reading the spec.
 
-1. Give the page the §03 `<head>` — language, viewport, light-only, the `<Module name> · NC Futures` title, favicon (PNG not SVG), stylesheet — and delete any manifest; copy `styles.css`, its `fonts/` folder (kept next to it), `logo.svg` and `favicon.png` from this repo; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
+1. Give the page the §03 `<head>` — language, viewport, light-only, the `<title>` (the module name alone), favicon (PNG not SVG), stylesheet — and delete any manifest; copy `styles.css`, its `fonts/` folder (kept next to it), `logo.svg` and `favicon.png` from this repo; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading. Inter arrives with the stylesheet (self-hosted in `fonts/`, §02) — remove any Google Fonts link or other font loader the app had.
 3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the hex values in §02.
 4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks.**
