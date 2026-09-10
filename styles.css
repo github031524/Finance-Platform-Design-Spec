@@ -773,8 +773,9 @@ textarea.input {
 /* THE PEEK-MARQUEE PATTERN. .company is the named instance of a generic
    treatment usable on ANY fixed-width element whose text may overflow: a
    fixed window (max-width + hidden overflow + nowrap + ellipsis), an inner
-   inline-block span so the text is measurable and transformable, and on
-   hover: ellipsis -> clip plus a translateX animation whose end position is
+   span (inline at rest so the ellipsis can draw — an inline-block child is
+   clipped without one; inline-block only on hover so it can be transformed),
+   and on hover: ellipsis -> clip plus a translateX animation whose end position is
    min(0px, calc(window - 100%)) — 100% is the span's own full width, so the
    text slides left exactly until its last character reaches the window's
    right edge, and the min() guard clamps text that fits to zero travel, so
@@ -795,14 +796,18 @@ textarea.input {
   text-overflow: ellipsis;
 }
 
+/* Inline at rest — NOT inline-block. Chrome never draws text-overflow's
+   ellipsis for an inline-block child: the box is simply clipped at the cell
+   edge and the "…" never appears. The span becomes a box only while it pans. */
 .company__inner {
-  display: inline-block;
+  display: inline;
   will-change: transform;
 }
 
 .company:hover { text-overflow: clip; }
 
 .company:hover .company__inner {
+  display: inline-block;
   animation: company-marquee var(--marquee-speed, 6s) linear infinite alternate;
 }
 
