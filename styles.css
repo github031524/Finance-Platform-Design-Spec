@@ -366,11 +366,12 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 
 
 /* 04a · BRAND MARK ========================================================
-   The logo is a literal shared SVG asset (three rising bars + "NC Futures"
-   wordmark in accent-500), not a redrawable component — every app embeds
-   the SAME file, unmodified. Get it from
-   github031524/earnings-tracker: client/src/assets/logo.svg
-   (mirrored into this design-spec repo as logo.svg alongside this file). */
+   The logo is a literal shared SVG asset (three rising bars in accent-500 +
+   the "NC Futures" wordmark, set in Inter and outlined to paths so an <img>
+   renders it identically on every machine), not a redrawable component —
+   every app embeds the SAME file, unmodified. Take logo.svg from the
+   design-spec repo, alongside this file; the reference app's copy is the
+   older live-text version. */
 
 
 /* 05 · BLUEPRINT FRAME — THE SIGNATURE ==================================== */
