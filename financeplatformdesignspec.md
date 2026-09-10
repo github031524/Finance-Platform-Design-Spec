@@ -17,12 +17,12 @@
 ## 01 · The Five Rules
 
 1. **Blueprint frames** — Every card, tile, panel and figure is a hairline-bordered line drawing with rounded corners (`--radius: 8px`). No drop shadows, and no solid fills except the primary button (below). Tints are fine — the light accent steps (100–300) and the `surface` grey are for hovers, row banding, tags and the tinted frame (`.blueprint--tint`) — as long as they stay tints.
-2. **One color, plus one named exception** — Steel blue (`#5980a6`) is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#206f31` / `#b42d36`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
+2. **One color, plus two named exceptions** — Steel blue (`#5980a6`) is the only accent for everything except gain/loss and the AM/PM tags. Gains and losses use a dedicated green/red pair (`#206f31` / `#b42d36`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. The **AM/PM report-time tags** (§06) are the second break — **amber for AM, indigo for PM** — kept because when a company reports is decision-critical and the tag has to be seen at a glance among everything blue and grey. Nothing else in the interface is colored, and neither amber nor indigo appears anywhere but those two tags — that is what makes them stand out.
 3. **One typeface: Inter** — Inter for everything, all text and all numbers, no exceptions. Headings and figures use 600 weight uppercase; body is 400/500. Numbers are tabular.
 4. **Visible grid** — Equal cells, hairline dividers, strong horizontal and vertical rhythm. Structure is drawn, not implied by whitespace alone.
 5. **Data first** — No marketing copy inside the tool. Labels are short and uppercase; the numbers are the loudest thing on screen. Status/freshness text (e.g. "Updated 3:50 AM") lives inline near the control it describes, not in a separate breadcrumb strip.
 
-**The two exceptions:** the primary button is the single solid object — an accent fill. Gain/loss color (see rule 2) is the other — a deliberate, permanent break from the one-color system, not a per-app choice.
+**The exceptions:** the primary button is the single solid object — an accent fill. Gain/loss color and the AM/PM tag pair (see rule 2) are the others — deliberate, permanent breaks from the one-color system, not per-app choices.
 
 ---
 
@@ -41,6 +41,19 @@
 | `hairline` | `#c9cacc` |
 
 Gain/loss are chosen for legibility on small tabular numbers: both clear WCAG AA (4.5:1) on every background in the system — plain `bg`, banded `surface` rows, and `accent-200` hover — bottoming out at 4.84:1 on a hovered row. Re-check this pair against any new row background before adding one.
+
+**AM/PM tag pair** — the second break from one color (rule 2), for the report-time tags only (§06). Same three-step shape as the accent tag: 100 fill, 500 border, 800 text.
+
+| Token | Value | Used for |
+|---|---|---|
+| `am-100` | `#faefd2` | AM tag fill |
+| `am-500` | `#b8800f` | AM tag border |
+| `am-800` | `#5f3f00` | AM tag text |
+| `pm-100` | `#e9e8f7` | PM tag fill |
+| `pm-500` | `#5d5bc2` | PM tag border |
+| `pm-800` | `#37357f` | PM tag text |
+
+Each text value clears WCAG AA on its own fill by a wide margin — 8.35:1 amber, 8.77:1 indigo — and both borders clear 3:1 against the page (3.06:1 and 5.02:1), so the tags read on any row. These six values exist for `.tag-am` and `.tag-pm` and nothing else.
 
 **Light only, and declared.** The stylesheet sets `color-scheme: only light` and every page carries `<meta name="color-scheme" content="only light">` in its `<head>` (§03). Without them, Chrome on Android's auto-dark mode recolours light pages by itself — inverting the one-colour system, gain/loss red and green included. **Native controls take the accent:** the stylesheet's `accent-color` makes checkboxes, radios and range sliders steel blue instead of the browser's default blue, so a bare checkbox is on-palette without a custom control.
 
@@ -297,6 +310,8 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 | Ghost | borderless; the hairline appears on hover | `.btn .btn-ghost` |
 | Icon (compact) | icon-only, tight padding | `.btn .btn-icon` |
 | Tag | accent | `.tag .tag-accent` |
+| Tag, AM (reports before the open) | amber | `.tag .tag-am` |
+| Tag, PM (reports after the close) | indigo | `.tag .tag-pm` |
 
 ```html
 <button class="btn btn-primary" type="button">Run Scan</button>
@@ -304,7 +319,10 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 <button class="btn btn-ghost" type="button">Clear</button>
 <button class="btn btn-icon" type="button" aria-label="Remove"><svg …></svg></button>
 <span class="tag tag-accent">ADR</span>
+<span class="tag tag-am">AM</span> <span class="tag tag-pm">PM</span>
 ```
+
+**AM/PM tags** — the report-time tags carry the one non-accent tint in the interface: **AM is amber, PM is indigo** (rule 2; tokens in §02). Wherever an app shows when a company reports, it uses exactly these two tags — text `AM` / `PM`, classes `.tag-am` / `.tag-pm` — never a recolored accent tag, a plain-text label or an app-local shade. They stand out precisely because nothing else on the page is amber or indigo; using either hue for anything else takes that away.
 
 **Every control is the same height** — `--control-h`, 28px: buttons (whether `<button>` or `<a class="btn">`), `.input` text fields and selects all measure exactly that, so anything placed in one toolbar row lines up without per-app fixes. Button labels never wrap. `textarea.input` grows instead (at least two control heights); `.btn-icon` is the one control allowed to be smaller, down to a 24 × 24px minimum.
 
@@ -571,7 +589,7 @@ It downloads the current `styles.css`, `fonts/`, `logo.svg` and `favicon.png` fr
 3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the hex values in §02.
 4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks.**
 5. Right-align numeric columns; set `tabular-nums`.
-6. Gains → `#206f31`, losses → `#b42d36`. Nothing else colored.
+6. Gains → `#206f31`, losses → `#b42d36`; AM/PM report-time tags → `.tag-am` / `.tag-pm` (§06). Nothing else colored.
 7. Delete descriptions and sell copy; labels become short uppercase. Any status/freshness text moves inline into the relevant toolbar row (no context bar to put it in). Spell every number and date per §06 Numbers & dates — signed deltas with a real minus sign, one-decimal percentages, `Jul 19` dates.
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, in the centre zone of a `.toolbar` row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab, exchange-qualified where a bare ticker is ambiguous, via the same helper Open All uses) — no bare symbols anywhere.
@@ -628,7 +646,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 |---|---|
 | Shell | Top bar + brand mark · Modules switcher (§04b) · `<head>` + tab title (§03) · favicon (§04a) · remove app-name page title |
 | Type | Inter everywhere · uppercase headings · tabular numbers |
-| Color | Recolor to tokens · gain/loss pair · strip stray hex, gradients, shadows |
+| Color | Recolor to tokens · gain/loss pair · AM/PM tag pair · strip stray hex, gradients, shadows |
 | Frames | Cards/panels → `.blueprint` hairline + `8px` radius |
 | Table look | `.table` + compact density · right-aligned numerics · row banding · sticky headers |
 | Table behavior | Sortable columns · resizable columns · header tooltips |
@@ -643,7 +661,7 @@ Some picks imply others — say so in the option text rather than silently pulli
 - **Modules switcher** needs the **top bar**. Offer the bar first; grey the switcher out if the bar is declined.
 - **Company-name cell** is one option, not three — shortening, truncation and the full-name tooltip go together.
 - **Row banding** and **resizable columns** both need the table converted to `.table` first.
-- **Gain/loss colors** are part of the color group; picking "tokens only" without them leaves gains/losses uncolored — flag that.
+- **Gain/loss colors** and the **AM/PM tag pair** are part of the color group; picking "tokens only" without them leaves gains/losses uncolored and AM/PM tags blue — flag that.
 
 A partial selection is a legitimate end state, not a half-finished job. But if the result is visibly inconsistent — new frames beside old shadowed cards, Inter beside the previous typeface — note it plainly in the report so the choice is informed. Do not fix it unasked.
 
