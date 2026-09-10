@@ -237,9 +237,9 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 | Earnings Tracker | `https://earnings-tracker-production-2c77.up.railway.app/#/` |
 | Custom Indexer | `https://indexer-production-83a6.up.railway.app/#/` |
 | Stock Screener | `https://parabolic-screener-production.up.railway.app/` |
+| PRE-earnings Drift | `https://pre-earnings-drift-production.up.railway.app/` |
 | PEAD | `https://pead-watchlist-e1a53.up.railway.app/` |
 | Taiwan Screener | `https://taiwan-revenue-screener-production.up.railway.app/#/` |
-| PRE-earnings Drift | `https://pre-earnings-drift-production.up.railway.app/` |
 
 ```js
 // Copy verbatim into each app — this list is identical everywhere. Never edit it per app.
@@ -248,9 +248,9 @@ export const MODULES = [
   { name: "Earnings Tracker",   url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
   { name: "Custom Indexer",     url: "https://indexer-production-83a6.up.railway.app/#/" },
   { name: "Stock Screener",     url: "https://parabolic-screener-production.up.railway.app/" },
+  { name: "PRE-earnings Drift", url: "https://pre-earnings-drift-production.up.railway.app/" },
   { name: "PEAD",               url: "https://pead-watchlist-e1a53.up.railway.app/" },
   { name: "Taiwan Screener",    url: "https://taiwan-revenue-screener-production.up.railway.app/#/" },
-  { name: "PRE-earnings Drift", url: "https://pre-earnings-drift-production.up.railway.app/" },
 ];
 
 // The ONE line that differs per app:
