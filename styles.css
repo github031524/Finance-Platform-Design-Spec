@@ -136,6 +136,12 @@ body {
 
 img, svg, canvas { display: block; max-width: 100%; }
 
+/* Form controls inherit the page font and colour. Browsers give buttons,
+   inputs and selects their own font (Arial on most systems), so a control
+   that missed its .btn/.input class silently broke rule 3 — Inter,
+   everything, no exceptions. Element-level, so .btn and .input still win. */
+button, input, select, textarea { font: inherit; color: inherit; }
+
 /* Plain links — anything that is not a ticker (.symbol, §15) or a control.
    Accent-800, the one accent value for text, with a thin offset underline;
    never the browser's blue and visited-purple, which are stray colours in a
