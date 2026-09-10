@@ -609,18 +609,20 @@ It downloads the current `styles.css`, `fonts/`, `logo.svg` and `favicon.png` fr
 
 An opt-in conversion: instead of converting straight through, the agent presents the proposed changes as a **clickable menu** and applies only the ones ticked. Use it when adopting the system gradually, or on an app where some of the old UI should survive.
 
-**This mode overrides the "full authorization / just do it" clauses** in the header and §09. Do not edit, commit or push before the selection comes back.
+**This mode overrides the "full authorization / just do it" clauses** in the header and §09. Do not edit, commit or push before the last round's selection comes back.
 
 **§10 access control is not a menu item.** It's a security requirement, not a look — apply it whether or not anything visual is ticked, and say so in the report. The only thing to ask about is if the app already has a working gate of its own.
 
 ### Protocol
 
 1. **Inventory first (silently).** Run §09 Step 0 — read the codebase and inventory every route, data flow, business rule, validation and edge case. Keep it internal; don't print it. It stays the acceptance checklist.
-2. **Present the menu.** Offer the applicable changes as selectable options via `AskUserQuestion`, grouped by area, **multi-select on**. The tool caps a round at 4 questions × 4 options, so run several rounds until every area is covered. Skip areas the app doesn't have — never show a "symbol links" option to an app with no tickers.
-3. **Keep labels short** — see *Writing the options* below. This is the part that most often goes wrong.
-4. **Apply only what's ticked.** Anything unticked is left exactly as-is, and is not raised again or "improved" in passing.
-5. **Report** in one short block: what was applied, what was skipped by choice, and anything the selection makes inconsistent (see below).
-6. Then commit, push, PR, merge as normal.
+2. **Present the menu — in rounds, until it is complete.** Offer the applicable changes as selectable options via `AskUserQuestion`, grouped by area (the *Suggested grouping* table below), **multi-select on**. The tool shows at most 4 questions × 4 options per call — that is one page of the menu, not the menu. Nine groups means a full app takes about three rounds: one question per group, a group with more than four changes split over two. **Announce the count before the first round** ("Round 1 of 3: Shell, Type, Color") and keep going until every group has been offered. Skip a group only because the app has nothing it applies to — never show a "symbol links" option to an app with no tickers — and say which groups were skipped and why.
+3. **If you noticed it, it goes on the menu.** Every change the inventory turned up — including ones spotted along the way — is offered as an option. Never a note, a footnote, the report or the "still lags" list instead. Declining a change is the user's call, every time; a change that was never offered was decided on their behalf, which is the one thing this mode exists to stop.
+4. **Keep labels short** — see *Writing the options* below. This is the part that most often goes wrong.
+5. **Check the menu is complete before applying anything.** Every group in the grouping table has been offered or skipped with a reason, and every inventoried change appears under one of them. Anything missing means another round, not a start on the work.
+6. **Apply only what's ticked.** Anything unticked is left exactly as-is, and is not raised again or "improved" in passing.
+7. **Report** in one short block: what was applied, what was declined, and anything the selection makes inconsistent (see below). What "still lags the spec" is exactly the declined list — nothing that was never offered can appear there.
+8. Then commit, push, PR, merge as normal.
 
 ### Writing the options
 
