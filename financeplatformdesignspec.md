@@ -99,7 +99,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 
 **Two** fixed layers wrap every module — not three. An app only ever supplies the content region; the top bar is identical across all apps.
 
-**A · Global top bar** — 48px, sticky, hairline base. Brand mark on the left, the Modules switcher centered, an optional account chip on the right. **On phones** (under 640px) the switcher sits at the right of the bar instead of dead-centre — centred, it overlaps the brand mark below about 470px — and its menu opens centred under the bar. Nothing else changes, and the stylesheet handles it.
+**A · Global top bar** — 48px, sticky, hairline base. Brand mark on the left, the Modules switcher centered, an optional account chip on the right. **The brand mark is a link to the app's own start page** (`/`, or `#/` for a hash-routed app) — the near-universal way back from a deep view — and to nothing else: there is no hub to link to. **On phones** (under 640px) the switcher sits at the right of the bar instead of dead-centre — centred, it overlaps the brand mark below about 470px — and its menu opens centred under the bar. Nothing else changes, and the stylesheet handles it.
 
 **The switcher is labelled with the current app**, not the word "Modules" — it reads as a "you are here" marker that happens to be clickable. Clicking it drops down the full module list (§04b); clicking an entry there opens that app **in a new tab**, leaving the current one in place. The current app is listed too, marked as active (`aria-current="page"`) and not a link.
 
@@ -127,7 +127,9 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 </head>
 
 <header class="topbar">
-  <span class="topbar__brand"><img src="logo.svg" alt="NC Futures" /></span>
+  <!-- The brand mark links to THIS app's start page — "/" or "#/" for a
+       hash-routed app — never to a hub (there is none). -->
+  <a class="topbar__brand" href="/" aria-label="NC Futures — start page"><img src="logo.svg" alt="" /></a>
   <!-- Modules switcher — .topbar__modules keeps it absolutely centered in the
        top bar, dead-center regardless of the brand and account-chip widths on
        either side. The trigger is labelled with THIS app's name; the

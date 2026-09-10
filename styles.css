@@ -299,10 +299,15 @@ p:last-child { margin-bottom: 0; }
   border-bottom: var(--hairline);
 }
 
+/* An <a> to the app's own start page (spec §03) — a link that looks like the
+   mark, not like a link: no underline, no colour of its own. Keyboard focus
+   gets the global ring. */
 .topbar__brand {
   display: flex;
   align-items: center;
   white-space: nowrap;
+  color: inherit;
+  text-decoration: none;
 }
 
 /* The brand mark is an <img> of the shared logo asset (see §04a below),
