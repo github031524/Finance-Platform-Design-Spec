@@ -99,6 +99,18 @@
   --color-gain:   #206f31;
   --color-loss:   #b42d36;
 
+  /* AM/PM report-time tags — the second documented break from "one color"
+     (spec §01 rule 2, §06). Same three-step shape as the accent tag: 100
+     fill, 500 border, 800 text. Text on its own fill: 8.35:1 amber, 8.77:1
+     indigo; borders 3.06:1 and 5.02:1 against the page. For .tag-am and
+     .tag-pm only — nothing else in the system is amber or indigo. */
+  --color-am-100: #faefd2;
+  --color-am-500: #b8800f;
+  --color-am-800: #5f3f00;
+  --color-pm-100: #e9e8f7;
+  --color-pm-500: #5d5bc2;
+  --color-pm-800: #37357f;
+
   /* Hairline — the only border in the system */
   --hairline-color: #c9cacc;
   --hairline: 1px solid var(--hairline-color);
@@ -551,6 +563,21 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
   border-color: var(--color-accent-500);
   background: var(--color-accent-100);
   color: var(--color-accent-800);
+}
+
+/* AM/PM report-time tags (spec §06): amber for AM, indigo for PM — the one
+   place a non-accent hue appears. They stand out because nothing else on the
+   page shares these hues; never reuse the tokens elsewhere. */
+.tag-am {
+  border-color: var(--color-am-500);
+  background: var(--color-am-100);
+  color: var(--color-am-800);
+}
+
+.tag-pm {
+  border-color: var(--color-pm-500);
+  background: var(--color-pm-100);
+  color: var(--color-pm-800);
 }
 
 
