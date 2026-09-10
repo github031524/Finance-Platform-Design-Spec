@@ -620,12 +620,19 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 }
 
 /* Sortable headers — the sorting itself is app code (state + re-render, see
-   spec §06); the stylesheet supplies only the affordance. The active th also
-   carries aria-sort and appends a ▲/▼ glyph inheriting the header color. */
+   spec §06); the stylesheet supplies the affordance and the glyph. */
 .table th.sortable {
   cursor: pointer;
   user-select: none;
 }
+
+/* The sort glyph is drawn from aria-sort, so the app sets one attribute and
+   nothing else — no ▲/▼ pasted into the header text to keep in sync with the
+   attribute screen readers use. Inherits the header colour. ::after comes
+   after the .th-sort button and the resize strip, so it lands exactly where
+   a pasted glyph used to. */
+.table th[aria-sort="ascending"]::after  { content: " ▲"; }
+.table th[aria-sort="descending"]::after { content: " ▼"; }
 
 /* Keyboard-operable sort. A click handler on a <th> can't be reached with
    Tab, so the header's text sits in a <button class="th-sort"> that looks
