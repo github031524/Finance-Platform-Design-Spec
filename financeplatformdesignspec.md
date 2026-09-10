@@ -338,6 +338,27 @@ $92.8B
 
 `.tag` stays for things that really are tags — a short accent-marked classifier attached to a row or record, not a status line.
 
+**States** — the moments a page has nothing to show get one look each, built from existing components, so six apps don't invent six spinners and six error boxes:
+
+- **Loading** — disable the control and put a `.micro` readout beside it (`Loading…`), exactly like status text. No spinner.
+- **Empty** — a `.blueprint.state` frame: one `.micro` line saying what would change it (`No rows match — widen the filters`) and, if there is one, the button that does (`.btn-ghost`).
+- **Error** — the same frame: one `.micro` line naming the failure (`Couldn't load prices (HTTP 502)`) and a **Retry** `.btn`. Errors are not red — red is for losses (rule 2).
+- **Invalid field** — `aria-invalid="true"` on the `.input` darkens its border to accent-800, and a `.micro` line under the field says how to fix it, linked with `aria-describedby`. No red here either.
+
+```html
+<button class="btn" disabled>Refresh Data</button> <span class="micro">Loading…</span>
+
+<div class="blueprint state"><span class="micro">No rows match — widen the filters</span><button class="btn btn-ghost">Clear filters</button></div>
+
+<div class="blueprint state"><span class="micro">Couldn't load prices (HTTP 502)</span><button class="btn">Retry</button></div>
+
+<div class="field">
+  <label for="min-yoy">Min YoY growth</label>
+  <input id="min-yoy" class="input" aria-invalid="true" aria-describedby="min-yoy-err">
+  <span id="min-yoy-err" class="micro">Enter a number, e.g. 20</span>
+</div>
+```
+
 ---
 
 ## 07 · Layout Recipe Per App Type
@@ -434,7 +455,8 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 12. Add an **Open All** button to every ticker-list view (§06).
 13. Give every column header a native `title` tooltip (§06).
 14. Make every comparable column sortable (§06), and every column resizable with persisted widths (§08a).
-15. Put the app behind the **§10 access gate**, and run the §10 secrets-hygiene check on the repo.
+15. Give every view its **loading, empty and error states** and every validated field its invalid state (§06 States) — no app-specific spinners or red boxes.
+16. Put the app behind the **§10 access gate**, and run the §10 secrets-hygiene check on the repo.
 
 **Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
 
@@ -485,7 +507,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 | Frames | Cards/panels → `.blueprint` hairline + `8px` radius |
 | Table look | `.table` + compact density · right-aligned numerics · row banding · sticky headers |
 | Table behavior | Sortable columns · resizable columns · header tooltips |
-| Controls | Buttons → `.btn` · inputs → `.input` · page tabs → `.tabs` in a toolbar row |
+| Controls | Buttons → `.btn` · inputs → `.input` · page tabs → `.tabs` in a toolbar row · loading / empty / error states (§06) |
 | Data cells | Symbols → TradingView links (§06) · company-name shortening + marquee (§06) · Open All on ticker lists (§06) |
 | Copy | Delete sell copy · labels to short uppercase · status text inline |
 
