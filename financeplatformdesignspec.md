@@ -257,7 +257,7 @@ $92.8B
 ▲ +33.8% YoY
 ```
 
-**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`). **Column headers are sticky**: rows scroll, the header row stays pinned so columns are always identifiable — see §08a for which `top` value to use, since it depends on whether the table scrolls with the page or inside its own box. Columns are **resizable** (§08a) and **sortable** (below) on every table.
+**Data table** — `.table`, numbers right-aligned and tabular, compact row padding (`4px 10px`). **Every column after the first is right-aligned by default** — the numbers rule — so mark a text column that is not first (a company or name column) with `.text` on its `<th>` and `<td>`s to keep it left-aligned; `.num` forces the opposite. (The `.company` block sets its own alignment either way.) **Column headers are sticky**: rows scroll, the header row stays pinned so columns are always identifiable — see §08a for which `top` value to use, since it depends on whether the table scrolls with the page or inside its own box. Columns are **resizable** (§08a) and **sortable** (below) on every table.
 
 | METRIC | Q3'25 | Q2'25 | YOY |
 |---|---:|---:|---:|

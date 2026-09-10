@@ -830,7 +830,16 @@ textarea.input {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  /* A company column is rarely first, and §08 right-aligns every column after
+     the first with tabular figures. Names are text: the block sets its own
+     alignment, so it reads correctly whether or not the cell carries .text. */
+  text-align: left;
+  font-variant-numeric: normal;
 }
+
+/* Legacy <td class="company">: §08's per-column rule (.table td:not(:first-child))
+   outranks a lone class, so restate the alignment at matching specificity. */
+.table td.company { text-align: left; font-variant-numeric: normal; }
 
 /* Inline at rest — NOT inline-block. Chrome never draws text-overflow's
    ellipsis for an inline-block child: the box is simply clipped at the cell
