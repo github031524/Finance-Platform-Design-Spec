@@ -754,43 +754,49 @@ textarea.input {
 /* Long company names are shortened by a shortenCompanyName() transform in the
    app — strip a leading "The", loop-strip trailing corporate suffixes and
    share-class/ADR noise until stable, then cap to the first 3 words — and
-   finished visually here: the cell is capped at 160px with a trailing
-   ellipsis, and on hover the name marquee-scrolls to reveal itself. Wrap the
-   name in .company__inner so the marquee has something to translate; the §02
-   prefers-reduced-motion reset disables the scroll automatically. A missing
-   name makes the transform return null and the app renders an em-dash
-   (.company--null, the same treatment as any empty cell — see .nil in §08). */
+   finished visually here: the name is clipped to its cell with a trailing
+   ellipsis, and on hover it marquee-scrolls to reveal itself. The markup is
+   a .company block INSIDE the cell, wrapping a .company__inner span:
 
-/* --peek-window MUST match the cell's real rendered width. Inside a table
-   (§08a requires table-layout: fixed on all of them) the <col> width is the
-   window and max-width below is ignored entirely, so a stale --peek-window
-   is not a near-miss: the pan is computed against a width the cell does not
-   have, and a name that comfortably fits gets slid sideways out of view on
-   hover. The app owns this — write the live column width into --peek-window
-   on first render and again on every resize. The 160px below is only a
-   starting value for a cell that is NOT inside a fixed-layout table. */
+     <td class="text"><div class="company"><span class="company__inner">…</span></div></td>
+
+   The §02 prefers-reduced-motion block disables the scroll automatically. A
+   missing name makes the transform return null and the app renders an
+   em-dash (.company--null, the same treatment as any empty cell — .nil, §08). */
+
+/* THE WINDOW MEASURES ITSELF. .company is a size container, so the keyframe
+   below reads the block's own inner width as 100cqw: the pan always ends with
+   the last character exactly at the visible edge, and it stays right when a
+   column is resized (§08a) with nothing written by the app. This is why
+   .company is a <div> inside the <td> rather than the <td> itself —
+   containment has no effect on table cells. Inside a fixed-layout table the
+   wrapper fills the cell's content box, which is the window.
+
+   Back-compat: --peek-window is still honoured. An app that keeps .company
+   on the <td> must write the cell's INNER width (column width minus the two
+   --table-cell-px paddings) into --peek-window on first render and on every
+   resize; writing the column width leaves the last 20px unrevealed. */
 
 /* THE PEEK-MARQUEE PATTERN. .company is the named instance of a generic
-   treatment usable on ANY fixed-width element whose text may overflow: a
-   fixed window (max-width + hidden overflow + nowrap + ellipsis), an inner
-   span (inline at rest so the ellipsis can draw — an inline-block child is
+   treatment usable on ANY element whose text may overflow: a window (hidden
+   overflow + nowrap + ellipsis) that is a size container, an inner span
+   (inline at rest so the ellipsis can draw — an inline-block child is
    clipped without one; inline-block only on hover so it can be transformed),
-   and on hover: ellipsis -> clip plus a translateX animation whose end position is
-   min(0px, calc(window - 100%)) — 100% is the span's own full width, so the
-   text slides left exactly until its last character reaches the window's
-   right edge, and the min() guard clamps text that fits to zero travel, so
-   it never animates. 6s linear infinite alternate: a slow back-and-forth
-   pan across the window, NOT a looping ticker tape — the hidden tail is
-   revealed, then the start returns. Text never wraps and layout never
-   shifts. Mouse-out removes the animation; the cell snaps back to the
-   ellipsis. The window width is declared ONCE as --peek-window (inherited
-   into the keyframe calc) — override that variable per instance, never
-   restate the width, and keep it equal to the cell's real width (see the
-   note above; this is not optional inside a resizable table). */
+   and on hover: ellipsis -> clip plus a translateX animation whose end
+   position is min(0px, calc(100cqw - 100%)) — 100cqw is the window's own
+   width and 100% is the span's full width, so the text slides left exactly
+   until its last character reaches the window's right edge, and the min()
+   guard clamps text that fits to zero travel, so it never animates. 6s
+   linear infinite alternate: a slow back-and-forth pan across the window,
+   NOT a looping ticker tape — the hidden tail is revealed, then the start
+   returns. Text never wraps and layout never shifts. Mouse-out removes the
+   animation; the element snaps back to the ellipsis. Give the element a
+   width (a <col>, a max-width, a grid track) — the pattern never sizes
+   itself. */
 
 .company {
-  --peek-window: 160px;
-  max-width: var(--peek-window);
+  --peek-window: 100cqw;   /* the window's own inner width; override only for a legacy <td class="company"> */
+  container-type: inline-size;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -813,7 +819,7 @@ textarea.input {
 
 @keyframes company-marquee {
   from { transform: translateX(0); }
-  to   { transform: translateX(min(0px, calc(var(--peek-window, 160px) - 100%))); }
+  to   { transform: translateX(min(0px, calc(var(--peek-window, 100cqw) - 100%))); }
 }
 
 /* The company column's blank is the same blank as any other — kept as a name
