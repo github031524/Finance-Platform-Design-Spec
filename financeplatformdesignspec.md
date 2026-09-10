@@ -16,7 +16,7 @@
 
 ## 01 · The Five Rules
 
-1. **Blueprint frames** — Every card, tile, panel and figure is a hairline-bordered line drawing with rounded corners (`--radius: 8px`). No drop shadows as decoration, no filled surfaces (except the two named exceptions below).
+1. **Blueprint frames** — Every card, tile, panel and figure is a hairline-bordered line drawing with rounded corners (`--radius: 8px`). No drop shadows, and no solid fills except the primary button (below). Tints are fine — the light accent steps (100–300) and the `surface` grey are for hovers, row banding, tags and the tinted frame (`.blueprint--tint`) — as long as they stay tints.
 2. **One color, plus one named exception** — Steel blue (`#5980a6`) is the only accent for everything except gain/loss. Gains and losses use a dedicated green/red pair (`#206f31` / `#b42d36`), independent of the accent ramp — a deliberate break from "one color," kept because red/green is a near-universal, safety-relevant trading convention and misreading it costs real money. Nothing else in the interface is colored.
 3. **One typeface: Inter** — Inter for everything, all text and all numbers, no exceptions. Headings and figures use 600 weight uppercase; body is 400/500. Numbers are tabular.
 4. **Visible grid** — Equal cells, hairline dividers, strong horizontal and vertical rhythm. Structure is drawn, not implied by whitespace alone.
@@ -389,6 +389,16 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
   <span id="min-yoy-err" class="micro">Enter a number, e.g. 20</span>
 </div>
 ```
+
+**Also in the stylesheet** — classes that exist but had no entry here until now:
+
+- `.blueprint--tint` — a frame filled accent-100, e.g. today's cell in a tracker calendar.
+- `.grid--week` — five equal columns (two on narrow screens), for a working-week calendar row.
+- `.text` / `.num` — force a table column left (text) or right (numbers, tabular figures); see Data table above.
+- `.figure` — a heading-weight tabular number outside a KPI tile; the same treatment as `.kpi__figure` without the tile.
+- `[data-num]` — the numeric treatment of `.num` as an attribute, for generated markup.
+- `.company--null` — identical to `.nil`; kept as a readable name at the company-cell call site.
+- `.topbar__actions` + `.avatar` — the optional account chip at the right of the top bar: `<div class="topbar__actions"><span class="avatar">NC</span></div>`, a 28px hairline square with initials. Most modules omit it; the bar is complete without it.
 
 ---
 
