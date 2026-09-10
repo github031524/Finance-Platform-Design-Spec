@@ -660,7 +660,7 @@ The gate is deliberately the cheapest thing that works: **HTTP Basic Auth on the
 1. **Credentials come from the environment** — `APP_USERNAME` and `APP_PASSWORD`. Never hardcoded, never with a fallback default, never committed.
 2. **Missing config fails closed.** If `APP_USERNAME`, `APP_PASSWORD` or `SECRET_KEY` is unset at startup, every route except `/health` returns `503` — a misconfigured app is unreachable, never open. The 503 body says nothing about *which* variable is missing; log that once at startup instead, by name only.
 3. **Constant-time comparison** — `crypto.timingSafeEqual` / `hmac.compare_digest`, on equal-length inputs (hash both sides first, as below). Never `===` / `==` on a password.
-4. **One prompt, then a cookie.** On success, set a signed, `HttpOnly`, `Secure`, `SameSite=Lax` cookie with a 30-day `Max-Age`, and accept it on later requests so a phone and a laptop each prompt once. Name it `__Host-ncf_auth`: the `__Host-` prefix makes the browser itself refuse the cookie unless it is `Secure`, has `Path=/` and no `Domain` — the three things this rule already requires — so a future edit cannot quietly weaken it. (Adopting the prefix on an existing app logs every device out once; they re-enter the password once.) **Stateless** — the signature *is* the proof. An in-memory session store would log you out on every deploy, since Railway replaces the container each time.
+4. **One prompt, then a cookie.** On success, set a signed, `HttpOnly`, `Secure`, `SameSite=Lax` cookie with a 30-day `Max-Age`, and accept it on later requests so a phone and a laptop each prompt once. Name it `__Host-ncf_auth`: the `__Host-` prefix makes the browser itself refuse the cookie unless it is `Secure`, has `Path=/` and no `Domain` — the three things this rule already requires — so a future edit cannot quietly weaken it. (Adopting the prefix on an existing app logs every device out once; they re-enter the password once.) **The cookie renews itself while in use:** a valid cookie with under 7 days left is re-issued for another 30, so a device used daily never re-prompts, and an idle one still expires 30 days after its last use. **Stateless** — the signature *is* the proof. An in-memory session store would log you out on every deploy, since Railway replaces the container each time.
 5. **Signed with `SECRET_KEY`** — HMAC-SHA256 over the payload, verified before the payload is read or trusted. A cookie that fails verification, or whose `exp` has passed, is treated as absent: fall through to the Basic Auth challenge.
 6. **Everything is behind it** — pages, the SPA bundle and its assets, `/api/*`, the SPA catch-all route. Mount the middleware **once, above every route and above static-file serving**, so a new route is protected by default rather than by remembering to protect it.
 7. **One public exception: `/health`** — Railway's healthcheck. It returns `{"status":"ok"}` and nothing else: no version, no env, no build info, no config state. Register it *above* the middleware; it is the only path allowed to skip.
@@ -690,6 +690,7 @@ const { APP_USERNAME, APP_PASSWORD, SECRET_KEY } = process.env;
 const MISSING = ["APP_USERNAME", "APP_PASSWORD", "SECRET_KEY"].filter((k) => !process.env[k]);
 const COOKIE = "__Host-ncf_auth"; // __Host-: the browser refuses it unless Secure, Path=/ and no Domain
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+const RENEW_BELOW = 60 * 60 * 24 * 7; // re-issue a valid cookie that has under 7 days left
 
 if (MISSING.length) console.error(`[auth] missing env: ${MISSING.join(", ")} — all routes will 503`); // names only, never values
 
@@ -704,18 +705,19 @@ const safeEqual = (a, b) =>
     crypto.createHash("sha256").update(String(b)).digest(),
   );
 
+// Returns the verified payload ({ u, exp }) or null — the caller needs exp for renewal.
 function validCookie(token) {
-  if (!token) return false;
+  if (!token) return null;
   const [v, payload, sig] = token.split(".");
-  if (v !== "v1" || !payload || !sig) return false;
+  if (v !== "v1" || !payload || !sig) return null;
   const expected = sign(payload);
   const got = Buffer.from(sig, "base64url");
-  if (got.length !== expected.length || !crypto.timingSafeEqual(got, expected)) return false;
+  if (got.length !== expected.length || !crypto.timingSafeEqual(got, expected)) return null;
   try {
-    const { exp } = JSON.parse(Buffer.from(payload, "base64url").toString());
-    return typeof exp === "number" && exp > Math.floor(Date.now() / 1000);
+    const { u, exp } = JSON.parse(Buffer.from(payload, "base64url").toString());
+    return typeof u === "string" && typeof exp === "number" && exp > Math.floor(Date.now() / 1000) ? { u, exp } : null;
   } catch {
-    return false; // never trust an unverified payload
+    return null; // never trust an unverified payload
   }
 }
 
@@ -736,7 +738,11 @@ function issueCookie(res, user) {
 
 export function requireAuth(req, res, next) {
   if (MISSING.length) return res.status(503).type("text/plain").send("Server not configured");
-  if (validCookie(readCookie(req))) return next();
+  const cookie = validCookie(readCookie(req));
+  if (cookie) {
+    if (cookie.exp - Math.floor(Date.now() / 1000) < RENEW_BELOW) issueCookie(res, cookie.u); // sliding renewal
+    return next();
+  }
 
   const header = req.headers.authorization || "";
   if (header.startsWith("Basic ")) {
@@ -784,27 +790,32 @@ from flask import Response, g, request
 USER, PASSWORD, KEY = (os.environ.get(k) for k in ("APP_USERNAME", "APP_PASSWORD", "SECRET_KEY"))
 MISSING = [k for k in ("APP_USERNAME", "APP_PASSWORD", "SECRET_KEY") if not os.environ.get(k)]
 COOKIE, MAX_AGE = "__Host-ncf_auth", 60 * 60 * 24 * 30  # 30 days; __Host-: browser-enforced Secure + Path=/ + no Domain
+RENEW_BELOW = 60 * 60 * 24 * 7                          # re-issue a valid cookie that has under 7 days left
 
 _b64 = lambda b: base64.urlsafe_b64encode(b).decode().rstrip("=")
 _unb64 = lambda s: base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
 _sign = lambda payload: hmac.new(KEY.encode(), payload.encode(), hashlib.sha256).digest()
 _digest = lambda v: hashlib.sha256((v or "").encode()).digest()  # fixed width, length-safe
 
-def _valid_cookie(token):
+def _valid_cookie(token):                          # the verified payload, or None
     try:
         version, payload, sig = (token or "").split(".")
         if version != "v1" or not hmac.compare_digest(_unb64(sig), _sign(payload)):
-            return False
-        return json.loads(_unb64(payload))["exp"] > time.time()
+            return None
+        data = json.loads(_unb64(payload))
+        return data if data["exp"] > time.time() else None
     except Exception:
-        return False
+        return None
 
 def require_auth():
     if request.path == "/health":
         return None                                    # the one public route
     if MISSING:
         return Response("Server not configured", 503)
-    if _valid_cookie(request.cookies.get(COOKIE)):
+    cookie = _valid_cookie(request.cookies.get(COOKIE))
+    if cookie:
+        if cookie["exp"] - time.time() < RENEW_BELOW:  # sliding renewal
+            g.issue_cookie = True
         return None
     auth = request.authorization
     if auth and hmac.compare_digest(_digest(auth.username), _digest(USER)) \
@@ -876,6 +887,8 @@ curl -sI -u "$APP_USERNAME:$APP_PASSWORD" https://APP/
                                            #   Path=/; HttpOnly; Secure; SameSite=Lax
 curl -sI -H 'Cookie: __Host-ncf_auth=v1.eyJ1IjoieCJ9.forged' https://APP/   # 401 — bad signature rejected
 curl -sI https://APP/health | grep -i 'frame-ancestors'             # present — the headers ride on every response, the public one included
+# Sliding renewal: a valid cookie with under 7 days left answers 200 plus a fresh Set-Cookie;
+# a cookie with more than 7 days left answers 200 with no Set-Cookie.
 ```
 
 Then unset one variable in Railway and confirm the app returns `503` everywhere instead of letting anyone in. An app that answers `200` on any of the first four lines is out of spec and publicly readable.
