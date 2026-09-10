@@ -137,10 +137,16 @@ img, svg, canvas { display: block; max-width: 100%; }
   outline-offset: 2px;
 }
 
+/* Reduced motion: every animation and transition collapses to one instant
+   frame, and smooth scrolling is off. Looping animations must also be told to
+   run once — a 0.01ms INFINITE animation is a jitter, not a pause. The company
+   marquee (§16) additionally switches itself off and keeps its ellipsis. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -760,7 +766,8 @@ textarea.input {
 
      <td class="text"><div class="company"><span class="company__inner">…</span></div></td>
 
-   The §02 prefers-reduced-motion block disables the scroll automatically. A
+   A prefers-reduced-motion block at the end of this section switches the
+   scroll off and keeps the ellipsis (the generic §02 block is not enough). A
    missing name makes the transform return null and the app renders an
    em-dash (.company--null, the same treatment as any empty cell — .nil, §08). */
 
@@ -820,6 +827,15 @@ textarea.input {
 @keyframes company-marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(min(0px, calc(var(--peek-window, 100cqw) - 100%))); }
+}
+
+/* Reduced motion: no pan at all. The §02 block alone would leave a 0.01ms
+   infinite animation running (a jitter, not a pause) and the hover would still
+   drop the ellipsis, so the user saw a clipped name instead of a still "…".
+   Declared after the hover rules so it wins at equal specificity. */
+@media (prefers-reduced-motion: reduce) {
+  .company:hover { text-overflow: ellipsis; }
+  .company:hover .company__inner { animation: none; }
 }
 
 /* The company column's blank is the same blank as any other — kept as a name
