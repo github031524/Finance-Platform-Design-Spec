@@ -383,24 +383,22 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 - **Guardrail** — above ~25 tickers, a confirmation dialog states the tab count before opening.
 - **Affordance** — the button's tooltip warns that the browser's pop-up blocker must allow the site, since blockers typically permit only the first tab.
 
-**Company name cell** — long names in a company column are shortened by a `shortenCompanyName(name)` transform, truncated by CSS, then marquee-scrolled on hover:
+**Company name cell** — long names in a company column are shortened by a `shortenCompanyName(name)` transform, truncated by CSS, and carried in full in the cell's tooltip:
 
 1. **Strip a leading "The"** — `The Kraft Heinz Company` → `Kraft Heinz Company`.
 2. **Strip suffixes** — repeatedly remove trailing corporate suffixes and share-class/ADR noise until nothing more matches: `Inc` / `Inc.`, `Corp` / `Corporation`, `Ltd`, `LLC` / `L.L.C.`, `plc`, `Holdings` / `Holding`, `Group`, `Technologies` / `Technology`, `& Co` / `Co.` / `Cos.`, `Class A` / `B` / `C` (any single-letter share class), `Series A`–`Z` `Preferred`, `Common Stock`, `American Depositary Shares` / `Receipts`, `ADR`, `ADS`, `Ordinary Shares (...)`, `Subordinate Voting Shares`. Loops until stable: `Foo Inc. Common Stock` → `Foo Inc.` → `Foo`.
 3. **Cap to 3 words** — keep only the first 3 words that remain: `International Business Machines Corporation` → (strip `Corporation`) → `International Business Machines`.
-4. **Truncate + marquee** — inside the company `<td>` (marked `.text`), a `.company` block wraps the name in a `.company__inner` span; anything too wide for the column gets a trailing `…`. On hover it marquee-scrolls at a steady, readable speed to reveal the full shortened name. Honors `prefers-reduced-motion` — the stylesheet switches the pan off and keeps the `…`, so reduced-motion users see the still, truncated name (the generic reset alone would leave a 0.01ms looping animation jittering).
+4. **Truncate** — inside the company `<td>` (marked `.text`), a `.company` block holds the name; anything too wide for the column gets a trailing `…`. **Nothing moves on hover** — no marquee, no scroll, no expansion. The `…` says there is more, and the tooltip (below) is where the rest lives.
 
-   ✅ **The window measures itself.** `.company` is a CSS size container, so the pan always ends with the last character exactly at the cell's visible edge, and it stays right when a column is resized (§08a) — the app writes nothing. That is why `.company` goes on a `<div>` inside the `<td>`, not on the `<td>`: containment has no effect on table cells. (Legacy: an app that still puts `.company` on the `<td>` must write the cell's *inner* width — column width minus the two `--table-cell-px` paddings — into `--peek-window` on first render and on every resize. Writing the column width leaves the last 20px of the name unrevealed.)
-
-   ♿ **The full name travels in `title` on the `<td>`** — the original, unshortened name, exactly as the data source gives it. The marquee is mouse-only: a phone has no hover, a keyboard has none, and a screen reader hears only the shortened three-word version. The `title` gives all three the full name (a long-press on a phone) with the same native-tooltip approach the column headers use, and no extra markup.
+   ♿ **The full name travels in `title` on the `<td>`** — the original, unshortened name, exactly as the data source gives it. The browser shows it as a native tooltip on hover (~1s), a long-press shows it on a phone, and a screen reader reads it — the same native-tooltip approach the column headers use, and no extra markup. It is the only way the rest of a truncated name is revealed, and it shows more than any hover effect could: the full name, not the shortened one.
 
 **Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` using `.nil`, the same treatment as any empty cell (above), and carries no `title`.
 
 ```html
-<td class="text" title="International Business Machines Corporation"><div class="company"><span class="company__inner">International Business Machines</span></div></td>
+<td class="text" title="International Business Machines Corporation"><div class="company">International Business Machines</div></td>
 ```
 
-`.company` is the named instance of the general **peek-marquee pattern** (stylesheet §16), usable on *any* element whose text may overflow: a window (hidden overflow + `nowrap` + ellipsis) that is a CSS size container, an inner span that is **inline at rest** (the browser only draws the `…` for inline text — an `inline-block` child is silently clipped without one) and becomes `inline-block` only while panning, and on hover ellipsis→clip plus a `translateX` animation ending at `min(0px, calc(100cqw − 100%))` — `100cqw` is the window's own width, so the text slides left exactly until its last character reaches the window's right edge, and text that fits never moves. `6s linear infinite alternate` (tune `--marquee-speed`): a slow back-and-forth **pan**, not a looping ticker tape; layout never shifts, and mouse-out snaps back to the ellipsis. Reduced-motion users get the static ellipsis (stylesheet §16, reduced-motion block). The window needs no declared width: the container unit reads it live, so resized columns (§08a) stay exact. Give the element a width (a `<col>`, a `max-width`, a grid track) — the pattern never sizes itself.
+`.company` is the block that truncates (stylesheet §16): hidden overflow, `nowrap`, a trailing `…`, left-aligned with normal (non-tabular) figures whichever column it sits in. It never sizes itself — give the column a width (a `<col>` in a fixed-layout table, §08a; a `max-width`) or a long name simply widens the cell and never truncates. Legacy: an app that still wraps the name in a `.company__inner` span from the former hover marquee can leave it — the span is inert and the stylesheet no longer styles it.
 
 **Toolbar** — `.toolbar`, the page's own control row: three zones on one grid — `.toolbar__left` (a selector, status text), `.toolbar__center` (the page's `.tabs`), `.toolbar__right` (action buttons). The middle stays exactly centred whatever sits either side, and the side zones never shrink below their own content, so nothing can overlap at any width — if a side zone needs more than its half, the tabs shift off-centre instead. Below 800px **of the toolbar's own width** (not the screen's, so a toolbar inside a narrow panel stacks too) the three zones stack into rows, and tabs that don't fit on one line wrap (on small phones they also get tighter padding, so four still fit). Controls inside are content-sized, capped at about a third of the toolbar in the single-row layout (a dropdown with one very long option name truncates rather than pushing the buttons off the edge), and status text never wraps. Don't hand-build this with absolute positioning.
 
@@ -519,7 +517,7 @@ Status row → `.dropzone` (§06; `.dropzone--slim` once data is loaded) → KPI
 
 Expect the first row. Fixed layout gives the table an explicit total width, which on a wide table overflows its frame — so wrap it: `<div class="blueprint"><div class="table-scroll"><table class="table">…`. The wrapper is the scroll box (add a `max-height` if it should scroll vertically too); the class pins the header at the box's own top and keeps the frame flush (§05), so there is nothing to override. A plain `overflow-x: auto` wrapper without the class does neither: the header floats 48px *down* inside the box with rows passing above it, and the frame keeps its padding. Never put `overflow: hidden` on a wrapper around a table — it silently kills sticky entirely.
 
-**Resizing and the company cell:** nothing to do — the peek-marquee window (§06) measures itself, so a resized column pans correctly on the next hover. (Only a legacy `<td class="company">` needs its *inner* width written to `--peek-window` on every resize.)
+**Resizing and the company cell:** nothing to do — the `…` truncation (§06) follows the column's width on its own, wider or narrower.
 
 ---
 
@@ -578,7 +576,7 @@ It downloads the current `styles.css`, `fonts/`, `logo.svg` and `favicon.png` fr
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, in the centre zone of a `.toolbar` row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab, exchange-qualified where a bare ticker is ambiguous, via the same helper Open All uses) — no bare symbols anywhere.
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
-11. Apply the **company name cell** treatment (§06) — shorten, truncate, marquee on hover, the full name in the cell's `title`, em-dash when missing.
+11. Apply the **company name cell** treatment (§06) — shorten, truncate, the full name in the cell's `title`, em-dash when missing. Remove any hover marquee or scroll on the name — the tooltip replaced it.
 12. Add an **Open All** button to every ticker-list view (§06).
 13. Give every column header a native `title` tooltip (§06).
 14. Make every comparable column sortable (§06) — header text in a `.th-sort` button so it works by keyboard — and every column resizable with persisted widths (§08a).
@@ -635,7 +633,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 | Table look | `.table` + compact density · right-aligned numerics · row banding · sticky headers |
 | Table behavior | Sortable columns · resizable columns · header tooltips |
 | Controls | Buttons → `.btn` · inputs → `.input` · page tabs → `.tabs` in a toolbar row · loading / empty / error states (§06) |
-| Data cells | Symbols → TradingView links (§06) · company-name shortening + marquee (§06) · Open All on ticker lists (§06) |
+| Data cells | Symbols → TradingView links (§06) · company-name cell: shorten + truncate + full-name tooltip (§06) · Open All on ticker lists (§06) |
 | Copy | Delete sell copy · labels to short uppercase · status text inline |
 
 ### Dependencies
@@ -643,7 +641,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 Some picks imply others — say so in the option text rather than silently pulling extras in:
 
 - **Modules switcher** needs the **top bar**. Offer the bar first; grey the switcher out if the bar is declined.
-- **Company-name marquee** needs the **company cell truncation** — it's one option, not two.
+- **Company-name cell** is one option, not three — shortening, truncation and the full-name tooltip go together.
 - **Row banding** and **resizable columns** both need the table converted to `.table` first.
 - **Gain/loss colors** are part of the color group; picking "tokens only" without them leaves gains/losses uncolored — flag that.
 
