@@ -660,7 +660,7 @@ The gate is deliberately the cheapest thing that works: **HTTP Basic Auth on the
 1. **Credentials come from the environment** — `APP_USERNAME` and `APP_PASSWORD`. Never hardcoded, never with a fallback default, never committed.
 2. **Missing config fails closed.** If `APP_USERNAME`, `APP_PASSWORD` or `SECRET_KEY` is unset at startup, every route except `/health` returns `503` — a misconfigured app is unreachable, never open. The 503 body says nothing about *which* variable is missing; log that once at startup instead, by name only.
 3. **Constant-time comparison** — `crypto.timingSafeEqual` / `hmac.compare_digest`, on equal-length inputs (hash both sides first, as below). Never `===` / `==` on a password.
-4. **One prompt, then a cookie.** On success, set a signed, `HttpOnly`, `Secure`, `SameSite=Lax` cookie with a 30-day `Max-Age`, and accept it on later requests so a phone and a laptop each prompt once. **Stateless** — the signature *is* the proof. An in-memory session store would log you out on every deploy, since Railway replaces the container each time.
+4. **One prompt, then a cookie.** On success, set a signed, `HttpOnly`, `Secure`, `SameSite=Lax` cookie with a 30-day `Max-Age`, and accept it on later requests so a phone and a laptop each prompt once. Name it `__Host-ncf_auth`: the `__Host-` prefix makes the browser itself refuse the cookie unless it is `Secure`, has `Path=/` and no `Domain` — the three things this rule already requires — so a future edit cannot quietly weaken it. (Adopting the prefix on an existing app logs every device out once; they re-enter the password once.) **Stateless** — the signature *is* the proof. An in-memory session store would log you out on every deploy, since Railway replaces the container each time.
 5. **Signed with `SECRET_KEY`** — HMAC-SHA256 over the payload, verified before the payload is read or trusted. A cookie that fails verification, or whose `exp` has passed, is treated as absent: fall through to the Basic Auth challenge.
 6. **Everything is behind it** — pages, the SPA bundle and its assets, `/api/*`, the SPA catch-all route. Mount the middleware **once, above every route and above static-file serving**, so a new route is protected by default rather than by remembering to protect it.
 7. **One public exception: `/health`** — Railway's healthcheck. It returns `{"status":"ok"}` and nothing else: no version, no env, no build info, no config state. Register it *above* the middleware; it is the only path allowed to skip.
@@ -672,8 +672,8 @@ The gate is deliberately the cheapest thing that works: **HTTP Basic Auth on the
 ### Cookie format
 
 ```
-ncf_auth = v1.<base64url(payload)>.<base64url(hmac_sha256(SECRET_KEY, payload))>
-payload  = {"u":"<username>","exp":<unix-seconds>}
+__Host-ncf_auth = v1.<base64url(payload)>.<base64url(hmac_sha256(SECRET_KEY, payload))>
+payload         = {"u":"<username>","exp":<unix-seconds>}
 ```
 
 Verify by recomputing the HMAC over the received payload and comparing constant-time, then checking `exp` is in the future. The payload is signed, not encrypted — put nothing in it but the username and expiry.
@@ -688,7 +688,7 @@ import crypto from "node:crypto";
 
 const { APP_USERNAME, APP_PASSWORD, SECRET_KEY } = process.env;
 const MISSING = ["APP_USERNAME", "APP_PASSWORD", "SECRET_KEY"].filter((k) => !process.env[k]);
-const COOKIE = "ncf_auth";
+const COOKIE = "__Host-ncf_auth"; // __Host-: the browser refuses it unless Secure, Path=/ and no Domain
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 if (MISSING.length) console.error(`[auth] missing env: ${MISSING.join(", ")} — all routes will 503`); // names only, never values
@@ -783,7 +783,7 @@ from flask import Response, g, request
 
 USER, PASSWORD, KEY = (os.environ.get(k) for k in ("APP_USERNAME", "APP_PASSWORD", "SECRET_KEY"))
 MISSING = [k for k in ("APP_USERNAME", "APP_PASSWORD", "SECRET_KEY") if not os.environ.get(k)]
-COOKIE, MAX_AGE = "ncf_auth", 60 * 60 * 24 * 30  # 30 days
+COOKIE, MAX_AGE = "__Host-ncf_auth", 60 * 60 * 24 * 30  # 30 days; __Host-: browser-enforced Secure + Path=/ + no Domain
 
 _b64 = lambda b: base64.urlsafe_b64encode(b).decode().rstrip("=")
 _unb64 = lambda s: base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
@@ -872,9 +872,9 @@ curl -si https://APP/health                # 200, body {"status":"ok"}  (-i, not
 curl -sI https://APP/api/anything          # 401 — API is not a side door
 curl -sI https://APP/assets/index.js       # 401 — static assets are not a side door
 curl -sI -u "$APP_USERNAME:$APP_PASSWORD" https://APP/
-                                           # 200 + Set-Cookie: ncf_auth=v1…; Max-Age=2592000;
+                                           # 200 + Set-Cookie: __Host-ncf_auth=v1…; Max-Age=2592000;
                                            #   Path=/; HttpOnly; Secure; SameSite=Lax
-curl -sI -H 'Cookie: ncf_auth=v1.eyJ1IjoieCJ9.forged' https://APP/   # 401 — bad signature rejected
+curl -sI -H 'Cookie: __Host-ncf_auth=v1.eyJ1IjoieCJ9.forged' https://APP/   # 401 — bad signature rejected
 curl -sI https://APP/health | grep -i 'frame-ancestors'             # present — the headers ride on every response, the public one included
 ```
 
