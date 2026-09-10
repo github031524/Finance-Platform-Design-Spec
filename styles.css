@@ -327,7 +327,10 @@ p:last-child { margin-bottom: 0; }
    every module (§04b); entries open in a new tab, so the current tab never
    navigates away. Not a fixed-width menu: it hugs its content (see .blueprint
    usage note in §05) so it reads as centered under the trigger regardless of
-   how many modules are listed. */
+   how many modules are listed. The dropdown is a <nav> of plain links — a
+   disclosure, not an application menu — toggled with [hidden]; the trigger
+   carries aria-expanded/aria-controls and the app closes it on Escape and on
+   an outside click (spec §03 has the nine lines). */
 .topbar__modules {
   position: absolute;
   left: 50%;

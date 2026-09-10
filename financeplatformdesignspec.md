@@ -133,23 +133,40 @@ The top bar carries only the brand mark and the Modules switcher — no global s
        either side. The trigger is labelled with THIS app's name; the
        .blueprint--solid menu opens directly below it. -->
   <div class="topbar__modules">
-    <button class="btn topbar__modules-trigger" aria-haspopup="menu" aria-expanded="false">
-      Earnings Tracker ▾
+    <button class="btn topbar__modules-trigger" type="button" aria-expanded="false" aria-controls="modules-menu">
+      Earnings Tracker <span aria-hidden="true">▾</span>
     </button>
 
-    <!-- Add [hidden] / remove it to close & open. Every entry opens in a new tab. -->
-    <div class="topbar__modules-menu blueprint blueprint--solid" role="menu" hidden>
-      <span class="topbar__modules-item" role="menuitem" aria-current="page">Earnings Tracker</span>
-      <a class="topbar__modules-item" role="menuitem" target="_blank" rel="noopener"
+    <!-- A disclosure, not an application menu: a plain list of links (no
+         role="menu"), so no arrow-key handling is owed. Toggle [hidden] to
+         open and close — the script below does. Every entry opens in a new tab. -->
+    <nav id="modules-menu" class="topbar__modules-menu blueprint blueprint--solid" aria-label="Modules" hidden>
+      <span class="topbar__modules-item" aria-current="page">Earnings Tracker</span>
+      <a class="topbar__modules-item" target="_blank" rel="noopener"
          href="https://options-analyzer-production-24d8.up.railway.app/">Options Analyzer</a>
       <!-- … one <a> per remaining module, in the §04b order … -->
-    </div>
+    </nav>
   </div>
 </header>
 
 <main class="content">
   … APP CONTENT GOES HERE, INCLUDING THIS APP'S OWN TABS …
 </main>
+```
+
+**The switcher works by keyboard and closes properly.** The button carries `aria-expanded` and `aria-controls`; Enter or Space opens it; **Escape closes it and returns focus to the button**; a click anywhere outside closes it; Tab moves through the entries like any list of links. It is a *disclosure*, not an application menu — no `role="menu"`/`menuitem`, which would promise arrow-key navigation nobody implements — and the ▾ is decorative (`aria-hidden`). The behaviour is nine lines; copy them as they are (or express the same in the app's framework):
+
+```js
+const trigger = document.querySelector(".topbar__modules-trigger");
+const menu = document.getElementById("modules-menu");
+const setOpen = (open) => { menu.hidden = !open; trigger.setAttribute("aria-expanded", String(open)); };
+trigger.addEventListener("click", () => setOpen(menu.hidden));
+document.addEventListener("click", (e) => {
+  if (!menu.hidden && !e.target.closest(".topbar__modules")) setOpen(false);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !menu.hidden) { setOpen(false); trigger.focus(); }
+});
 ```
 
 ### Architecture
