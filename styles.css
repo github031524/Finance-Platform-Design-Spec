@@ -394,7 +394,9 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
   display: none;
 }
 
-/* Tinted variant — e.g. today's cell in a tracker */
+/* Tinted variant — e.g. today's cell in a tracker. A tint, not a fill: rule 1
+   allows the light accent steps and the surface grey wherever they stay
+   tints; the primary button is the only solid object. */
 .blueprint--tint { background: var(--color-accent-100); }
 
 /* Solid variant — floating panels only (dropdowns, popovers) that need an
@@ -807,6 +809,10 @@ textarea.input {
 
 /* 12 · NUMERIC & DELTA TREATMENT ========================================== */
 
+/* .num forces a table column right with tabular figures (§08 does this for
+   every column after the first already). .figure is a heading-weight number
+   outside a KPI tile — the .kpi__figure treatment without the tile (§03 sets
+   its font). [data-num] is .num as an attribute, for generated markup. */
 .num,
 .figure,
 [data-num] {
