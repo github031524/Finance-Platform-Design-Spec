@@ -298,6 +298,19 @@ p:last-child { margin-bottom: 0; }
 
 .topbar__modules-trigger { white-space: nowrap; }
 
+/* Phones. Absolute centring ignores the brand mark, so below ~470px the
+   switcher landed on top of the logo (38px of overlap at 400px). Under 640px
+   it drops back into the flex flow at the right of the bar; the menu, which
+   positions against .topbar, then opens centred under the bar. Desktop is
+   unchanged. */
+@media (max-width: 640px) {
+  .topbar__modules {
+    position: static;
+    transform: none;
+    margin-left: auto;
+  }
+}
+
 /* The open menu — anchored under the trigger and centered on it. Selector is
    deliberately two-class: the menu also carries .blueprint, which is declared
    later (§05) and would otherwise win `position: relative` at equal
