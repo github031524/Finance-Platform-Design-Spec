@@ -929,7 +929,9 @@ textarea.input {
    detail asides — is a clickable link to its TradingView chart, opened in a
    new tab. Never render a bare, unlinked symbol.
      URL: https://www.tradingview.com/chart/3Ojf0qKU/?symbol=<SYMBOL>
-   (the shared chart layout with the symbol appended, case-insensitive).
+   (the shared chart layout with the symbol appended, case-insensitive;
+   exchange-qualified where a bare ticker is ambiguous — TWSE:2330 — from the
+   same helper Open All uses, spec §06).
    Accent-800, the single accent value for text across the system — labels,
    micro, table headers, tabs, field labels and tag text all use it. Don't
    reach for 700 here: it differs from 800 by only 1.34:1, invisible at symbol
