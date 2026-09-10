@@ -960,8 +960,10 @@ textarea.input {
    ellipsis, and on hover it marquee-scrolls to reveal itself. The markup is
    a .company block INSIDE the cell, wrapping a .company__inner span:
 
-     <td class="text"><div class="company"><span class="company__inner">…</span></div></td>
+     <td class="text" title="<full, unshortened name>"><div class="company"><span class="company__inner">…</span></div></td>
 
+   The title carries the full name for phones, keyboards and screen readers —
+   the marquee is mouse-only (spec §06).
    A prefers-reduced-motion block at the end of this section switches the
    scroll off and keeps the ellipsis (the generic §02 block is not enough). A
    missing name makes the transform return null and the app renders an

@@ -372,10 +372,12 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 
    ✅ **The window measures itself.** `.company` is a CSS size container, so the pan always ends with the last character exactly at the cell's visible edge, and it stays right when a column is resized (§08a) — the app writes nothing. That is why `.company` goes on a `<div>` inside the `<td>`, not on the `<td>`: containment has no effect on table cells. (Legacy: an app that still puts `.company` on the `<td>` must write the cell's *inner* width — column width minus the two `--table-cell-px` paddings — into `--peek-window` on first render and on every resize. Writing the column width leaves the last 20px of the name unrevealed.)
 
-**Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` using `.nil`, the same treatment as any empty cell (below).
+   ♿ **The full name travels in `title` on the `<td>`** — the original, unshortened name, exactly as the data source gives it. The marquee is mouse-only: a phone has no hover, a keyboard has none, and a screen reader hears only the shortened three-word version. The `title` gives all three the full name (a long-press on a phone) with the same native-tooltip approach the column headers use, and no extra markup.
+
+**Null case** — missing name → `shortenCompanyName` returns `null`; the cell renders an em-dash `—` using `.nil`, the same treatment as any empty cell (below), and carries no `title`.
 
 ```html
-<td class="text"><div class="company"><span class="company__inner">International Business Machines</span></div></td>
+<td class="text" title="International Business Machines Corporation"><div class="company"><span class="company__inner">International Business Machines</span></div></td>
 ```
 
 `.company` is the named instance of the general **peek-marquee pattern** (stylesheet §16), usable on *any* element whose text may overflow: a window (hidden overflow + `nowrap` + ellipsis) that is a CSS size container, an inner span that is **inline at rest** (the browser only draws the `…` for inline text — an `inline-block` child is silently clipped without one) and becomes `inline-block` only while panning, and on hover ellipsis→clip plus a `translateX` animation ending at `min(0px, calc(100cqw − 100%))` — `100cqw` is the window's own width, so the text slides left exactly until its last character reaches the window's right edge, and text that fits never moves. `6s linear infinite alternate` (tune `--marquee-speed`): a slow back-and-forth **pan**, not a looping ticker tape; layout never shifts, and mouse-out snaps back to the ellipsis. Reduced-motion users get the static ellipsis (stylesheet §16, reduced-motion block). The window needs no declared width: the container unit reads it live, so resized columns (§08a) stay exact. Give the element a width (a `<col>`, a `max-width`, a grid track) — the pattern never sizes itself.
@@ -546,7 +548,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 8. Buttons → `.btn` (+ `.btn-primary` / `.btn-ghost` / `.btn-icon` as needed); inputs → `.input`; tables → `.table`. Page-local tabs → `.tabs`, in the centre zone of a `.toolbar` row per §06.
 9. Wrap every ticker symbol in a `.symbol` link to its TradingView chart (`…/chart/3Ojf0qKU/?symbol=<SYMBOL>`, opened in a new tab) — no bare symbols anywhere.
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
-11. Apply the **company name cell** treatment (§06) — shorten, truncate, marquee on hover, em-dash when missing.
+11. Apply the **company name cell** treatment (§06) — shorten, truncate, marquee on hover, the full name in the cell's `title`, em-dash when missing.
 12. Add an **Open All** button to every ticker-list view (§06).
 13. Give every column header a native `title` tooltip (§06).
 14. Make every comparable column sortable (§06) — header text in a `.th-sort` button so it works by keyboard — and every column resizable with persisted widths (§08a).
