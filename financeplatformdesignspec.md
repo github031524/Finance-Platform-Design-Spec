@@ -234,19 +234,23 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 | Module | URL |
 |---|---|
 | Options Analyzer | `https://options-analyzer-production-24d8.up.railway.app/` |
+| Earnings Tracker | `https://earnings-tracker-production-2c77.up.railway.app/#/` |
 | Custom Indexer | `https://indexer-production-83a6.up.railway.app/#/` |
 | Stock Screener | `https://parabolic-screener-production.up.railway.app/` |
 | PEAD | `https://pead-watchlist-e1a53.up.railway.app/` |
 | Taiwan Screener | `https://taiwan-revenue-screener-production.up.railway.app/#/` |
+| PRE-earnings Drift | `https://pre-earnings-drift-production.up.railway.app/` |
 
 ```js
 // Copy verbatim into each app — this list is identical everywhere. Never edit it per app.
 export const MODULES = [
-  { name: "Options Analyzer", url: "https://options-analyzer-production-24d8.up.railway.app/" },
-  { name: "Custom Indexer",   url: "https://indexer-production-83a6.up.railway.app/#/" },
-  { name: "Stock Screener",   url: "https://parabolic-screener-production.up.railway.app/" },
-  { name: "PEAD",             url: "https://pead-watchlist-e1a53.up.railway.app/" },
-  { name: "Taiwan Screener",  url: "https://taiwan-revenue-screener-production.up.railway.app/#/" },
+  { name: "Options Analyzer",   url: "https://options-analyzer-production-24d8.up.railway.app/" },
+  { name: "Earnings Tracker",   url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
+  { name: "Custom Indexer",     url: "https://indexer-production-83a6.up.railway.app/#/" },
+  { name: "Stock Screener",     url: "https://parabolic-screener-production.up.railway.app/" },
+  { name: "PEAD",               url: "https://pead-watchlist-e1a53.up.railway.app/" },
+  { name: "Taiwan Screener",    url: "https://taiwan-revenue-screener-production.up.railway.app/#/" },
+  { name: "PRE-earnings Drift", url: "https://pre-earnings-drift-production.up.railway.app/" },
 ];
 
 // The ONE line that differs per app:
@@ -259,7 +263,7 @@ export const CURRENT_MODULE = "Options Analyzer";
 1. **Trigger label = the current app's name** — never the word "Modules".
 2. **Entries open in a new tab** — `target="_blank" rel="noopener"`. The current tab never navigates away.
 3. **The current app stays in the list**, rendered as inert text with `aria-current="page"` — not a link.
-4. **Every change here — a module added *or* retired — is re-copied into every app** so all switchers stay identical (three modules have already been retired). A switcher missing an app, or still listing a retired one, is stale, not a variant. The current app is marked by the separate `CURRENT_MODULE` constant, never by editing the list.
+4. **Every change here — a module added *or* retired — is re-copied into every app** so all switchers stay identical (two modules have already been retired). A switcher missing an app, or still listing a retired one, is stale, not a variant. The current app is marked by the separate `CURRENT_MODULE` constant, never by editing the list.
 5. Names here are the display names — use them verbatim, in the switcher label and in the tab title (`<Module name> · NC Futures`, §03).
 
 ---
