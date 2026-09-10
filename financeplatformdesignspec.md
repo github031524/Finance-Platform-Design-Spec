@@ -6,7 +6,7 @@
 
 > **Source of truth — this document wins.** If this spec and any app disagree, the spec is right and the app is out of date; bring the app up to the spec, never the reverse. That includes **Earnings Tracker** (`github031524/earnings-tracker`), which seeded this system and is still the best worked example of it, but is not the authority: the spec has moved ahead of it more than once, and an app lagging behind is a to-do, not a correction.
 >
-> Take `styles.css` (with its `fonts/` folder), `logo.svg` and `favicon.png` from **this repo** — they are the shipping artifacts, not illustrations. Read the reference app's components (`Blueprint.tsx`, `PageTabs.tsx`, `NcFuturesLogo.tsx`) for how the markup goes together, then check what you copy against this document before shipping it.
+> Take `styles.css` (with its `fonts/` folder), `logo.svg` and `favicon.png` from **this repo** — they are the shipping artifacts, not illustrations; `sync-spec.sh` (§09, Step 0.5) fetches all of them in one command. Read the reference app's components (`Blueprint.tsx`, `PageTabs.tsx`, `NcFuturesLogo.tsx`) for how the markup goes together, then check what you copy against this document before shipping it.
 
 > **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
 
@@ -539,6 +539,16 @@ Converting means full replacement, not coexistence. Adopting this spec retires a
 Before converting *or* rebuilding, have the coding agent read the current codebase — not recall the original prompt — and produce a written inventory: every route, every data flow, every business rule, every validation and edge case it can find. This inventory becomes the acceptance checklist for whichever path you take next.
 
 **Retrofit vs. rebuild:** default to retrofitting incrementally — one step at a time, with a build/test and a git commit after each. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout. Either way, check the result against the Step 0 inventory before calling it done — that's what actually prevents silent regressions.
+
+### Step 0.5: refresh the shared files with one command
+
+Copy `sync-spec.sh` from this repo into the app, next to where `styles.css` lives, and run it whenever the spec changes:
+
+```sh
+sh sync-spec.sh
+```
+
+It downloads the current `styles.css`, `fonts/`, `logo.svg` and `favicon.png` from this repo's `main` branch, so "bring the app up to the spec" starts with one command instead of four copy-pastes — copying by hand is exactly how apps fall behind. It refreshes files, not code: markup the spec asks for (the company cell, the toolbar, the switcher, sort headers) still needs reading the spec.
 
 1. Give the page the §03 `<head>` — language, viewport, light-only, the `<Module name> · NC Futures` title, favicon (PNG not SVG), stylesheet — and delete any manifest; copy `styles.css`, its `fonts/` folder (kept next to it), `logo.svg` and `favicon.png` from this repo; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading. Inter arrives with the stylesheet (self-hosted in `fonts/`, §02) — remove any Google Fonts link or other font loader the app had.
