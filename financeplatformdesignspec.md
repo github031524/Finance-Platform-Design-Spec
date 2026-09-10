@@ -67,7 +67,7 @@ Light steps (100–300) for tinted fills and hovers; 500 is base; 700–900 for 
 - `--font-heading` = Inter · 600 · UPPERCASE — headings, figures, labels
 - `--font-body` = Inter · 400/500 — paragraphs, table cells, and all numbers
 
-One typeface carries all text and numbers; both `--font-heading` and `--font-body` are set to Inter. **Inter ships with the stylesheet:** the three faces (400 / 500 / 600) are self-hosted in `fonts/` next to `styles.css` — Latin and Latin Extended subsets, about 50KB each — and the stylesheet loads them itself. No Google Fonts link, no `@import`, no other font loader: that removed the only third-party request the apps made and a three-hop render-blocking chain, and it renders identically on every machine. Copy the folder wherever `styles.css` goes; the paths are relative to it. Form controls inherit it too — the stylesheet resets `button`, `input`, `select` and `textarea` to the page font, so even a control that is missing its `.btn`/`.input` class renders in Inter rather than the browser's Arial (the classes still supply size, weight and case).
+One typeface carries all text and numbers; both `--font-heading` and `--font-body` are set to Inter. **Inter ships with the stylesheet:** the three faces (400 / 500 / 600) are self-hosted in `fonts/` next to `styles.css` — Latin and Latin Extended subsets, about 50KB each — and the stylesheet loads them itself. No Google Fonts link, no `@import`, no other font loader: that removed the only third-party request the apps made and a three-hop render-blocking chain, and it renders identically on every machine. Copy the folder wherever `styles.css` goes; the paths are relative to it. Form controls inherit it too — the stylesheet resets `button`, `input`, `select` and `textarea` to the page font, so even a control that is missing its `.btn`/`.input` class renders in Inter rather than the browser's Arial (the classes still supply size, weight and case). Bare headings land on the scale by default — `h1` is the title size, `h2` the section head, `h3` the label — so a heading needs no class to look right; `.title` / `.section-head` / `.label` remain for other elements.
 
 **Scale**
 
@@ -91,7 +91,7 @@ All numeric cells use `font-variant-numeric: tabular-nums`.
 - Content top/bottom padding: `clamp(16px, 3vw, 32px)`
 - Card / tile grid gap: `clamp(12px, 1.5vw, 20px)`
 - Table cell padding: `4px 10px` (`--table-cell-py` / `--table-cell-px`) — deliberately compact. Data density beats whitespace inside tables; this is the one place the 0.85× space scale is overridden.
-- Control height: `28px` (`--control-h`) — buttons, inputs and selects are all exactly this tall, so a toolbar row lines up. Only `.btn-icon` may be smaller.
+- Control height: `28px` (`--control-h`) — buttons, inputs and selects are all exactly this tall, so a toolbar row lines up. Only `.btn-icon` may be smaller — never below 24 × 24px, the minimum touch target.
 
 ---
 
@@ -258,9 +258,9 @@ export const MODULES = [
 
 **No corner registration marks.** A `.blueprint` is a plain hairline-bordered box with a rounded radius (`--radius: 8px`) — nothing more. Don't draw `+` crosshairs at the corners.
 
-No inline padding needed — `.blueprint` already carries a sensible default (`--space-4`, 13.6px). Add `style="padding:..."` only to override it for a specific tile. Default spacing below each panel is also `--space-4` — override for tiles that need tighter stacking.
+No inline padding needed — `.blueprint` already carries a sensible default (`--space-4`, 13.6px). Add `style="padding:..."` only to override it for a specific tile. Default spacing below each panel is also `--space-4` — override for tiles that need tighter stacking. Inside a `.grid` a frame carries no outer margin: the grid's gap spaces the tiles and the grid carries the bottom margin, so a multi-row tile grid has even gaps.
 
-**A frame wrapping a table has no padding** — directly, or through the table's `.table-scroll` wrapper (§08a) — the stylesheet zeroes it automatically, so the table sits flush against the border and its own cell padding does the spacing. Don't add `style="padding:0"` by hand.
+**A frame wrapping a table has no padding** — directly, or through the table's `.table-scroll` wrapper (§08a) — the stylesheet zeroes it automatically, so the table sits flush against the border and its own cell padding does the spacing. Don't add `style="padding:0"` by hand. The same frame clips its rows to the rounded corners, so a hovered or banded last row never pokes square corners past the curve.
 
 Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrappers, and floating panels (add `.blueprint--solid` for dropdowns/popovers that need an opaque fill so page content doesn't show through).
 
@@ -286,7 +286,7 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 <span class="tag tag-accent">ADR</span>
 ```
 
-**Every control is the same height** — `--control-h`, 28px: buttons (whether `<button>` or `<a class="btn">`), `.input` text fields and selects all measure exactly that, so anything placed in one toolbar row lines up without per-app fixes. Button labels never wrap. `textarea.input` grows instead (at least two control heights); `.btn-icon` is the one control allowed to be smaller.
+**Every control is the same height** — `--control-h`, 28px: buttons (whether `<button>` or `<a class="btn">`), `.input` text fields and selects all measure exactly that, so anything placed in one toolbar row lines up without per-app fixes. Button labels never wrap. `textarea.input` grows instead (at least two control heights); `.btn-icon` is the one control allowed to be smaller, down to a 24 × 24px minimum.
 
 **KPI tile** — blueprint frame · label / figure / delta. The delta carries `.gain` or `.loss` (rule 2); a tile with nothing to compare against simply omits it. Tiles sit in a `.grid.grid--kpi` (auto-fit, 180px minimum per tile).
 
@@ -392,7 +392,7 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 </div>
 ```
 
-**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. Put them **in the toolbar's centre zone**, never in a dedicated row of their own. The active tab carries `aria-selected="true"`; that attribute is what the stylesheet styles, so keep it in step with the app's state.
+**Tabs** — e.g. `WATCHLIST` · `UPCOMING`. Put them **in the toolbar's centre zone**, never in a dedicated row of their own. The active tab carries `aria-selected="true"`; that attribute is what the stylesheet styles, so keep it in step with the app's state. Tabs that are really links to routes (a hash-routed app's pages) are `<a class="tab" href="#/…">` with `aria-current="page"` on the active one instead — the stylesheet gives both the same look.
 
 ```html
 <div class="tabs" role="tablist">

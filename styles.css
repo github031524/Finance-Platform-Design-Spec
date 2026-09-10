@@ -224,6 +224,15 @@ h1, h2, h3, h4, h5, h6,
   margin: 0;
 }
 
+/* Bare headings land on the scale: h1 is the title, h2 the section head, h3
+   the label — a heading needs no class to look right (a bare <h2> was the
+   browser's 21px, above the 15px section head). The classes below stay for
+   non-heading elements that want the same treatment, and win on a heading
+   that carries one. */
+h1 { font-size: var(--size-title); letter-spacing: -0.01em; line-height: 1.05; }
+h2 { font-size: var(--size-section); letter-spacing: 0.02em; line-height: 1.2; }
+h3 { font-size: var(--size-label); letter-spacing: var(--track-label); line-height: 1.3; color: var(--color-accent-800); }
+
 /* Only ever names a CONTENT ENTITY the page is about — a ticker on a detail
    page, an index name on a builder page. Never the app's own name: the top-bar
    switcher already shows that (§04), so a heading repeating it is redundant
@@ -507,10 +516,13 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 
 /* Compact variant — icon-only actions inside dense contexts (e.g. a table
    row's hover-revealed actions), where the default padding would blow out
-   to toolbar size inside a 5px-tall cell. */
+   to toolbar size inside a 5px-tall cell. The one control allowed below
+   --control-h — but never below 24 × 24px, the WCAG 2.2 minimum target: a
+   16px icon with 2px padding measured 22px. */
 .btn-icon {
   padding: 2px;
-  min-height: 0;            /* the one control allowed below --control-h */
+  min-width: 24px;
+  min-height: 24px;
   border-color: transparent;
 }
 .btn-icon:hover { background: var(--color-accent-100); }
@@ -702,7 +714,14 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
    its own cell padding already. This replaces the inline style="padding:0"
    every table wrapper was carrying. */
 .blueprint:has(> .table),
-.blueprint:has(> .table-scroll) { padding: 0; }
+.blueprint:has(> .table-scroll) {
+  padding: 0;
+  /* Clip the rows to the frame's rounded corners: a hovered or banded last
+     row is a square box and its corners showed outside the curve. clip-path,
+     not overflow: hidden — overflow would make the frame a scroll container
+     and silently kill the sticky header. */
+  clip-path: inset(0 round var(--radius));
+}
 
 /* Fallback for browsers without :has() — same result when the table is the
    frame's only child, which is the common case. */
@@ -772,12 +791,16 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
   font-size: var(--size-label);
   text-transform: uppercase;
   letter-spacing: var(--track-label);
+  text-decoration: none;    /* a tab that is a link keeps the tab look, not the link look */
   cursor: pointer;
 }
 
 .tab:hover { color: var(--color-text); }
 
-.tab[aria-selected="true"] {
+/* Active: aria-selected for view tabs, aria-current for tabs that are links
+   to routes — one look for both. */
+.tab[aria-selected="true"],
+.tab[aria-current="page"] {
   color: var(--color-text);
   border-bottom-color: var(--color-accent-500);
 }
@@ -848,10 +871,17 @@ textarea.input {
 
 /* 11 · GRID HELPERS ======================================================= */
 
+/* The grid spaces its tiles with gap and carries the bottom margin itself;
+   a frame inside it drops its own. Otherwise the tile margin added to the
+   row gap, and a two-row KPI grid had 32.8px between rows against 19.2px
+   between columns. */
 .grid {
   display: grid;
   gap: var(--grid-gap);
+  margin-bottom: var(--space-4);
 }
+
+.grid > .blueprint { margin-bottom: 0; }
 
 .grid--kpi { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .grid--week { grid-template-columns: repeat(5, 1fr); }
@@ -935,7 +965,9 @@ textarea.input {
    Accent-800, the single accent value for text across the system — labels,
    micro, table headers, tabs, field labels and tag text all use it. Don't
    reach for 700 here: it differs from 800 by only 1.34:1, invisible at symbol
-   size. Uppercase, no underline; hover lightens and underlines. */
+   size. Uppercase, no underline; hover underlines and keeps the colour —
+   600 on a hovered (accent-200) row measured 4.09:1, under the 4.5 the rest
+   of the system clears, and broke the one-accent-text-value rule. */
 
 .symbol {
   color: var(--color-accent-800);
@@ -946,7 +978,6 @@ textarea.input {
 }
 
 .symbol:hover {
-  color: var(--color-accent-600);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -1023,13 +1054,16 @@ textarea.input {
    edge and the "…" never appears. The span becomes a box only while it pans. */
 .company__inner {
   display: inline;
-  will-change: transform;
 }
 
 .company:hover { text-overflow: clip; }
 
+/* will-change only while it pans. At rest it would hold a compositor layer
+   for every cell — 500 rows, 500 layers — for an animation only the hovered
+   cell ever runs. */
 .company:hover .company__inner {
   display: inline-block;
+  will-change: transform;
   animation: company-marquee var(--marquee-speed, 6s) linear infinite alternate;
 }
 
