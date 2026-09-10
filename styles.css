@@ -34,6 +34,16 @@
 /* 01 · TOKENS ============================================================= */
 
 :root {
+  /* Light-only, and say so. Without this, Chrome on Android's "auto-dark"
+     recolours light pages on its own — the whole one-colour system,
+     gain/loss red and green included. `only light` opts out. Pair it with
+     <meta name="color-scheme" content="only light"> in <head> (spec §03). */
+  color-scheme: only light;
+
+  /* Native checkboxes, radios and range sliders take the accent instead of
+     the browser's default blue — one line, no custom controls. */
+  accent-color: var(--color-accent-500);
+
   /* Color */
   --color-bg:      #f2f2f3;
   --color-surface: #e9e9ea;

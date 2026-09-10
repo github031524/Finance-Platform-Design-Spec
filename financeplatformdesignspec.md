@@ -42,6 +42,8 @@
 
 Gain/loss are chosen for legibility on small tabular numbers: both clear WCAG AA (4.5:1) on every background in the system — plain `bg`, banded `surface` rows, and `accent-200` hover — bottoming out at 4.84:1 on a hovered row. Re-check this pair against any new row background before adding one.
 
+**Light only, and declared.** The stylesheet sets `color-scheme: only light` and every page carries `<meta name="color-scheme" content="only light">` in its `<head>` (§03). Without them, Chrome on Android's auto-dark mode recolours light pages by itself — inverting the one-colour system, gain/loss red and green included. **Native controls take the accent:** the stylesheet's `accent-color` makes checkboxes, radios and range sliders steel blue instead of the browser's default blue, so a bare checkbox is on-palette without a custom control.
+
 **Accent ramp:**
 
 | Step | Hex |
@@ -111,6 +113,8 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 <!-- In <head> — the shared favicon (§04a). PNG, not SVG, and no manifest:
      an SVG icon makes Chrome offer to install the app. See §04a. -->
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+<!-- Light-only: stops Android Chrome's auto-dark recolouring the page (§02). -->
+<meta name="color-scheme" content="only light" />
 
 <header class="topbar">
   <span class="topbar__brand"><img src="logo.svg" alt="NC Futures" /></span>
