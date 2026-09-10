@@ -362,7 +362,7 @@ Status row → dropzone (blueprint, collapses to a slim "add another" bar once d
 
 - Column widths stored in component state, seeded from a `COLUMNS` config array, persisted to `localStorage` under an app-specific key.
 - `<div class="table-scroll"><table class="table" style="table-layout:fixed; width:<sum>">` with a `<colgroup>` of `<col style="width:...px">` per column, driven by that state. The `.table-scroll` wrapper is the scroll box (below).
-- A `ResizeHandle` — an absolutely-positioned `6px`-wide strip at the right edge of each resizable `<th>`. **Invisible at rest — no border, no vertical line.** The affordances are `cursor: col-resize` over the strip and an accent tint that appears on hover and stays while dragging. Nothing is drawn when the column is not being resized.
+- A resize handle — `<span class="th-resize"></span>` as the last child of each resizable `<th>`: a `6px`-wide strip straddling the header's right edge, styled by the stylesheet. **Invisible at rest — no border, no vertical line.** The affordances are `cursor: col-resize` over the strip and an accent-300 tint that appears on hover and stays while dragging (add `.is-dragging` for the duration of the drag). Nothing is drawn when the column is not being resized.
 - Drag updates width via `mousemove`/`mouseup` listeners on `window`, clamped to a `40px` minimum.
 
 **Where the header sticks depends on where the table scrolls** — get this wrong and the header scrolls away. A sticky header pins to its nearest scrolling ancestor, so:

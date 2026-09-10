@@ -572,6 +572,28 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .table-scroll { overflow: auto; }
 .table-scroll .table th { top: 0; }
 
+/* Column-resize handle (§08a) — the last child of each resizable <th>. A
+   6px strip straddling the header's right edge, invisible at rest: no
+   border, no line. The affordances are the col-resize cursor and an
+   accent-300 tint that appears on hover and stays while dragging (the app
+   toggles .is-dragging). th is position: sticky, i.e. positioned, so the
+   strip anchors to the header itself. touch-action: none keeps a finger
+   drag from scrolling the page; user-select: none keeps it from selecting
+   header text. The drag logic itself is app code. */
+.th-resize {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.th-resize:hover,
+.th-resize.is-dragging { background: var(--color-accent-300); }
+
 .table td {
   padding: var(--table-cell-py) var(--table-cell-px);
   border-bottom: var(--hairline);
