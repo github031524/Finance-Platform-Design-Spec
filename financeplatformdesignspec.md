@@ -327,6 +327,13 @@ $92.8B
 
 **Filter field** — `.field .input` (e.g. "Min YoY growth" → `+20%`)
 
+**Dropzone** — `.dropzone`, the input of the Upload / analyze recipe (§07): a frame the user drops a file or screenshot on, or clicks to browse. Three states, no new colours — idle is a *dashed* hairline (the one dashed border in the system, so a drop target reads as different from a content frame); drag-over adds `.is-dragover` (accent border, accent-100 tint) for the duration of the drag; once data is loaded, `.dropzone--slim` collapses it to a one-line "add another" bar. The label is `.micro`; the app handles the file input and the drag events.
+
+```html
+<div class="dropzone"><span class="micro">Drop a screenshot or click to browse</span></div>
+<div class="dropzone dropzone--slim"><span class="micro">3 positions loaded</span><button class="btn btn-ghost">Add another</button></div>
+```
+
 **Status/freshness text** — plain `.micro` text (uppercase, 9.5px, accent-800), placed inline in a page's toolbar next to the action it describes (e.g. "Updated 3:50 AM" beside a "Refresh Data" button). **Not a pill** — no border, no fill. A badge around it implies something you can click or dismiss; this is a passive readout, and boxing it makes it compete with the actual controls in the same row.
 
 `.tag` stays for things that really are tags — a short accent-marked classifier attached to a row or record, not a status line.
@@ -352,7 +359,7 @@ Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in 
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
 
 **Upload / analyze** *(e.g. Options Position Analyzer)*
-Status row → dropzone (blueprint, collapses to a slim "add another" bar once data is loaded) → KPI tile row → full-width chart panel → results table below. For tools where the input is a file/screenshot rather than a filter or ticker search.
+Status row → `.dropzone` (§06; `.dropzone--slim` once data is loaded) → KPI tile row → full-width chart panel → results table below. For tools where the input is a file/screenshot rather than a filter or ticker search.
 
 ---
 

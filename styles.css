@@ -26,6 +26,7 @@
      14  Row banding & grouping
      15  Symbol / ticker link
      16  Company name cell
+     17  Dropzone
    ========================================================================== */
 
 
@@ -976,3 +977,36 @@ textarea.input {
 /* The company column's blank is the same blank as any other — kept as a name
    for readability at the call site, but it is just .nil (§08). */
 .company--null { color: var(--color-accent-400); }
+
+
+/* 17 · DROPZONE =========================================================== */
+
+/* The input of the Upload / analyze recipe (spec §07): a frame the user drops
+   a file or screenshot on, or clicks to browse. Three states, all on
+   existing tokens — idle: a DASHED hairline (the one dashed border in the
+   system, so a drop target reads as different from a content frame);
+   drag-over: accent-500 border + accent-100 tint (the app toggles
+   .is-dragover on dragenter/dragleave/drop); loaded: .dropzone--slim, the
+   collapsed "add another" bar that keeps the affordance without the space.
+   Label text is .micro. The rounded corners come from the §02 list. */
+.dropzone {
+  display: grid;
+  place-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8);
+  border: 1px dashed var(--hairline-color);
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: var(--space-4);
+}
+
+.dropzone.is-dragover {
+  border-color: var(--color-accent-500);
+  background: var(--color-accent-100);
+}
+
+.dropzone--slim {
+  grid-auto-flow: column;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+}
