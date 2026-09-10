@@ -109,12 +109,22 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 
 **B · Content region** — the only part an app owns.
 
+**Every page's `<head>`** carries the same seven lines and nothing that makes the app installable (§04a): the language, the charset, the viewport (without it a phone renders the page zoomed out), the light-only declaration (§02), the tab title, the favicon and the stylesheet.
+
+**The tab title is `<Module name> · NC Futures`** — the module's registry name (§04b) first, so six open tabs stay tellable apart even when the browser truncates them; the brand second, for tab search. Never a page or entity name in it — the tab names the app, the content names itself.
+
 ```html
-<!-- In <head> — the shared favicon (§04a). PNG, not SVG, and no manifest:
-     an SVG icon makes Chrome offer to install the app. See §04a. -->
-<link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
-<!-- Light-only: stops Android Chrome's auto-dark recolouring the page (§02). -->
-<meta name="color-scheme" content="only light" />
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="only light" />  <!-- light-only; stops Android Chrome's auto-dark (§02) -->
+  <title>Earnings Tracker · NC Futures</title>       <!-- module name first, brand second -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />  <!-- PNG, never SVG (§04a) -->
+  <link rel="stylesheet" href="styles.css" />
+  <!-- No <link rel="manifest">, no apple-touch-icon — either makes the app installable (§04a). -->
+</head>
 
 <header class="topbar">
   <span class="topbar__brand"><img src="logo.svg" alt="NC Futures" /></span>
@@ -217,7 +227,7 @@ export const MODULES = [
 2. **Entries open in a new tab** — `target="_blank" rel="noopener"`. The current tab never navigates away.
 3. **The current app stays in the list**, rendered as inert text with `aria-current="page"` — not a link.
 4. **The list is append-only in practice** — when a module is added, update this table and re-copy the constant into every app so all switchers stay identical. A switcher missing an app is stale, not a variant.
-5. Names here are the display names — use them verbatim, and match the app's own title.
+5. Names here are the display names — use them verbatim, in the switcher label and in the tab title (`<Module name> · NC Futures`, §03).
 
 ---
 
@@ -486,7 +496,7 @@ Before converting *or* rebuilding, have the coding agent read the current codeba
 
 **Retrofit vs. rebuild:** default to retrofitting incrementally — one step at a time, with a build/test and a git commit after each. Reach for a full ground-up rebuild only if the inventory pass shows the old theme is genuinely inseparable from the business logic throughout. Either way, check the result against the Step 0 inventory before calling it done — that's what actually prevents silent regressions.
 
-1. Link `styles.css` and copy `logo.svg` + `favicon.png` (with its `<head>` link tag, §04a — PNG not SVG, and delete any manifest); wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
+1. Give the page the §03 `<head>` — language, viewport, light-only, the `<Module name> · NC Futures` title, favicon (PNG not SVG), stylesheet — and delete any manifest; copy `styles.css`, `logo.svg` and `favicon.png` from this repo; wrap the app in the global top bar (brand mark + Modules switcher only — no context bar).
 2. Swap every font to Inter — all text and numbers, no exceptions; uppercase every heading.
 3. Recolor to tokens only — kill every stray hex, gradient and shadow. Use the hex values in §02.
 4. Reframe every card/panel as `.blueprint` — hairline border, `8px` radius. **Do not add corner registration marks.**
@@ -546,7 +556,7 @@ If a change can't be said in 5 words, it's two changes — split it.
 
 | Group | Changes offered |
 |---|---|
-| Shell | Top bar + brand mark · Modules switcher (§04b) · favicon (§04a) · remove app-name page title |
+| Shell | Top bar + brand mark · Modules switcher (§04b) · `<head>` + tab title (§03) · favicon (§04a) · remove app-name page title |
 | Type | Inter everywhere · uppercase headings · tabular numbers |
 | Color | Recolor to tokens · gain/loss pair · strip stray hex, gradients, shadows |
 | Frames | Cards/panels → `.blueprint` hairline + `8px` radius |
