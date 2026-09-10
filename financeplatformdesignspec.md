@@ -667,6 +667,7 @@ The gate is deliberately the cheapest thing that works: **HTTP Basic Auth on the
 8. **Never log credentials.** Not the password, not the `Authorization` header, not the cookie value — not in request loggers, not in error handlers that dump `req.headers`, not in debug output. Log the *outcome* (`401 GET /`), never the input.
 9. **No custom login UI.** The browser's own Basic Auth dialog is the login screen — the same reasoning as the native column-header tooltips (§06): the OS draws it, there's nothing to style and nothing to keep in spec. Challenge with `WWW-Authenticate: Basic realm="NC Futures"`.
 10. **Per app, not shared.** Each deploy carries its own variables. Reusing the same username/password across modules is fine and convenient, but each app still prompts once on its own domain — cookies don't cross domains, so opening a module from the switcher (§04b) prompts the first time and then goes quiet for 30 days. Rotating an app's `SECRET_KEY` invalidates its cookies immediately; that's the logout button.
+11. **Four headers on every response, and no framework banner.** `Content-Security-Policy: frame-ancestors 'none'` — §03 forbids framing the apps; this is what enforces it — with `X-Frame-Options: DENY` for older browsers; `X-Content-Type-Options: nosniff`, so a browser never guesses a file type; `Referrer-Policy: no-referrer`, so a click out to TradingView doesn't hand it the app's URL. Turn off `X-Powered-By`. Set them once, above `/health`, so even the public route carries them. Nothing visible changes.
 
 ### Cookie format
 
@@ -752,6 +753,16 @@ export function requireAuth(req, res, next) {
 
 ```js
 // server/index.js — order is the whole point
+app.disable("x-powered-by");                                   // no framework banner
+app.use((_req, res, next) => {                                 // rule 11: four headers on every response
+  res.set({
+    "Content-Security-Policy": "frame-ancestors 'none'",       // no framing — §03 forbids it, this enforces it
+    "X-Frame-Options": "DENY",                                 // the same rule for older browsers
+    "X-Content-Type-Options": "nosniff",                       // never guess a file type
+    "Referrer-Policy": "no-referrer",                          // don't hand the app's URL to TradingView
+  });
+  next();
+});
 app.get("/health", (_req, res) => res.json({ status: "ok" })); // public, above the gate
 app.use(requireAuth);                                          // ↓ everything below is private
 app.use(express.static(distDir));
@@ -813,6 +824,16 @@ def issue_cookie(response):
 # app.py
 app.before_request(require_auth)
 app.after_request(issue_cookie)
+
+@app.after_request
+def security_headers(response):                   # rule 11: four headers on every response
+    response.headers.update({
+        "Content-Security-Policy": "frame-ancestors 'none'",
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "no-referrer",
+    })
+    return response
 ```
 
 **FastAPI / Starlette:** same code as an `@app.middleware("http")` function, with the `/health` route exempted by path. **Anything else:** whatever the framework calls "middleware that runs before routing" — the rules above are the spec, the two listings are just the two stacks the platform actually runs.
@@ -854,6 +875,7 @@ curl -sI -u "$APP_USERNAME:$APP_PASSWORD" https://APP/
                                            # 200 + Set-Cookie: ncf_auth=v1…; Max-Age=2592000;
                                            #   Path=/; HttpOnly; Secure; SameSite=Lax
 curl -sI -H 'Cookie: ncf_auth=v1.eyJ1IjoieCJ9.forged' https://APP/   # 401 — bad signature rejected
+curl -sI https://APP/health | grep -i 'frame-ancestors'             # present — the headers ride on every response, the public one included
 ```
 
 Then unset one variable in Railway and confirm the app returns `503` everywhere instead of letting anyone in. An app that answers `200` on any of the first four lines is out of spec and publicly readable.
