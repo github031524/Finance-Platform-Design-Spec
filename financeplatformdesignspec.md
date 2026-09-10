@@ -4,9 +4,9 @@
 
 > One look for every app. This is the contract every NC Futures module follows. Each app keeps its own logic and data — but adopts the same shell, tokens, type, and component vocabulary defined here, so separate tools read as one platform. Load the one stylesheet, follow the five rules, and reuse the markup below verbatim.
 
-> **Source of truth — this document wins.** If this spec and any app disagree, the spec is right and the app is out of date; bring the app up to the spec, never the reverse. That includes **Earnings Tracker** (`github031524/earnings-tracker`), which seeded this system and is still the best worked example of it, but is not the authority: the spec has moved ahead of it more than once, and an app lagging behind is a to-do, not a correction.
+> **Source of truth — this document wins.** If this spec and any app disagree, the spec is right and the app is out of date; bring the app up to the spec, never the reverse. No app is the authority, however early it adopted the system: the spec has moved ahead of every app more than once, and an app lagging behind is a to-do, not a correction.
 >
-> Take `styles.css` (with its `fonts/` folder), `logo.svg` and `favicon.png` from **this repo** — they are the shipping artifacts, not illustrations; `sync-spec.sh` (§09, Step 0.5) fetches all of them in one command. Read the reference app's components (`Blueprint.tsx`, `PageTabs.tsx`, `NcFuturesLogo.tsx`) for how the markup goes together, then check what you copy against this document before shipping it.
+> Take `styles.css` (with its `fonts/` folder), `logo.svg` and `favicon.png` from **this repo** — they are the shipping artifacts, not illustrations; `sync-spec.sh` (§09, Step 0.5) fetches all of them in one command. The markup in this document shows how the pieces go together — copy it verbatim, and check anything copied from an existing app against this document before shipping it.
 
 > **No hub.** This is a redesign template applied to each app individually — there is no main dashboard, landing page, launcher, or hub of any kind, and none should be built. Every app is a fully standalone deploy, opened directly in its own browser tab. "Unified" means the apps *look* the same, not that they connect.
 
@@ -123,7 +123,7 @@ The top bar carries only the brand mark and the Modules switcher — no global s
 
 **Every page's `<head>`** carries the same seven lines and nothing that makes the app installable (§04a): the language, the charset, the viewport (without it a phone renders the page zoomed out), the light-only declaration (§02), the tab title, the favicon and the stylesheet.
 
-**The tab title is `<Module name> · NC Futures`** — the module's registry name (§04b) first, so six open tabs stay tellable apart even when the browser truncates them; the brand second, for tab search. Never a page or entity name in it — the tab names the app, the content names itself.
+**The tab title is `<Module name> · NC Futures`** — the module's registry name (§04b) first, so several open tabs stay tellable apart even when the browser truncates them; the brand second, for tab search. Never a page or entity name in it — the tab names the app, the content names itself.
 
 ```html
 <!doctype html>
@@ -132,7 +132,7 @@ The top bar carries only the brand mark and the Modules switcher — no global s
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="only light" />  <!-- light-only; stops Android Chrome's auto-dark (§02) -->
-  <title>Earnings Tracker · NC Futures</title>       <!-- module name first, brand second -->
+  <title>Options Analyzer · NC Futures</title>       <!-- module name first, brand second -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />  <!-- PNG, never SVG (§04a) -->
   <link rel="stylesheet" href="styles.css" />
   <!-- No <link rel="manifest">, no apple-touch-icon — either makes the app installable (§04a). -->
@@ -148,16 +148,16 @@ The top bar carries only the brand mark and the Modules switcher — no global s
        .blueprint--solid menu opens directly below it. -->
   <div class="topbar__modules">
     <button class="btn topbar__modules-trigger" type="button" aria-expanded="false" aria-controls="modules-menu">
-      Earnings Tracker <span aria-hidden="true">▾</span>
+      Options Analyzer <span aria-hidden="true">▾</span>
     </button>
 
     <!-- A disclosure, not an application menu: a plain list of links (no
          role="menu"), so no arrow-key handling is owed. Toggle [hidden] to
          open and close — the script below does. Every entry opens in a new tab. -->
     <nav id="modules-menu" class="topbar__modules-menu blueprint blueprint--solid" aria-label="Modules" hidden>
-      <span class="topbar__modules-item" aria-current="page">Earnings Tracker</span>
+      <span class="topbar__modules-item" aria-current="page">Options Analyzer</span>
       <a class="topbar__modules-item" target="_blank" rel="noopener"
-         href="https://options-analyzer-production-24d8.up.railway.app/">Options Analyzer</a>
+         href="https://indexer-production-83a6.up.railway.app/#/">Custom Indexer</a>
       <!-- … one <a> per remaining module, in the §04b order … -->
     </nav>
   </div>
@@ -193,7 +193,7 @@ There is no shared auth or shared data layer, implemented or implied — no SSO,
 
 ## 04a · The Brand Mark
 
-The logo is a **literal shared asset**, not a per-app redraw: three rising bars (accent-500 fill) beside the "NC Futures" wordmark, set in **Inter Regular at 90 units and outlined to paths**. Outlined on purpose: an SVG loaded as an `<img>` cannot load web fonts, so a live-text wordmark renders in whatever the viewer's machine happens to have — Arial on Mac and Windows, Roboto on Android — and never in Inter. As paths it is identical everywhere. Bar-to-text gap ≈ 20 units, a word space between the two words, on a 619×150 viewBox. Every app embeds the **exact same file**, unmodified — take `logo.svg` from **this repo** (the reference app's copy is the older live-text version and is out of date). Render it at `height: 34.56px` in the top bar; width follows automatically from the SVG's aspect ratio (≈ 143px).
+The logo is a **literal shared asset**, not a per-app redraw: three rising bars (accent-500 fill) beside the "NC Futures" wordmark, set in **Inter Regular at 90 units and outlined to paths**. Outlined on purpose: an SVG loaded as an `<img>` cannot load web fonts, so a live-text wordmark renders in whatever the viewer's machine happens to have — Arial on Mac and Windows, Roboto on Android — and never in Inter. As paths it is identical everywhere. Bar-to-text gap ≈ 20 units, a word space between the two words, on a 619×150 viewBox. Every app embeds the **exact same file**, unmodified — take `logo.svg` from **this repo** (copies in older apps are the live-text version and are out of date). Render it at `height: 34.56px` in the top bar; width follows automatically from the SVG's aspect ratio (≈ 143px).
 
 Do not hand-recreate the mark as inline SVG shapes or a text lockup, and don't regenerate the wordmark from live text — use the file as-is.
 
@@ -234,7 +234,6 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 | Module | URL |
 |---|---|
 | Options Analyzer | `https://options-analyzer-production-24d8.up.railway.app/` |
-| Earnings Tracker | `https://earnings-tracker-production-2c77.up.railway.app/#/` |
 | Custom Indexer | `https://indexer-production-83a6.up.railway.app/#/` |
 | Stock Screener | `https://parabolic-screener-production.up.railway.app/` |
 | PEAD | `https://pead-watchlist-e1a53.up.railway.app/` |
@@ -244,7 +243,6 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 // Copy verbatim into each app — this list is identical everywhere. Never edit it per app.
 export const MODULES = [
   { name: "Options Analyzer", url: "https://options-analyzer-production-24d8.up.railway.app/" },
-  { name: "Earnings Tracker", url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
   { name: "Custom Indexer",   url: "https://indexer-production-83a6.up.railway.app/#/" },
   { name: "Stock Screener",   url: "https://parabolic-screener-production.up.railway.app/" },
   { name: "PEAD",             url: "https://pead-watchlist-e1a53.up.railway.app/" },
@@ -252,7 +250,7 @@ export const MODULES = [
 ];
 
 // The ONE line that differs per app:
-export const CURRENT_MODULE = "Earnings Tracker";
+export const CURRENT_MODULE = "Options Analyzer";
 // render: m.name === CURRENT_MODULE ? inert <span aria-current="page"> : <a target="_blank" rel="noopener">
 ```
 
@@ -261,7 +259,7 @@ export const CURRENT_MODULE = "Earnings Tracker";
 1. **Trigger label = the current app's name** — never the word "Modules".
 2. **Entries open in a new tab** — `target="_blank" rel="noopener"`. The current tab never navigates away.
 3. **The current app stays in the list**, rendered as inert text with `aria-current="page"` — not a link.
-4. **Every change here — a module added *or* retired — is re-copied into every app** so all switchers stay identical (two modules have already been retired). A switcher missing an app, or still listing a retired one, is stale, not a variant. The current app is marked by the separate `CURRENT_MODULE` constant, never by editing the list.
+4. **Every change here — a module added *or* retired — is re-copied into every app** so all switchers stay identical (three modules have already been retired). A switcher missing an app, or still listing a retired one, is stale, not a variant. The current app is marked by the separate `CURRENT_MODULE` constant, never by editing the list.
 5. Names here are the display names — use them verbatim, in the switcher label and in the tab title (`<Module name> · NC Futures`, §03).
 
 ---
@@ -328,7 +326,7 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 
 **Empty cells** — a cell with no value carries an em-dash `—` marked `.nil`, in **any** column, not just names. It renders in accent-400: clearly present as "nothing here", but roughly 7× lighter than a real figure, so the eye skips it and lands on the numbers (rule 5). Don't render blanks at full text weight — a column of dashes then competes with the data beside it — and don't go lighter than `.nil` either, or they read as a rendering fault rather than a deliberate blank.
 
-**Numbers & dates** — one way to write every figure, so six apps read as one. Rule 5 makes the numbers the loudest thing on screen; this is how they are spelled:
+**Numbers & dates** — one way to write every figure, so every app reads as one. Rule 5 makes the numbers the loudest thing on screen; this is how they are spelled:
 
 | What | Write it as | Not |
 |---|---|---|
@@ -443,7 +441,7 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 
 `.tag` stays for things that really are tags — a short accent-marked classifier attached to a row or record, not a status line.
 
-**States** — the moments a page has nothing to show get one look each, built from existing components, so six apps don't invent six spinners and six error boxes:
+**States** — the moments a page has nothing to show get one look each, built from existing components, so the apps don't each invent their own spinner and error box:
 
 - **Loading** — disable the control and put a `.micro` readout beside it (`Loading…`), exactly like status text. No spinner.
 - **Empty** — a `.blueprint.state` frame: one `.micro` line saying what would change it (`No rows match — widen the filters`) and, if there is one, the button that does (`.btn-ghost`).
@@ -488,7 +486,7 @@ Entity title (the ticker — not the app name) + price/status row → tabs → K
 **Screener** *(e.g. Stock Screener, Taiwan Screener)*
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
 
-**Tracker / calendar** *(e.g. Earnings Tracker — the reference app)*
+**Tracker / calendar**
 `.toolbar` row (§06): left zone (e.g. a list/view selector) → centred `.tabs` → right zone (action buttons). A second `.toolbar` row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group.
 
 **List / builder** *(e.g. Indexer)*
@@ -583,7 +581,7 @@ It downloads the current `styles.css`, `fonts/`, `logo.svg` and `favicon.png` fr
 15. Give every view its **loading, empty and error states** and every validated field its invalid state (§06 States) — no app-specific spinners or red boxes.
 16. Put the app behind the **§10 access gate**, and run the §10 secrets-hygiene check on the repo.
 
-**Acceptance test:** put the converted app beside Earnings Tracker. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
+**Acceptance test:** put the converted app beside one that already follows the spec. If the top bar, type, frame treatment (no corners, `8px` radius) and number treatment are indistinguishable and only the content differs, it passes visually — but also re-check it against the Step 0 inventory to confirm nothing functional was lost along the way.
 
 ---
 
@@ -681,7 +679,7 @@ Verify by recomputing the HMAC over the received payload and comparing constant-
 
 ### Reference implementation — Node / Express
 
-The reference app's stack (Express serving the built Vite SPA). No new packages; the cookie is parsed by hand so `cookie-parser` isn't needed.
+The Node stack (Express serving a built Vite SPA). No new packages; the cookie is parsed by hand so `cookie-parser` isn't needed.
 
 ```js
 // server/auth.js

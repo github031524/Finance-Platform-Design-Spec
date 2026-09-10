@@ -34,10 +34,9 @@
    Implements the Finance Platform Design Specification, the master UI
    template. One living stylesheet — no versions.
    Source of truth: the spec (financeplatformdesignspec.md) — this stylesheet
-   implements it. Earnings Tracker (github031524/earnings-tracker) is the
-   reference example, not the authority; where the two disagree the spec
-   wins. One stylesheet. Every module links this and supplies only the
-   content region.
+   implements it; where an app and the spec disagree, the spec wins. One
+   stylesheet. Every module links this and supplies only the content
+   region.
 
    CONTENTS
      01  Tokens
@@ -436,8 +435,8 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
    the "NC Futures" wordmark, set in Inter and outlined to paths so an <img>
    renders it identically on every machine), not a redrawable component —
    every app embeds the SAME file, unmodified. Take logo.svg from the
-   design-spec repo, alongside this file; the reference app's copy is the
-   older live-text version. */
+   design-spec repo, alongside this file; copies in older apps are the
+   live-text version. */
 
 
 /* 05 · BLUEPRINT FRAME — THE SIGNATURE ==================================== */
@@ -1192,8 +1191,8 @@ textarea.input {
 /* 18 · STATES ============================================================= */
 
 /* One look for the moments a page has nothing to show, on existing tokens
-   and components — so six apps stop inventing six spinners and six error
-   boxes (spec §06, States).
+   and components — so the apps stop each inventing their own spinner and
+   error box (spec §06, States).
      loading:  the control is disabled and a .micro readout ("Loading…") sits
                beside it, exactly like §06 status text. No spinner.
      empty:    a .blueprint.state — one .micro line saying what would change
