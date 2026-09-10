@@ -490,8 +490,8 @@ Entity title (the ticker — not the app name) + price/status row → tabs → K
 **Screener** *(e.g. Stock Screener, Taiwan Screener)*
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
 
-**Tracker / calendar**
-`.toolbar` row (§06): left zone (e.g. a list/view selector) → centred `.tabs` → right zone (action buttons). A second `.toolbar` row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group.
+**Tracker / calendar** *(e.g. PRE-earnings Drift — upcoming earnings scored on expected pre-earnings drift, one metric per column)*
+`.toolbar` row (§06): left zone (e.g. a list/view selector) → centred `.tabs` → right zone (action buttons). A second `.toolbar` row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group. A tab may swap the table for a full-width chart panel (`.blueprint`) under the same toolbar — PRE-earnings Drift's "Results" tab is a scatter plot of score against actual excess performance.
 
 **List / builder** *(e.g. Indexer)*
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
