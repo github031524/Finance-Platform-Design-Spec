@@ -336,15 +336,15 @@ Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is sta
 
 ```html
 <th class="num sortable" aria-sort="descending">
-  <button class="th-sort" type="button" title="Last trade price">Price ▼</button>
+  <button class="th-sort" type="button" title="Last trade price">Price</button>  <!-- the ▼ is drawn from aria-sort -->
   <span class="th-resize"></span>
 </th>
 ```
 
-- **Click to sort, click again to flip.** First click on a numeric column sorts **descending** (biggest first — the finance default); on a text column **ascending** (A→Z). The active header appends a `▲`/`▼` glyph (inheriting the header color — no new colors); inactive headers carry no glyph. Set `aria-sort` on the active `<th>`.
+- **Click to sort, click again to flip.** First click on a numeric column sorts **descending** (biggest first — the finance default); on a text column **ascending** (A→Z). Set `aria-sort` (`ascending` / `descending`) on the active `<th>` and nothing else: the stylesheet draws the `▲`/`▼` from that attribute, inheriting the header colour (no new colours), so there is no glyph to paste into the text and keep in sync with what screen readers read. Inactive headers carry no `aria-sort` and so no glyph.
 - **Sort by type** — numbers numerically, text case-insensitively, dates chronologically. Null/`—` cells always sort last, in either direction.
 - **Composes with the rest of the table**: Open All opens tabs in the new order; group banding (§08b) recomputes from the new order; the §08a resize strip at the header's right edge is a drag target, not a sort target — a click there never sorts.
-- Sorting is app code (state + re-render); the stylesheet supplies only the affordance.
+- Sorting is app code (state + re-render); the stylesheet supplies the affordance and the glyph.
 
 **Symbol / ticker link** — every ticker symbol shown anywhere (table cells, KPI tiles, headers, detail asides) is a clickable `.symbol` link to its TradingView chart, opened in a new tab. Never render a bare, unlinked symbol. URL pattern: `https://www.tradingview.com/chart/3Ojf0qKU/?symbol=<SYMBOL>` — the shared chart layout `3Ojf0qKU` with the symbol appended (case-insensitive), e.g. `?symbol=aapl`. **Where a bare ticker is ambiguous, qualify it with the exchange** exactly as Open All does — `?symbol=TWSE:2330`, `?symbol=LSE:VOD` — through one shared helper, `tvSymbol(ticker, exchange)`, used by both the row's link and the Open All button, so the two can never disagree. A bare `2330` in a Taiwan Screener link resolves to the wrong chart while the button beside it opens the right one.
 
