@@ -533,9 +533,8 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
    (100). The bottom hairline is drawn with an inset box-shadow, not
    border-bottom: in a border-collapse table the border belongs to the table
    and would scroll away with the rows instead of sticking with the header.
-   If an app puts a table inside its own scrolling box (e.g. an overflow-x
-   wrapper for §08a resizable columns), sticky pins within that box — set
-   `top: 0` on th in that context. */
+   Inside a .table-scroll wrapper (the §08a scroll box, below) the header
+   pins to that box instead; the wrapper class sets top: 0 itself. */
 .table th {
   position: sticky;
   top: var(--topbar-h);
@@ -560,6 +559,17 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
   cursor: pointer;
   user-select: none;
 }
+
+/* The scroll wrapper. §08a's fixed-layout tables overflow their frame and
+   need a scrolling box — and that box becomes the nearest scrolling ancestor,
+   so the sticky header must pin at 0 inside it: the page-scroll value floated
+   it 48px down the box with rows passing above it. Use this class for the
+   wrapper and both things are handled — the offset, and the frame padding
+   (the :has() rule further down zeroes it for a wrapped table too). Add a
+   max-height if the table should scroll vertically inside it. Never use
+   overflow: hidden here — it silently kills sticky. */
+.table-scroll { overflow: auto; }
+.table-scroll .table th { top: 0; }
 
 .table td {
   padding: var(--table-cell-py) var(--table-cell-px);
@@ -597,11 +607,13 @@ a.topbar__modules-item:hover { background: var(--color-accent-100); }
 .nil { color: var(--color-accent-400); }
 
 /* Wrap tables in .blueprint; this keeps the frame flush */
-/* A table wrapped in a frame sits flush against it — the frame's default
-   --space-4 padding would otherwise float the table inside its own border,
-   and the table draws its own cell padding already. This replaces the
-   inline style="padding:0" every table wrapper was carrying. */
-.blueprint:has(> .table) { padding: 0; }
+/* A table wrapped in a frame — directly, or through its .table-scroll
+   wrapper — sits flush against it: the frame's default --space-4 padding
+   would otherwise float the table inside its own border, and the table draws
+   its own cell padding already. This replaces the inline style="padding:0"
+   every table wrapper was carrying. */
+.blueprint:has(> .table),
+.blueprint:has(> .table-scroll) { padding: 0; }
 
 /* Fallback for browsers without :has() — same result when the table is the
    frame's only child, which is the common case. */
