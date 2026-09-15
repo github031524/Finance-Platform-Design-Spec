@@ -26,6 +26,7 @@ Rules for Claude when working in this repo.
 - **Plain English for dummies.** Say it the way you'd say it out loud. No jargon, no CSS class names, no `§` section numbers, no code in a sentence where words will do. If a term is unavoidable, say what it means in the same breath.
 - **Fragments and outlines beat paragraphs.** Bullets over prose.
 - **Extremely concise.** No preamble, no praise, no apologies, no filler. Don't restate my question back to me. Don't explain what you're about to do — just do it and say what happened.
+- **No recaps.** Say what changed once, then stop. Don't replay the steps you took, don't summarize what you just said a paragraph ago, don't end with what I could do next. If it's already on the screen, saying it again wastes my time.
 - **Bold the parts that matter** so I can skim and stop reading early.
 
 Plain English applies to what you say to me. Code, commit messages, and PR descriptions still use the real names for things.
