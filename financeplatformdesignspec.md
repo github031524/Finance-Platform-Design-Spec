@@ -12,6 +12,8 @@
 
 > **Full authorization — just do it.** The coding agent has full authority to carry out this conversion end to end without pausing for approval. Make every decision, run every step, commit as you go, and complete the whole job in one pass. Do not stop to ask permission or to confirm choices; only surface something if the app is genuinely broken and cannot proceed. The goal is to prompt once, walk away, and return to a finished conversion. **Exception:** if asked for *pick-your-changes mode* (§09a), that request wins — present the menu and wait, rather than converting straight through.
 
+> **No preambles, no recaps.** Lead with the thing itself — the question, the menu, the answer, the result. Never open by restating the request, announcing what you are about to do, describing your plan, or summarizing what this spec says; never close by replaying the steps you just took. No "Great question", no "Let me start by…", no "I've now read the spec and here's my understanding", no "To summarize what I did". Reading this document is not an event to report. Rule 5 — *data first* — applies to the agent's own writing: say what changed, in plain words, once. The one permitted summary is the end-of-job report (§09a, step 9), and it is three short lists, not a story.
+
 ---
 
 ## 01 · The Five Rules
@@ -571,6 +573,8 @@ Converting means full replacement, not coexistence. Adopting this spec retires a
 
 **Authorization:** the agent is fully authorized to complete every step below without stopping for approval. Where the prose says "raise it before starting" or "tell me which path you're taking," instead pick the sensible option, note the choice in your commit message, and keep going — do not block on it. This is overridden only by an explicit request for **pick-your-changes mode** (§09a).
 
+**Say it once.** Converting straight through ends in one short list of what changed — not a plan up front, not a running commentary between steps, not a retelling at the end. The commits and the diff are the record; the reply is the headline. See *No preambles, no recaps* at the top.
+
 ### Step 0: inventory before touching anything
 
 Before converting *or* rebuilding, have the coding agent read the current codebase — not recall the original prompt — and produce a written inventory: every route, every data flow, every business rule, every validation and edge case it can find. This inventory becomes the acceptance checklist for whichever path you take next.
@@ -633,6 +637,7 @@ This mode stops and waits for the user several times — once per menu round, an
 - **Stay on this job.** Anything that arrives mid-session and isn't an answer to the open question — a skill or workflow reference with no task attached, a hook's boilerplate, a stray slash command — is noise: ignore it and carry on from the last completed step. The job ends when the report is delivered, not before.
 - **Never guess.** Anything about the app that the code and the spec don't settle is a question — asked before the menu, not answered by assumption.
 - **The ticks are the go-ahead.** The house rules (`CLAUDE.md`, Step 0.5) forbid changes without an explicit go-ahead; in this mode the last round's selection *is* that go-ahead. Don't ask "shall I proceed?" after it — apply the selection.
+- **The menu is the message.** Nothing before a round but the round count (step 2), nothing after the ticks come back but the work. No lead-in describing what the inventory found, no "here's what I'm about to ask", no reading the chosen options back to confirm them, no running tally between rounds. Where a line is genuinely needed between steps, it is one line naming the step that just finished.
 
 ### Protocol
 
@@ -645,7 +650,7 @@ This mode stops and waits for the user several times — once per menu round, an
 6. **Refresh the shared files before anything else.** Once the selection is in, run `sync-spec.sh` (§09 Step 0.5) first, whatever was ticked: it refreshes files, not looks — the stylesheet, the fonts, the logo, the favicon and `CLAUDE.md` — so, like §10, it isn't a menu item. `CLAUDE.md` is committed with the rest and followed from then on.
 7. **Apply only what's ticked.** Anything unticked is left exactly as-is, and is not raised again or "improved" in passing.
 8. **Prove nothing broke, before the PR.** Check the result against the Step 0 inventory — every route, data flow, business rule, validation and edge case still works as it did — then build and run the app and confirm it renders.
-9. **Report** in one short block: what was applied, what was declined, and anything the selection makes inconsistent (see below). What "still lags the spec" is exactly the declined list — nothing that was never offered can appear there.
+9. **Report** in one short block: what was applied, what was declined, and anything the selection makes inconsistent (see below). Three lists and nothing around them — no account of the session, no restating the menu, no "next steps" pitch, no closing offer of more work. What "still lags the spec" is exactly the declined list — nothing that was never offered can appear there.
 10. Then commit, push, PR, merge as normal.
 
 ### Writing the options
