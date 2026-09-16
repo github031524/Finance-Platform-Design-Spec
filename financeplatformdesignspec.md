@@ -172,7 +172,7 @@ The top bar carries only the brand mark and the Modules switcher — no global s
     <nav id="modules-menu" class="topbar__modules-menu blueprint blueprint--solid" aria-label="Modules" hidden>
       <span class="topbar__modules-item" aria-current="page">Options Analyzer</span>
       <a class="topbar__modules-item" target="_blank" rel="noopener"
-         href="https://indexer-production-83a6.up.railway.app/#/">Custom Indexer</a>
+         href="https://indexer-production-83a6.up.railway.app/#/">Indexer</a>
       <!-- … one <a> per remaining module, in the §04b order … -->
     </nav>
   </div>
@@ -250,7 +250,7 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 |---|---|
 | Options Analyzer | `https://options-analyzer-production-24d8.up.railway.app/` |
 | Earnings Tracker | `https://earnings-tracker-production-2c77.up.railway.app/#/` |
-| Custom Indexer | `https://indexer-production-83a6.up.railway.app/#/` |
+| Indexer | `https://indexer-production-83a6.up.railway.app/#/` |
 | Stock Screener | `https://parabolic-screener-production.up.railway.app/` |
 | PRE-earnings Drift | `https://pre-earnings-drift-production.up.railway.app/` |
 | PEAD | `https://pead-watchlist-e1a53.up.railway.app/` |
@@ -261,7 +261,7 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 export const MODULES = [
   { name: "Options Analyzer",   url: "https://options-analyzer-production-24d8.up.railway.app/" },
   { name: "Earnings Tracker",   url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
-  { name: "Custom Indexer",     url: "https://indexer-production-83a6.up.railway.app/#/" },
+  { name: "Indexer",            url: "https://indexer-production-83a6.up.railway.app/#/" },
   { name: "Stock Screener",     url: "https://parabolic-screener-production.up.railway.app/" },
   { name: "PRE-earnings Drift", url: "https://pre-earnings-drift-production.up.railway.app/" },
   { name: "PEAD",               url: "https://pead-watchlist-e1a53.up.railway.app/" },
