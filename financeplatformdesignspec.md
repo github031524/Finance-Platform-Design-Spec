@@ -369,17 +369,17 @@ Use `.blueprint` on tiles, KPI cards, chart panels, filter asides, table wrapper
 
 Every delta carries `.gain` or `.loss` by its sign. The `▲`/`▼` glyph is standard in a KPI delta and optional in a table cell, where the sign and the colour already say it.
 
-**Column-header tooltips** — every table column header carries a plain-language definition via the native HTML `title` attribute. **No custom tooltip component, no JavaScript, no CSS** — on hover (~1s browser delay) the browser renders its default tooltip: system font and size, positioned at the cursor. Styling is deliberately left to the browser/OS. The text states the metric's formula or meaning in one sentence:
+**Column-header tooltips** — every table column header carries a plain-language definition via the native HTML `title` attribute. **No custom tooltip component, no JavaScript, no CSS** — on hover (~1s browser delay) the browser renders its default tooltip: system font and size, positioned at the cursor. Styling is deliberately left to the browser/OS. **The text is one sentence, written for someone new to finance — everyday words, no jargon — and extremely concise: aim for 15 words, never more than 20.** It says what the column means, not how an analyst would define it; a tooltip is read at a glance or skimmed past:
 
 ```html
-<th class="num" title="Trailing-twelve-month revenue, sum of the last four reported quarters">REVENUE (TTM)</th>
+<th class="num" title="Total sales over the past 12 months, added up from the last four quarterly reports">REVENUE (TTM)</th>
 ```
 
 **Sortable columns** — every column showing a comparable value is sortable from its header, by mouse **and by keyboard**: the header text sits in a `<button class="th-sort">` inside the `<th>` (`.table th.sortable` — pointer cursor, no text selection). The button looks identical to a plain header, but Tab reaches it and Enter or Space sorts — a click handler on the `<th>` itself is unreachable without a mouse. The `title` tooltip (above) goes on the button; the resize handle (§08a) stays a sibling.
 
 ```html
 <th class="num sortable" aria-sort="descending">
-  <button class="th-sort" type="button" title="Last trade price">Price</button>  <!-- the ▼ is drawn from aria-sort -->
+  <button class="th-sort" type="button" title="The price a share last sold for">Price</button>  <!-- the ▼ is drawn from aria-sort -->
   <span class="th-resize"></span>
 </th>
 ```
@@ -603,7 +603,7 @@ It downloads the current `styles.css`, `fonts/`, `logo.svg` and `favicon.png` fr
 10. Delete any heading that repeats the app's own name — the top-bar switcher already names it. Keep a `.title` only when it names a content entity (a ticker, an index).
 11. Apply the **company name cell** treatment (§06) — shorten, truncate, the full name in the cell's `title`, em-dash when missing. Remove any hover marquee or scroll on the name — the tooltip replaced it.
 12. Add an **Open All** button to every ticker-list view (§06).
-13. Give every column header a native `title` tooltip (§06).
+13. Give every column header a native `title` tooltip — one plain sentence for newcomers, about 15 words and never more than 20 (§06).
 14. Make every comparable column sortable (§06) — header text in a `.th-sort` button so it works by keyboard — and every column resizable with persisted widths (§08a).
 15. Give every view its **loading, empty and error states** and every validated field its invalid state (§06 States) — no app-specific spinners or red boxes.
 16. Put the app behind the **§10 access gate**, and run the §10 secrets-hygiene check on the repo.
