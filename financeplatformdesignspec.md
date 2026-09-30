@@ -252,20 +252,18 @@ The canonical list of modules. **Every app hardcodes this same list, in this ord
 | Earnings Tracker | `https://earnings-tracker-production-2c77.up.railway.app/#/` |
 | Indexer | `https://indexer-production-83a6.up.railway.app/#/` |
 | Stock Screener | `https://parabolic-screener-production.up.railway.app/` |
-| PRE-earnings Drift | `https://pre-earnings-drift-production.up.railway.app/` |
 | PEAD | `https://pead-watchlist-e1a53.up.railway.app/` |
 | Taiwan Screener | `https://taiwan-revenue-screener-production.up.railway.app/#/` |
 
 ```js
 // Copy verbatim into each app — this list is identical everywhere. Never edit it per app.
 export const MODULES = [
-  { name: "Options Analyzer",   url: "https://options-analyzer-production-24d8.up.railway.app/" },
-  { name: "Earnings Tracker",   url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
-  { name: "Indexer",            url: "https://indexer-production-83a6.up.railway.app/#/" },
-  { name: "Stock Screener",     url: "https://parabolic-screener-production.up.railway.app/" },
-  { name: "PRE-earnings Drift", url: "https://pre-earnings-drift-production.up.railway.app/" },
-  { name: "PEAD",               url: "https://pead-watchlist-e1a53.up.railway.app/" },
-  { name: "Taiwan Screener",    url: "https://taiwan-revenue-screener-production.up.railway.app/#/" },
+  { name: "Options Analyzer", url: "https://options-analyzer-production-24d8.up.railway.app/" },
+  { name: "Earnings Tracker", url: "https://earnings-tracker-production-2c77.up.railway.app/#/" },
+  { name: "Indexer",          url: "https://indexer-production-83a6.up.railway.app/#/" },
+  { name: "Stock Screener",   url: "https://parabolic-screener-production.up.railway.app/" },
+  { name: "PEAD",             url: "https://pead-watchlist-e1a53.up.railway.app/" },
+  { name: "Taiwan Screener",  url: "https://taiwan-revenue-screener-production.up.railway.app/#/" },
 ];
 
 // The ONE line that differs per app:
@@ -278,7 +276,7 @@ export const CURRENT_MODULE = "Options Analyzer";
 1. **Trigger label = the current app's name** — never the word "Modules".
 2. **Entries open in a new tab** — `target="_blank" rel="noopener"`. The current tab never navigates away.
 3. **The current app stays in the list**, rendered as inert text with `aria-current="page"` — not a link.
-4. **Every change here — a module added *or* retired — is re-copied into every app** so all switchers stay identical (two modules have already been retired). A switcher missing an app, or still listing a retired one, is stale, not a variant. The current app is marked by the separate `CURRENT_MODULE` constant, never by editing the list.
+4. **Every change here — a module added *or* retired — is re-copied into every app** so all switchers stay identical (three modules have already been retired). A switcher missing an app, or still listing a retired one, is stale, not a variant. The current app is marked by the separate `CURRENT_MODULE` constant, never by editing the list.
 5. Names here are the display names — use them verbatim, in the switcher label and as the tab title (the module name alone, §03).
 
 ---
@@ -511,8 +509,8 @@ Entity title (the ticker — not the app name) + price/status row → tabs → K
 **Screener** *(e.g. Stock Screener, Taiwan Screener)*
 Filter aside (260px, blueprint) + results table. Primary "Run / Scan" button in the aside.
 
-**Tracker / calendar** *(e.g. PRE-earnings Drift — upcoming earnings scored on expected pre-earnings drift, one metric per column)*
-`.toolbar` row (§06): left zone (e.g. a list/view selector) → centred `.tabs` → right zone (action buttons). A second `.toolbar` row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group; its date columns are event dates and keep the weekday — `Wed, Sep 9` (§06 Numbers & dates). A tab may swap the table for a full-width chart panel (`.blueprint`) under the same toolbar — PRE-earnings Drift's "Results" tab is a scatter plot of score against actual excess performance.
+**Tracker / calendar**
+`.toolbar` row (§06): left zone (e.g. a list/view selector) → centred `.tabs` → right zone (action buttons). A second `.toolbar` row below carries the primary input (e.g. "Add Symbols") plus a leading count/status readout (`.micro`, §06). Below that: the results table, wrapped in `.blueprint`, with row banding by date group; its date columns are event dates and keep the weekday — `Wed, Sep 9` (§06 Numbers & dates).
 
 **List / builder** *(e.g. Indexer)*
 Master table (1.5) + detail aside (1) with a headline figure and holdings list. "New" primary button in the header.
@@ -641,7 +639,7 @@ This mode stops and waits for the user several times — once per menu round, an
 
 ### Protocol
 
-0. **Identify the app.** Take the name from the prompt. If the prompt doesn't name it, ask — the seven §04b registry names as the choices, split over two questions in one call since four fit a question — and wait. Use the name verbatim wherever the spec needs it: the switcher label, the tab title, `CURRENT_MODULE` (§03, §04b). Then read the whole spec, fresh from `main`, before touching anything.
+0. **Identify the app.** Take the name from the prompt. If the prompt doesn't name it, ask — the six §04b registry names as the choices, split over two questions in one call since four fit a question — and wait. Use the name verbatim wherever the spec needs it: the switcher label, the tab title, `CURRENT_MODULE` (§03, §04b). Then read the whole spec, fresh from `main`, before touching anything.
 1. **Inventory first (silently).** Run §09 Step 0 — read the codebase and inventory every route, data flow, business rule, validation and edge case. Keep it internal; don't print it. It stays the acceptance checklist.
 2. **Present the menu — in rounds, until it is complete.** Offer the applicable changes as selectable options via `AskUserQuestion`, grouped by area (the *Suggested grouping* table below), **multi-select on**. The tool shows at most 4 questions × 4 options per call — that is one page of the menu, not the menu. Nine groups means a full app takes about three rounds: one question per group, a group with more than four changes split over two. **Announce the count before the first round** ("Round 1 of 3: Shell, Type, Color") and keep going until every group has been offered. Skip a group only because the app has nothing it applies to — never show a "symbol links" option to an app with no tickers — and say which groups were skipped and why.
 3. **If you noticed it, it goes on the menu.** Every change the inventory turned up — including ones spotted along the way — is offered as an option. Never a note, a footnote, the report or the "still lags" list instead. Declining a change is the user's call, every time; a change that was never offered was decided on their behalf, which is the one thing this mode exists to stop.
